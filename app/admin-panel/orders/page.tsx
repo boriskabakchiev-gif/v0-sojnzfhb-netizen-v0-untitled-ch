@@ -116,7 +116,7 @@ export default function OrdersPage() {
         newOrders.forEach((order) => {
           toast({
             title: "🔔 Нова поръчка!",
-            description: `Поръчка #${order.orderId} от ${order.customerName} - ${Number(order.totalAmount).toFixed(2)} лв.`,
+            description: `Поръчка #${order.orderId} от ${order.customerName} - ${Number(order.totalAmount).toFixed(2)} €`,
             duration: 10000,
           })
         })
@@ -814,7 +814,7 @@ export default function OrdersPage() {
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-medium">Обща сума:</p>
-                      <p className="text-lg font-bold">{(Number(order.totalAmount) || 0).toFixed(2)} лв.</p>
+                      <p className="text-lg font-bold">{(Number(order.totalAmount) || 0).toFixed(2)} €</p>
                       {freeItemsCountForOrderHeader > 0 && (
                         <div className="mt-1">
                           <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
@@ -877,7 +877,7 @@ export default function OrdersPage() {
                                       </TooltipProvider>
                                     )}
                                   </div>
-                                  <p className="text-xs text-gray-500">{(price || 0).toFixed(2)} лв. за брой</p>
+                                  <p className="text-xs text-gray-500">{(price || 0).toFixed(2)} € за брой</p>
                                   {item.categoryPath && <p className="text-xs text-blue-600">{item.categoryPath}</p>}
                                 </div>
                               </div>
@@ -892,7 +892,7 @@ export default function OrdersPage() {
                                     </Badge>
                                   )}
                                 </div>
-                                <p className="text-sm font-medium mt-1">{(price * quantity).toFixed(2)} лв.</p>
+                                <p className="text-sm font-medium mt-1">{(price * quantity).toFixed(2)} €</p>
                               </div>
                             </div>
                           )
@@ -1109,13 +1109,13 @@ export default function OrdersPage() {
                                   <TableCell className="text-sm">
                                     {item.categoryPath || "Неизвестна категория"}
                                   </TableCell>
-                                  <TableCell className="text-right">{(price || 0).toFixed(2)} лв.</TableCell>
+                                  <TableCell className="text-right">{(price || 0).toFixed(2)} €</TableCell>
                                   <TableCell className="text-center">
                                     <Badge variant="outline" className="px-3 py-1 font-bold">
                                       {quantity}
                                     </Badge>
                                   </TableCell>
-                                  <TableCell className="text-right font-bold">{(total || 0).toFixed(2)} лв.</TableCell>
+                                  <TableCell className="text-right font-bold">{(total || 0).toFixed(2)} €</TableCell>
                                   <TableCell className="text-center">
                                     {hasFreeItemsForThisProduct ? (
                                       <span className="text-green-700 font-medium">{itemFreeCount}</span>
@@ -1131,7 +1131,7 @@ export default function OrdersPage() {
                                 Общо:
                               </TableCell>
                               <TableCell className="text-right font-bold">
-                                {(Number(order.totalAmount) || 0).toFixed(2)} лв.
+                                {(Number(order.totalAmount) || 0).toFixed(2)} €
                               </TableCell>
                               <TableCell className="text-center font-bold">
                                 {freeItemsCountForOrderHeader > 0 ? (

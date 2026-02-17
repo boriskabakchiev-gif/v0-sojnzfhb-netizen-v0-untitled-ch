@@ -41,7 +41,7 @@ export default async function AboutPage() {
     },
     {
       icon: <DollarSign className="w-8 h-8 text-yellow-600" />,
-      title: "Атрактивни цени ",
+      title: "Атрактивни цени",
       description:
         "Предлагаме цени, съобразени с икономическата ситуация и жизнения стандарт без това да влияе на качеството на крайните продукти.",
     },

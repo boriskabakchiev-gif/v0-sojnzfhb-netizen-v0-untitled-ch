@@ -16,6 +16,7 @@ import {
   Undo2,
   Factory,
   Bell,
+  Rss,
 } from "lucide-react"
 
 export function Sidebar({ items }: { items: any[] }) {
@@ -91,6 +92,12 @@ export function Sidebar({ items }: { items: any[] }) {
       href: "/admin-panel/banner-settings",
       icon: Bell,
       active: isActive("/admin-panel/banner-settings"),
+    },
+    {
+      title: "Meta Product Feed",
+      href: "/admin-panel/meta-feed",
+      icon: Rss,
+      active: isActive("/admin-panel/meta-feed"),
     },
     {
       title: "Към сайта",

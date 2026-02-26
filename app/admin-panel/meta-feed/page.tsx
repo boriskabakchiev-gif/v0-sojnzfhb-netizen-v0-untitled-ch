@@ -27,7 +27,10 @@ export default function MetaFeedPage() {
 
     // Check the feed by fetching it
     fetch(feedUrl)
-      .then((res) => res.text())
+      .then((res) => {
+        if (!res.ok) throw new Error(`Feed returned ${res.status}`)
+        return res.text()
+      })
       .then((xml) => {
         const entryCount = (xml.match(/<entry>/g) || []).length
         setFeedStats({

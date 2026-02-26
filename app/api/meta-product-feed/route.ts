@@ -46,7 +46,8 @@ function escapeXml(str: string | null | undefined): string {
  */
 export async function GET(request: Request) {
   try {
-    if (!dbInitialized) {
+    if (!dbInitialized || !process.env.DATABASE_URL) {
+      console.log("[v0] META FEED: DB not initialized, returning empty feed. dbInitialized:", dbInitialized, "DATABASE_URL set:", !!process.env.DATABASE_URL)
       // Return a valid empty feed instead of an error
       return new NextResponse(generateEmptyXml(), {
         headers: {
@@ -111,9 +112,14 @@ export async function GET(request: Request) {
     }
 
     return generateXmlResponse(products, siteUrl, currency)
-  } catch (error) {
-    console.error("META FEED: Error generating product feed:", error)
-    return new NextResponse("Error generating product feed", { status: 500 })
+  } catch (error: any) {
+    console.error("[v0] META FEED ERROR:", error?.message || error, error?.stack)
+    // Return empty feed instead of 500 to avoid breaking admin page
+    return new NextResponse(generateEmptyXml(), {
+      headers: {
+        "Content-Type": "application/xml; charset=utf-8",
+      },
+    })
   }
 }
 

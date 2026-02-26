@@ -47,7 +47,12 @@ function escapeXml(str: string | null | undefined): string {
 export async function GET(request: Request) {
   try {
     if (!dbInitialized) {
-      return new NextResponse("Database not initialized", { status: 503 })
+      // Return a valid empty feed instead of an error
+      return new NextResponse(generateEmptyXml(), {
+        headers: {
+          "Content-Type": "application/xml; charset=utf-8",
+        },
+      })
     }
 
     const url = new URL(request.url)

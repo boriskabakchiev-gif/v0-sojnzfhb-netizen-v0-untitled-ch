@@ -17,22 +17,30 @@ export default function MetaFeedPage() {
   const [copiedField, setCopiedField] = useState<string | null>(null)
   const [previewData, setPreviewData] = useState<string | null>(null)
   const [previewLoading, setPreviewLoading] = useState(false)
+  const [feedError, setFeedError] = useState<string | null>(null)
 
   const baseUrl = typeof window !== "undefined" ? window.location.origin : ""
+  // Display URLs should always show the production domain
+  const displayBaseUrl = "https://www.madiks.bg"
 
   useEffect(() => {
-    const feedUrl = `${baseUrl}/api/meta-product-feed`
-    const csvUrl = `${baseUrl}/api/meta-product-feed?format=csv`
-    const eurFeedUrl = `${baseUrl}/api/meta-product-feed?currency=EUR`
+    // Fetch from the current origin (works both in preview and production)
+    const localFeedUrl = `${baseUrl}/api/meta-product-feed`
+    const feedUrl = `${displayBaseUrl}/api/meta-product-feed`
+    const csvUrl = `${displayBaseUrl}/api/meta-product-feed?format=csv`
+    const eurFeedUrl = `${displayBaseUrl}/api/meta-product-feed?currency=EUR`
 
     // Check the feed by fetching it
-    fetch(feedUrl)
-      .then((res) => {
-        if (!res.ok) throw new Error(`Feed returned ${res.status}`)
-        return res.text()
-      })
+    fetch(localFeedUrl)
+      .then((res) => res.text())
       .then((xml) => {
+        console.log("[v0] Feed response length:", xml.length, "First 200 chars:", xml.substring(0, 200))
         const entryCount = (xml.match(/<entry>/g) || []).length
+        // Check for error comments in the XML
+        const errorMatch = xml.match(/<!-- Feed Error: (.+?) -->/)
+        if (errorMatch) {
+          setFeedError(errorMatch[1])
+        }
         setFeedStats({
           productCount: entryCount,
           lastChecked: new Date().toLocaleString("bg-BG"),
@@ -42,7 +50,9 @@ export default function MetaFeedPage() {
         })
         setLoading(false)
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error("[v0] Feed fetch error:", err)
+        setFeedError(err.message)
         setFeedStats({
           productCount: 0,
           lastChecked: new Date().toLocaleString("bg-BG"),
@@ -75,7 +85,7 @@ export default function MetaFeedPage() {
   const loadPreview = async () => {
     setPreviewLoading(true)
     try {
-      const res = await fetch(`${baseUrl}/api/meta-product-feed`)
+      const res = await fetch(`/api/meta-product-feed`)
       const xml = await res.text()
       // Show first 3000 characters
       setPreviewData(xml.substring(0, 3000) + (xml.length > 3000 ? "\n..." : ""))
@@ -101,6 +111,16 @@ export default function MetaFeedPage() {
         </div>
       ) : (
         <>
+          {/* Error display */}
+          {feedError && (
+            <Card className="border-red-200 bg-red-50">
+              <CardContent className="p-4">
+                <p className="text-sm font-medium text-red-800">Грешка при зареждане на фийда:</p>
+                <p className="text-xs text-red-600 mt-1 font-mono">{feedError}</p>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card>

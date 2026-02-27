@@ -46,9 +46,10 @@ function escapeXml(str: string | null | undefined): string {
  */
 export async function GET(request: Request) {
   try {
+    console.log("[v0] META FEED: Starting. dbInitialized:", dbInitialized, "DATABASE_URL set:", !!process.env.DATABASE_URL)
+
     if (!dbInitialized || !process.env.DATABASE_URL) {
-      console.log("[v0] META FEED: DB not initialized, returning empty feed. dbInitialized:", dbInitialized, "DATABASE_URL set:", !!process.env.DATABASE_URL)
-      // Return a valid empty feed instead of an error
+      console.log("[v0] META FEED: DB not initialized, returning empty feed")
       return new NextResponse(generateEmptyXml(), {
         headers: {
           "Content-Type": "application/xml; charset=utf-8",
@@ -61,27 +62,21 @@ export async function GET(request: Request) {
     const currency = url.searchParams.get("currency")?.toUpperCase() || "BGN"
     const siteUrl = getSiteUrl()
 
-    // Fetch all active products with category and subcategory info
+    console.log("[v0] META FEED: Fetching products from DB...")
+
+    // Fetch all active products - simple query first to avoid column issues
     const products = await executeQueryWithRetry(`
       SELECT 
         p.objectid,
-        p."Document ID" as doc_id,
         p.title,
-        p.title_en,
         p.description,
         p.price,
         p.retailerprice,
-        p.wholesalerprice,
-        p.europe_price,
         p.photourl,
         p.cateid,
         p.subcateid,
-        p.createdat,
-        p.updatedat,
         c.title as category_name,
-        c.title_en as category_name_en,
-        s.title as subcategory_name,
-        s.title_en as subcategory_name_en
+        s.title as subcategory_name
       FROM new_products p
       LEFT JOIN categories c ON p.cateid = c."Document ID"
       LEFT JOIN subcategories s ON p.subcateid = s."Document ID"
@@ -90,6 +85,8 @@ export async function GET(request: Request) {
         AND p.title IS NOT NULL
       ORDER BY p.title ASC
     `)
+
+    console.log("[v0] META FEED: Query returned", products?.length || 0, "products")
 
     if (!products || products.length === 0) {
       if (format === "csv") {
@@ -113,9 +110,17 @@ export async function GET(request: Request) {
 
     return generateXmlResponse(products, siteUrl, currency)
   } catch (error: any) {
-    console.error("[v0] META FEED ERROR:", error?.message || error, error?.stack)
-    // Return empty feed instead of 500 to avoid breaking admin page
-    return new NextResponse(generateEmptyXml(), {
+    const errorMsg = error?.message || String(error)
+    console.error("[v0] META FEED ERROR:", errorMsg, error?.stack)
+    // Return error details as XML comment for debugging
+    const errorXml = `<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:g="http://base.google.com/ns/1.0">
+  <title>Madiks Groundbaits - Product Feed</title>
+  <link rel="self" href="https://www.madiks.bg/api/meta-product-feed"/>
+  <updated>${new Date().toISOString()}</updated>
+  <!-- Feed Error: ${escapeXml(errorMsg)} -->
+</feed>`
+    return new NextResponse(errorXml, {
       headers: {
         "Content-Type": "application/xml; charset=utf-8",
       },
@@ -134,7 +139,7 @@ function generateEmptyXml(): string {
 
 function generateXmlResponse(products: any[], siteUrl: string, currency: string): NextResponse {
   const items = products.map((product) => {
-    const productId = product.objectid || product.doc_id
+    const productId = product.objectid
     const price = Number(product.price) || 0
     const displayPrice = currency === "EUR" ? convertBgnToEur(price) : price.toFixed(2)
     const displayCurrency = currency === "EUR" ? "EUR" : "BGN"
@@ -220,7 +225,7 @@ function generateCsvResponse(products: any[], siteUrl: string, currency: string)
   ]
 
   const rows = products.map((product) => {
-    const productId = product.objectid || product.doc_id
+    const productId = product.objectid
     const price = Number(product.price) || 0
     const displayPrice = currency === "EUR" ? convertBgnToEur(price) : price.toFixed(2)
     const displayCurrency = currency === "EUR" ? "EUR" : "BGN"

@@ -446,6 +446,29 @@ LIMIT 1
           </div>
         </div>
       </section>
+
+      {/* Legal Links Section */}
+      <section className="py-6 bg-gray-200 border-t border-gray-300">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-gray-600">
+            <Link href="/en/privacy" className="hover:text-gray-900 underline transition-colors">
+              Privacy Policy
+            </Link>
+            <span className="text-gray-400">|</span>
+            <Link href="/en/terms" className="hover:text-gray-900 underline transition-colors">
+              Terms and Conditions
+            </Link>
+            <span className="text-gray-400">|</span>
+            <Link href="/en/delivery-returns" className="hover:text-gray-900 underline transition-colors">
+              Shipping and Returns
+            </Link>
+            <span className="text-gray-400">|</span>
+            <Link href="/en/contact" className="hover:text-gray-900 underline transition-colors">
+              Contact
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
   )
 }

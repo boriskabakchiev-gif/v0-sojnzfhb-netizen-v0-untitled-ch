@@ -527,6 +527,28 @@ LIMIT 1
             </div>
           </div>
         </section>
+        {/* Legal Links Section */}
+        <section className="py-6 bg-gray-200 border-t border-gray-300">
+          <div className="container mx-auto px-4">
+            <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-gray-600">
+              <Link href="/privacy" className="hover:text-gray-900 underline transition-colors">
+                Политика за поверителност
+              </Link>
+              <span className="text-gray-400">|</span>
+              <Link href="/terms" className="hover:text-gray-900 underline transition-colors">
+                Общи условия
+              </Link>
+              <span className="text-gray-400">|</span>
+              <Link href="/delivery-returns" className="hover:text-gray-900 underline transition-colors">
+                Доставка и връщане
+              </Link>
+              <span className="text-gray-400">|</span>
+              <Link href="/contact" className="hover:text-gray-900 underline transition-colors">
+                Контакти
+              </Link>
+            </div>
+          </div>
+        </section>
       </main>
 
       {/* Footer - САМО ЕДИН ФУТЕР */}

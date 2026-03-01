@@ -540,9 +540,10 @@ export default function EcontDeliverySelector({
     }
 
     // Priority 2: Selected city (use geocoding to get coordinates)
+    // Only geocode if no offices are loaded yet (fitBounds in markers effect handles it when offices exist)
     if (selectedCity) {
       const cityName = getCityTitle(selectedCity, isEnglish)
-      console.log("[v0] Geocoding city:", cityName, "City ID:", selectedCity.id)
+      console.log("[v0] City centering effect: city:", cityName, "offices count:", offices.length)
 
       const geocoder = new window.google.maps.Geocoder()
       geocoder.geocode(
@@ -555,12 +556,16 @@ export default function EcontDeliverySelector({
             const cityPosition = results[0].geometry.location
             console.log("[v0] Geocoding successful for:", cityName, cityPosition.toJSON())
 
-            if (googleMap.current) {
+            // Only center/zoom if no office markers have been placed yet
+            // (fitBounds in markers effect handles centering when offices exist)
+            if (googleMap.current && officeMarkers.current.length === 0) {
               googleMap.current.panTo(cityPosition)
               googleMap.current.setZoom(13)
-              console.log("[v0] Map centered on city:", cityName)
+              console.log("[v0] Map centered on city via geocoding:", cityName)
+            }
 
-              // Add city marker
+            // Always add the city marker regardless
+            if (googleMap.current) {
               cityMarker.current = new window.google.maps.Marker({
                 position: cityPosition,
                 map: googleMap.current,
@@ -600,7 +605,7 @@ export default function EcontDeliverySelector({
 
   useEffect(() => {
     if (googleMap.current && showMap && mapInitialized && window.google) {
-      console.log("[v0] Updating Google Maps markers with", offices.length, "offices")
+      console.log("[v0] Markers effect: offices count:", offices.length, "selectedOffice:", selectedOffice?.name || "none")
 
       // Clear existing office markers only (NOT city marker - that's managed by the other effect)
       officeMarkers.current.forEach((marker) => {
@@ -675,7 +680,7 @@ export default function EcontDeliverySelector({
         }
       }
     }
-  }, [offices, selectedOffice, showOfficeDetails, showMap, mapInitialized, selectedCity, isEnglish])
+  }, [offices, selectedOffice, showOfficeDetails, showMap, mapInitialized])
 
   // Fetch cities on mount
   useEffect(() => {

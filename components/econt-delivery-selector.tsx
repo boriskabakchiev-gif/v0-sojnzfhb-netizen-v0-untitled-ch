@@ -555,33 +555,30 @@ export default function EcontDeliverySelector({
             const cityPosition = results[0].geometry.location
             console.log("[v0] Geocoding successful for:", cityName, cityPosition.toJSON())
 
-            // Use setTimeout to ensure this runs after any other map updates
-            setTimeout(() => {
-              if (googleMap.current) {
-                googleMap.current.panTo(cityPosition)
-                googleMap.current.setZoom(13)
-                console.log("[v0] Map centered on city:", cityName)
+            if (googleMap.current) {
+              googleMap.current.panTo(cityPosition)
+              googleMap.current.setZoom(13)
+              console.log("[v0] Map centered on city:", cityName)
 
-                // Add city marker
-                cityMarker.current = new window.google.maps.Marker({
-                  position: cityPosition,
-                  map: googleMap.current,
-                  title: cityName,
-                  icon: {
-                    url:
-                      "data:image/svg+xml;charset=UTF-8," +
-                      encodeURIComponent(`
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <circle cx="12" cy="12" r="8" fill="#3B82F6" stroke="#FFFFFF" strokeWidth="2"/>
-                          <circle cx="12" cy="12" r="3" fill="#FFFFFF"/>
-                        </svg>
-                      `),
-                    scaledSize: new window.google.maps.Size(24, 24),
-                    anchor: new window.google.maps.Point(12, 12),
-                  },
-                })
-              }
-            }, 100)
+              // Add city marker
+              cityMarker.current = new window.google.maps.Marker({
+                position: cityPosition,
+                map: googleMap.current,
+                title: cityName,
+                icon: {
+                  url:
+                    "data:image/svg+xml;charset=UTF-8," +
+                    encodeURIComponent(`
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="8" fill="#3B82F6" stroke="#FFFFFF" strokeWidth="2"/>
+                        <circle cx="12" cy="12" r="3" fill="#FFFFFF"/>
+                      </svg>
+                    `),
+                  scaledSize: new window.google.maps.Size(24, 24),
+                  anchor: new window.google.maps.Point(12, 12),
+                },
+              })
+            }
           } else {
             console.error("[v0] Geocoding failed for city:", cityName, status)
             // Fallback to Bulgaria center if geocoding fails
@@ -603,106 +600,19 @@ export default function EcontDeliverySelector({
 
   useEffect(() => {
     if (googleMap.current && showMap && mapInitialized && window.google) {
-      console.log("Updating Google Maps markers with", offices.length, "offices")
+      console.log("[v0] Updating Google Maps markers with", offices.length, "offices")
 
-      // Clear existing markers
+      // Clear existing office markers only (NOT city marker - that's managed by the other effect)
       officeMarkers.current.forEach((marker) => {
         if (marker.setMap) marker.setMap(null)
       })
       officeMarkers.current = []
 
-      if (cityMarker.current) {
-        cityMarker.current.setMap(null)
-        cityMarker.current = null
-      }
-
       if (infoWindow.current) {
         infoWindow.current.close()
       }
 
-      if (selectedOffice && selectedOffice.location && showOfficeDetails) {
-        const position = {
-          lat: selectedOffice.location.latitude,
-          lng: selectedOffice.location.longitude,
-        }
-        googleMap.current.panTo(position)
-        googleMap.current.setZoom(16)
-        console.log("[v0] Centering on selected office:", selectedOffice.name)
-      } else if (selectedCity) {
-        // Check if city has location coordinates
-        if (selectedCity.location) {
-          const cityPosition = {
-            lat: selectedCity.location.latitude,
-            lng: selectedCity.location.longitude,
-          }
-          googleMap.current.panTo(cityPosition)
-          googleMap.current.setZoom(13)
-          console.log("[v0] Centering on selected city (location):", getCityTitle(selectedCity, isEnglish))
-
-          // Add city marker
-          cityMarker.current = new window.google.maps.Marker({
-            position: cityPosition,
-            map: googleMap.current,
-            title: getCityTitle(selectedCity, isEnglish),
-            icon: {
-              url:
-                "data:image/svg+xml;charset=UTF-8," +
-                encodeURIComponent(`
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="12" cy="12" r="8" fill="#3B82F6" stroke="#FFFFFF" strokeWidth="2"/>
-                    <circle cx="12" cy="12" r="3" fill="#FFFFFF"/>
-                  </svg>
-                `),
-              scaledSize: new window.google.maps.Size(24, 24),
-              anchor: new window.google.maps.Point(12, 12),
-            },
-          })
-        } else {
-          // Fallback: use geocoding to find city coordinates
-          const cityName = getCityTitle(selectedCity, isEnglish)
-          console.log("[v0] Geocoding city for marker effect:", cityName)
-          const geocoder = new window.google.maps.Geocoder()
-          geocoder.geocode(
-            {
-              address: `${cityName}, Bulgaria`,
-              region: "BG",
-            },
-            (results: any, status: any) => {
-              if (status === "OK" && results && results[0] && googleMap.current) {
-                const cityPosition = results[0].geometry.location
-                googleMap.current.panTo(cityPosition)
-                googleMap.current.setZoom(13)
-                console.log("[v0] Geocoding successful for marker effect:", cityName)
-
-                cityMarker.current = new window.google.maps.Marker({
-                  position: cityPosition,
-                  map: googleMap.current,
-                  title: cityName,
-                  icon: {
-                    url:
-                      "data:image/svg+xml;charset=UTF-8," +
-                      encodeURIComponent(`
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <circle cx="12" cy="12" r="8" fill="#3B82F6" stroke="#FFFFFF" strokeWidth="2"/>
-                          <circle cx="12" cy="12" r="3" fill="#FFFFFF"/>
-                        </svg>
-                      `),
-                    scaledSize: new window.google.maps.Size(24, 24),
-                    anchor: new window.google.maps.Point(12, 12),
-                  },
-                })
-              } else {
-                console.error("[v0] Geocoding failed for marker effect:", cityName, status)
-              }
-            },
-          )
-        }
-      } else if (!selectedCity && offices.length === 0) {
-        googleMap.current.panTo({ lat: 42.7, lng: 25.0 })
-        googleMap.current.setZoom(7)
-        console.log("[v0] No city selected, centering on Bulgaria")
-      }
-
+      // Place office markers
       if (offices.length > 0) {
         offices.forEach((office, index) => {
           if (office.location && office.location.latitude && office.location.longitude) {

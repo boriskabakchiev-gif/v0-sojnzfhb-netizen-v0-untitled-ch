@@ -199,6 +199,27 @@ export default function EcontDeliverySelector({
   const userLocationMarker = useRef<any>(null)
   const infoWindow = useRef<any>(null)
   const officesRef = useRef<EcontOffice[]>([])
+  const suggestionsRef = useRef<HTMLDivElement>(null)
+
+  // Close suggestions dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        suggestionsRef.current &&
+        !suggestionsRef.current.contains(event.target as Node)
+      ) {
+        setShowAddressSuggestions(false)
+      }
+    }
+
+    if (showAddressSuggestions) {
+      document.addEventListener("mousedown", handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [showAddressSuggestions])
 
   // Translations
   const t = {
@@ -1077,7 +1098,7 @@ export default function EcontDeliverySelector({
                 </PopoverContent>
               </Popover>
             </div>
-            <div className="relative">
+            <div className="relative" ref={suggestionsRef}>
               <Input
                 placeholder="Търсене на офис по име или адрес"
                 className="bg-white/80 backdrop-blur-sm border-0 rounded-xl shadow-sm hover:shadow-md focus:shadow-md transition-all duration-200 h-12 px-4 text-gray-700 font-medium placeholder:text-gray-500"
@@ -1092,7 +1113,7 @@ export default function EcontDeliverySelector({
                   }
                 }}
                 onBlur={() => {
-                  setTimeout(() => setShowAddressSuggestions(false), 200)
+                  // Click-outside is handled by the suggestionsRef useEffect
                 }}
               />
               {showAddressSuggestions && (

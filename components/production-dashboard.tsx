@@ -216,6 +216,7 @@ export function ProductionDashboard({ initialProductions, productionLines, partn
   const handleAdminLogin = () => {
     if (adminUsername === "ilian" && adminPassword === "ilian123") {
       setIsAdmin(true)
+      setShowAllProductions(true)
       setShowAdminDialog(false)
       setAdminUsername("")
       setAdminPassword("")

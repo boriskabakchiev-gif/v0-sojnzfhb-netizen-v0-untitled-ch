@@ -199,6 +199,27 @@ export default function EcontDeliverySelector({
   const userLocationMarker = useRef<any>(null)
   const infoWindow = useRef<any>(null)
   const officesRef = useRef<EcontOffice[]>([])
+  const suggestionsRef = useRef<HTMLDivElement>(null)
+
+  // Close suggestions dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        suggestionsRef.current &&
+        !suggestionsRef.current.contains(event.target as Node)
+      ) {
+        setShowAddressSuggestions(false)
+      }
+    }
+
+    if (showAddressSuggestions) {
+      document.addEventListener("mousedown", handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [showAddressSuggestions])
 
   // Translations
   const t = {
@@ -519,9 +540,10 @@ export default function EcontDeliverySelector({
     }
 
     // Priority 2: Selected city (use geocoding to get coordinates)
+    // Only geocode if no offices are loaded yet (fitBounds in markers effect handles it when offices exist)
     if (selectedCity) {
       const cityName = getCityTitle(selectedCity, isEnglish)
-      console.log("[v0] Geocoding city:", cityName, "City ID:", selectedCity.id)
+      console.log("[v0] City centering effect: city:", cityName, "offices count:", offices.length)
 
       const geocoder = new window.google.maps.Geocoder()
       geocoder.geocode(
@@ -534,33 +556,34 @@ export default function EcontDeliverySelector({
             const cityPosition = results[0].geometry.location
             console.log("[v0] Geocoding successful for:", cityName, cityPosition.toJSON())
 
-            // Use setTimeout to ensure this runs after any other map updates
-            setTimeout(() => {
-              if (googleMap.current) {
-                googleMap.current.panTo(cityPosition)
-                googleMap.current.setZoom(13)
-                console.log("[v0] Map centered on city:", cityName)
+            // Only center/zoom if no office markers have been placed yet
+            // (fitBounds in markers effect handles centering when offices exist)
+            if (googleMap.current && officeMarkers.current.length === 0) {
+              googleMap.current.panTo(cityPosition)
+              googleMap.current.setZoom(13)
+              console.log("[v0] Map centered on city via geocoding:", cityName)
+            }
 
-                // Add city marker
-                cityMarker.current = new window.google.maps.Marker({
-                  position: cityPosition,
-                  map: googleMap.current,
-                  title: cityName,
-                  icon: {
-                    url:
-                      "data:image/svg+xml;charset=UTF-8," +
-                      encodeURIComponent(`
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <circle cx="12" cy="12" r="8" fill="#3B82F6" stroke="#FFFFFF" strokeWidth="2"/>
-                          <circle cx="12" cy="12" r="3" fill="#FFFFFF"/>
-                        </svg>
-                      `),
-                    scaledSize: new window.google.maps.Size(24, 24),
-                    anchor: new window.google.maps.Point(12, 12),
-                  },
-                })
-              }
-            }, 100)
+            // Always add the city marker regardless
+            if (googleMap.current) {
+              cityMarker.current = new window.google.maps.Marker({
+                position: cityPosition,
+                map: googleMap.current,
+                title: cityName,
+                icon: {
+                  url:
+                    "data:image/svg+xml;charset=UTF-8," +
+                    encodeURIComponent(`
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="8" fill="#3B82F6" stroke="#FFFFFF" strokeWidth="2"/>
+                        <circle cx="12" cy="12" r="3" fill="#FFFFFF"/>
+                      </svg>
+                    `),
+                  scaledSize: new window.google.maps.Size(24, 24),
+                  anchor: new window.google.maps.Point(12, 12),
+                },
+              })
+            }
           } else {
             console.error("[v0] Geocoding failed for city:", cityName, status)
             // Fallback to Bulgaria center if geocoding fails
@@ -582,64 +605,19 @@ export default function EcontDeliverySelector({
 
   useEffect(() => {
     if (googleMap.current && showMap && mapInitialized && window.google) {
-      console.log("Updating Google Maps markers with", offices.length, "offices")
+      console.log("[v0] Markers effect: offices count:", offices.length, "selectedOffice:", selectedOffice?.name || "none")
 
-      // Clear existing markers
+      // Clear existing office markers only (NOT city marker - that's managed by the other effect)
       officeMarkers.current.forEach((marker) => {
         if (marker.setMap) marker.setMap(null)
       })
       officeMarkers.current = []
 
-      if (cityMarker.current) {
-        cityMarker.current.setMap(null)
-        cityMarker.current = null
-      }
-
       if (infoWindow.current) {
         infoWindow.current.close()
       }
 
-      if (selectedOffice && selectedOffice.location && showOfficeDetails) {
-        const position = {
-          lat: selectedOffice.location.latitude,
-          lng: selectedOffice.location.longitude,
-        }
-        googleMap.current.panTo(position)
-        googleMap.current.setZoom(16)
-        console.log("[v0] Centering on selected office:", selectedOffice.name)
-      } else if (selectedCity && selectedCity.location) {
-        const cityPosition = {
-          lat: selectedCity.location.latitude,
-          lng: selectedCity.location.longitude,
-        }
-        googleMap.current.panTo(cityPosition)
-        googleMap.current.setZoom(13)
-        console.log("[v0] Centering on selected city:", getCityTitle(selectedCity, isEnglish))
-
-        // Add city marker
-        cityMarker.current = new window.google.maps.Marker({
-          position: cityPosition,
-          map: googleMap.current,
-          title: getCityTitle(selectedCity, isEnglish),
-          icon: {
-            url:
-              "data:image/svg+xml;charset=UTF-8," +
-              encodeURIComponent(`
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="12" cy="12" r="8" fill="#3B82F6" stroke="#FFFFFF" strokeWidth="2"/>
-                  <circle cx="12" cy="12" r="3" fill="#FFFFFF"/>
-                </svg>
-              `),
-            scaledSize: new window.google.maps.Size(24, 24),
-            anchor: new window.google.maps.Point(12, 12),
-          },
-        })
-      } else if (!selectedCity && offices.length === 0) {
-        googleMap.current.panTo({ lat: 42.7, lng: 25.0 })
-        googleMap.current.setZoom(7)
-        console.log("[v0] No city selected, centering on Bulgaria")
-      }
-
+      // Place office markers
       if (offices.length > 0) {
         offices.forEach((office, index) => {
           if (office.location && office.location.latitude && office.location.longitude) {
@@ -681,9 +659,28 @@ export default function EcontDeliverySelector({
             console.log(`Added office marker ${index + 1}:`, office.name, office.id)
           }
         })
+
+        // Fit map bounds to show all office markers if no specific office is selected
+        if (!selectedOffice && officeMarkers.current.length > 0) {
+          const bounds = new window.google.maps.LatLngBounds()
+          offices.forEach((office) => {
+            if (office.location && office.location.latitude && office.location.longitude) {
+              bounds.extend({ lat: office.location.latitude, lng: office.location.longitude })
+            }
+          })
+          googleMap.current.fitBounds(bounds)
+          // Limit max zoom after fitting bounds
+          const listener = window.google.maps.event.addListener(googleMap.current, "idle", () => {
+            if (googleMap.current && googleMap.current.getZoom() > 16) {
+              googleMap.current.setZoom(16)
+            }
+            window.google.maps.event.removeListener(listener)
+          })
+          console.log("[v0] Fitted map bounds to", officeMarkers.current.length, "office markers")
+        }
       }
     }
-  }, [offices, selectedOffice, showOfficeDetails, showMap, mapInitialized, selectedCity, isEnglish])
+  }, [offices, selectedOffice, showOfficeDetails, showMap, mapInitialized])
 
   // Fetch cities on mount
   useEffect(() => {
@@ -1077,7 +1074,7 @@ export default function EcontDeliverySelector({
                 </PopoverContent>
               </Popover>
             </div>
-            <div className="relative">
+            <div className="relative" ref={suggestionsRef}>
               <Input
                 placeholder="Търсене на офис по име или адрес"
                 className="bg-white/80 backdrop-blur-sm border-0 rounded-xl shadow-sm hover:shadow-md focus:shadow-md transition-all duration-200 h-12 px-4 text-gray-700 font-medium placeholder:text-gray-500"
@@ -1092,7 +1089,7 @@ export default function EcontDeliverySelector({
                   }
                 }}
                 onBlur={() => {
-                  setTimeout(() => setShowAddressSuggestions(false), 200)
+                  // Click-outside is handled by the suggestionsRef useEffect
                 }}
               />
               {showAddressSuggestions && (

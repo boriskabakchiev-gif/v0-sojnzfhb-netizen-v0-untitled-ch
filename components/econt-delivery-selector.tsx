@@ -250,7 +250,7 @@ export default function EcontDeliverySelector({
       : "Търсете адрес, за да намерите близки офиси.",
     useSearchToFindNearbyOffices: isEnglish
       ? "Use the search form to find offices near a specific address."
-      : "Използвайте формата за търсене, за да намерите офиси близо до конкретен адрес.",
+      : "Използвайте формата за търсене, за да намерите офиси близо до конкретен адрес. ",
   }
 
   useEffect(() => {

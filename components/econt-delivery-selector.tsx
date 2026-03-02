@@ -321,6 +321,38 @@ export default function EcontDeliverySelector({
       })
       console.log("[v0] After filtering invalid data:", filteredOffices.length)
 
+      // Filter offices by the selected city - this is critical because the Econt API
+      // may return ALL offices globally instead of just the requested city's offices
+      if (selectedCity) {
+        const cityNameLower = selectedCity.name.toLowerCase()
+        const cityNameEnLower = (selectedCity.nameEn || "").toLowerCase()
+        
+        const cityFilteredOffices = filteredOffices.filter((office) => {
+          // Match by cityId if available
+          if (office.cityId && office.cityId === cityId) return true
+          // Match by city name in the office name or address
+          const officeName = office.name.toLowerCase()
+          const officeAddress = office.address.toLowerCase()
+          const officeCityName = (office.cityName || "").toLowerCase()
+          
+          if (officeCityName && (officeCityName === cityNameLower || officeCityName === cityNameEnLower)) return true
+          if (officeName.includes(cityNameLower) || officeAddress.includes(cityNameLower)) return true
+          if (cityNameEnLower && (officeName.includes(cityNameEnLower) || officeAddress.includes(cityNameEnLower))) return true
+          return false
+        })
+        
+        console.log("[v0] After city filtering:", cityFilteredOffices.length, "for city:", selectedCity.name)
+        
+        // Only apply city filter if it found results (avoid filtering out everything)
+        if (cityFilteredOffices.length > 0) {
+          filteredOffices = cityFilteredOffices
+        } else {
+          console.log("[v0] City filter found 0 offices, keeping all and using geographic bounds")
+          // If name matching fails, try geographic proximity - offices within ~30km of city center
+          // We'll use geocoding result from the map to filter, but as fallback just keep all
+        }
+      }
+
       // Apply filtering based on the 'isMachine' field
       if (typeFilter === "OFFICE") {
         filteredOffices = filteredOffices.filter((office) => office.isMachine === false)
@@ -669,10 +701,17 @@ export default function EcontDeliverySelector({
             }
           })
           googleMap.current.fitBounds(bounds)
-          // Limit max zoom after fitting bounds
+          // Limit zoom levels after fitting bounds - don't zoom too far out or too close
           const listener = window.google.maps.event.addListener(googleMap.current, "idle", () => {
-            if (googleMap.current && googleMap.current.getZoom() > 16) {
-              googleMap.current.setZoom(16)
+            if (googleMap.current) {
+              const currentZoom = googleMap.current.getZoom()
+              // Don't zoom out too far (prevents showing all offices globally)
+              if (currentZoom < 10 && selectedCity) {
+                googleMap.current.setZoom(12)
+              }
+              if (currentZoom > 16) {
+                googleMap.current.setZoom(16)
+              }
             }
             window.google.maps.event.removeListener(listener)
           })

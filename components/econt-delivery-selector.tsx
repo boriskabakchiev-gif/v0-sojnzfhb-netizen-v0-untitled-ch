@@ -256,7 +256,7 @@ export default function EcontDeliverySelector({
   useEffect(() => {
     if (!window.google) {
       const script = document.createElement("script")
-      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDjuMW-6OeII4jEw0UWh5-W4E8NfKMFwng=maps`
+      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDjuMW-6OeII4jEw0UWh5-W4E8NfKMFwng&libraries=maps`
       script.async = true
       script.defer = true
       script.onload = () => {

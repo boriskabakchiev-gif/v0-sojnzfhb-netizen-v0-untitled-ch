@@ -68,37 +68,37 @@ export function SiteFooter({ categories = [], isEnglish = false }: SiteFooterPro
 
   const aboutLinks = isEnglish
     ? [
-        { href: "/en/about", label: "About us" },
-        { href: "/en/contact", label: "Contact" },
-        {
-          href: "https://96ghfafarqg1wwmp.public.blob.vercel-storage.com/Catalog%202025%20Web.pdf",
-          label: "Catalog",
-          external: true,
-        },
-      ]
+      { href: "/en/about", label: "About us" },
+      { href: "/en/contact", label: "Contact" },
+      {
+        href: "https://96ghfafarqg1wwmp.public.blob.vercel-storage.com/Catalog%202025%20Web.pdf",
+        label: "Catalog",
+        external: true,
+      },
+    ]
     : [
-        { href: "/about", label: "За нас" },
-        { href: "/contact", label: "Контакти" },
-        {
-          href: "https://96ghfafarqg1wwmp.public.blob.vercel-storage.com/Catalog%202025%20Web.pdf",
-          label: "Каталог",
-          external: true,
-        },
-      ]
+      { href: "/about", label: "За нас" },
+      { href: "/contact", label: "Контакти" },
+      {
+        href: "https://96ghfafarqg1wwmp.public.blob.vercel-storage.com/Catalog%202025%20Web.pdf",
+        label: "Каталог",
+        external: true,
+      },
+    ]
 
   const infoLinks = isEnglish
     ? [
-        { href: "/en/terms", label: "Terms and Conditions" },
-        { href: "/en/delivery-returns", label: "Shipping and Returns" },
-        { href: "/en/payment", label: "Payment" },
-        { href: "/en/privacy", label: "Privacy Policy" },
-      ]
+      { href: "/en/terms", label: "Terms and Conditions" },
+      { href: "/en/delivery-returns", label: "Shipping and Returns" },
+      { href: "/en/payment", label: "Payment" },
+      { href: "/en/privacy", label: "Privacy Policy" },
+    ]
     : [
-        { href: "/terms", label: "Общи условия" },
-        { href: "/delivery-returns", label: "Доставка и връщане" },
-        { href: "/payment", label: "Плащане" },
-        { href: "/privacy", label: "Политика за поверителност" },
-      ]
+      { href: "/terms", label: "Общи условия" },
+      { href: "/delivery-returns", label: "Доставка и връщане" },
+      { href: "/payment", label: "Плащане" },
+      { href: "/privacy", label: "Политика за поверителност" },
+    ]
 
   return (
     <footer className="bg-neutral-950 text-white">
@@ -133,7 +133,7 @@ export function SiteFooter({ categories = [], isEnglish = false }: SiteFooterPro
                 className="flex items-center gap-3 text-neutral-500 hover:text-neutral-300 transition-colors text-sm"
               >
                 <Phone className="h-4 w-4 shrink-0" />
-                <span>+359 888 123 456</span>
+                <span>+359 894 352204</span>
               </a>
               <a
                 href="mailto:info@madiks.bg"

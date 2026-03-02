@@ -1,6 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
-import { ChevronRight, Star, Tag } from "lucide-react"
+import { ChevronRight, Tag, Package, Layers, Hash, CheckCircle2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -17,9 +17,7 @@ import { SiteFooter } from "@/components/site-footer"
 import { CategoriesNavbar } from "@/components/categories-navbar"
 import { ProductCard } from "@/components/product-card"
 import { ProductQuantityControls } from "@/components/product-quantity-controls"
-import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel"
 
-// Helper function to format price, ensuring "N/A" for null/undefined prices
 function formatDisplayPrice(price: number | null | undefined): string {
   if (price === null || price === undefined || isNaN(Number(price))) {
     return "N/A"
@@ -27,12 +25,11 @@ function formatDisplayPrice(price: number | null | undefined): string {
   return Number(price).toFixed(2)
 }
 
-// Helper function to convert BGN to EUR
 function convertBgnToEur(bgnPrice: number | null | undefined): number | null {
   if (bgnPrice === null || bgnPrice === undefined || isNaN(Number(bgnPrice))) {
     return null
   }
-  return Number(bgnPrice) / 1.96 // 1 EUR = 1.96 BGN
+  return Number(bgnPrice) / 1.96
 }
 
 export default async function ProductPage({ params }: { params: { id: string } }) {
@@ -41,11 +38,15 @@ export default async function ProductPage({ params }: { params: { id: string } }
 
     if (!productId || productId === "null" || productId === "undefined") {
       return (
-        <div className="min-h-screen bg-gray-100 text-gray-800 flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold mb-4">Продуктът не е намерен</h1>
-            <p className="text-gray-600 mb-6">Съжаляваме, но търсеният от вас продукт не съществува.</p>
-            <Button asChild className="bg-red-600 hover:bg-red-700 text-white">
+        <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+          <div className="text-center max-w-md mx-auto px-6">
+            <h1 className="text-2xl font-bold tracking-tight text-neutral-900 mb-3">
+              Продуктът не е намерен
+            </h1>
+            <p className="text-neutral-500 mb-8 leading-relaxed">
+              Съжаляваме, но търсеният от вас продукт не съществува.
+            </p>
+            <Button asChild className="rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white px-8 py-3">
               <Link href="/">Към началната страница</Link>
             </Button>
           </div>
@@ -57,11 +58,15 @@ export default async function ProductPage({ params }: { params: { id: string } }
 
     if (!product) {
       return (
-        <div className="min-h-screen bg-gray-100 text-gray-800 flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold mb-4">Продуктът не е намерен</h1>
-            <p className="text-gray-600 mb-6">Съжаляваме, но търсеният от вас продукт не съществува.</p>
-            <Button asChild className="bg-red-600 hover:bg-red-700 text-white">
+        <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+          <div className="text-center max-w-md mx-auto px-6">
+            <h1 className="text-2xl font-bold tracking-tight text-neutral-900 mb-3">
+              Продуктът не е намерен
+            </h1>
+            <p className="text-neutral-500 mb-8 leading-relaxed">
+              Съжаляваме, но търсеният от вас продукт не съществува.
+            </p>
+            <Button asChild className="rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white px-8 py-3">
               <Link href="/">Към началната страница</Link>
             </Button>
           </div>
@@ -90,13 +95,11 @@ export default async function ProductPage({ params }: { params: { id: string } }
       return type === "european" || type === "europen"
     }
 
-    // Determines the base price according to customer type, without personal discounts
     const getBasePriceForCustomer = (): number | null => {
       if (!isUserLoggedIn) {
-        return Number(product.price) // Standard price for guests
+        return Number(product.price)
       }
       const type = user?.customerType?.toLowerCase()
-
       if (isEuropeanCustomer()) {
         return product.europe_price !== undefined && product.europe_price !== null ? Number(product.europe_price) : null
       } else if (type === "wholesaler" || type === "едро") {
@@ -108,11 +111,11 @@ export default async function ProductPage({ params }: { params: { id: string } }
           ? Number(product.retailerprice)
           : null
       } else {
-        return Number(product.price) // Standard price for other logged-in users
+        return Number(product.price)
       }
     }
 
-    const priceToDisplay = getBasePriceForCustomer() // This is the price without personal discount
+    const priceToDisplay = getBasePriceForCustomer()
     const eurPrice = convertBgnToEur(priceToDisplay)
 
     const getPriceLabel = (): string => {
@@ -147,7 +150,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
     }
 
     return (
-      <div className="min-h-screen bg-gray-100 text-gray-800">
+      <div className="min-h-screen bg-neutral-50 text-neutral-900">
         <SiteHeader
           categories={categories}
           subcategories={allSubcategories}
@@ -158,157 +161,157 @@ export default async function ProductPage({ params }: { params: { id: string } }
 
         <CategoriesNavbar currentCategoryId={product?.cateid} isEnglish={false} />
 
-        <div className="bg-white border-b border-gray-200 py-4">
+        {/* Breadcrumb */}
+        <div className="border-b border-neutral-200/60 py-3.5">
           <div className="container mx-auto px-4">
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
-              <Link href="/" className="hover:text-red-600">
+            <div className="flex items-center gap-1.5 text-sm text-neutral-400">
+              <Link href="/" className="transition-colors hover:text-neutral-700">
                 Начало
               </Link>
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-3.5 w-3.5" />
               {category && (
                 <>
-                  <Link href={`/category/${category.id || category.cateid}`} className="hover:text-red-600">
+                  <Link href={`/category/${category.id || category.cateid}`} className="transition-colors hover:text-neutral-700">
                     {category.title}
                   </Link>
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-3.5 w-3.5" />
                 </>
               )}
               {subcategory && (
                 <>
-                  <Link href={`/subcategory/${subcategory.id}`} className="hover:text-red-600">
+                  <Link href={`/subcategory/${subcategory.id}`} className="transition-colors hover:text-neutral-700">
                     {subcategory.title}
                   </Link>
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-3.5 w-3.5" />
                 </>
               )}
-              <span className="text-red-600">{product.title}</span>
+              <span className="text-neutral-700 font-medium truncate max-w-[200px]">{product.title}</span>
             </div>
           </div>
         </div>
 
-        <section className="py-12 bg-gray-50">
+        {/* Product Detail Section */}
+        <section className="py-10 md:py-16">
           <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-              <div className="bg-white rounded-lg overflow-hidden shadow-sm">
-                <Carousel className="w-full">
-                  <CarouselContent>
-                    <CarouselItem>
-                      <div className="aspect-square relative">
-                        <Image
-                          src={
-                            product.photourl ||
-                            `/placeholder.svg?height=600&width=600&query=${encodeURIComponent(product.title || "fishing equipment")}`
-                          }
-                          alt={product.title}
-                          fill
-                          className="object-scale-down p-4"
-                        />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
+
+              {/* Image Gallery */}
+              <div className="relative">
+                <div className="sticky top-8">
+                  <div className="aspect-square relative rounded-3xl bg-white border border-neutral-200/60 overflow-hidden shadow-sm">
+                    <Image
+                      src={
+                        product.photourl ||
+                        `/placeholder.svg?height=700&width=700&query=${encodeURIComponent(product.title || "fishing equipment")}`
+                      }
+                      alt={product.title}
+                      fill
+                      className="object-contain p-8 md:p-12"
+                      priority
+                    />
+
+                    {/* Promo badge on image */}
+                    {promotionDisplayMessage && (
+                      <div className="absolute left-4 top-4 z-10">
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500 px-3 py-1.5 text-xs font-semibold tracking-wide text-white shadow-lg shadow-amber-500/20">
+                          <Tag className="h-3.5 w-3.5" />
+                          {promotionDisplayMessage}
+                        </span>
                       </div>
-                    </CarouselItem>
-                  </CarouselContent>
-                </Carousel>
+                    )}
+                  </div>
+                </div>
               </div>
 
-              <div>
-                <h1 className="text-3xl font-bold mb-4 text-gray-800">{product.title}</h1>
-                <div className="flex items-center mb-4">
-                  {Array(4)
-                    .fill(0)
-                    .map((_, i) => (
-                      <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                    ))}
-                  {Array(1)
-                    .fill(0)
-                    .map((_, i) => (
-                      <Star key={i} className="h-5 w-5 text-gray-300" />
-                    ))}
-                  <span className="ml-2 text-gray-600">(4.0)</span>
-                </div>
+              {/* Product Info */}
+              <div className="flex flex-col">
+                {/* Title */}
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-neutral-900 leading-tight text-balance">
+                  {product.title}
+                </h1>
 
-                <div className="mb-6">
-                  {isUserLoggedIn ? (
-                    <>
-                      <div className="text-sm text-gray-600 mb-1">{getPriceLabel()}</div>
-                      <div className="flex flex-col">
-                        <p className="text-3xl font-bold text-red-600">
-                          {formatDisplayPrice(priceToDisplay)} {priceToDisplay !== null ? "лв." : ""}
-                        </p>
-                        {eurPrice !== null && <p className="text-xl text-gray-600">{formatDisplayPrice(eurPrice)} €</p>}
-                      </div>
-                      {promotionDisplayMessage && (
-                        <div className="mt-2 flex items-center">
-                          <Tag className="h-4 w-4 mr-1 text-green-600" />
-                          <p className="text-sm font-semibold text-green-700">{promotionDisplayMessage}</p>
-                        </div>
+                {/* Price Block */}
+                <div className="mt-6 pb-6 border-b border-neutral-200/60">
+                  <p className="text-[11px] font-semibold uppercase tracking-widest text-neutral-400 mb-2">
+                    {getPriceLabel()}
+                  </p>
+                  {priceToDisplay !== null ? (
+                    <div className="flex items-baseline gap-3">
+                      <span className="text-4xl font-bold tracking-tight text-neutral-900">
+                        {formatDisplayPrice(priceToDisplay)}
+                        <span className="text-xl font-semibold text-neutral-500 ml-1">{"лв."}</span>
+                      </span>
+                      {eurPrice !== null && (
+                        <span className="text-lg text-neutral-400 font-medium">
+                          {formatDisplayPrice(eurPrice)} {"€"}
+                        </span>
                       )}
-                    </>
+                    </div>
                   ) : (
-                    <>
-                      <p className="text-sm text-gray-600 mb-1">Стандартна цена</p>
-                      <div className="flex flex-col">
-                        <p className="text-3xl font-bold text-red-600">
-                          {formatDisplayPrice(Number(product.price))} лв.
-                        </p>
-                        <p className="text-xl text-gray-600">
-                          {formatDisplayPrice(convertBgnToEur(Number(product.price)))} €
-                        </p>
-                      </div>
-                      {promotionDisplayMessage && (
-                        <div className="mt-2 flex items-center">
-                          <Tag className="h-4 w-4 mr-1 text-green-600" />
-                          <p className="text-sm font-semibold text-green-700">{promotionDisplayMessage}</p>
-                        </div>
-                      )}
-                      <p className="text-gray-700 text-sm mt-2">
-                        Регистрирайте се или влезте в профила си за специални цени и отстъпки.
-                      </p>
-                    </>
+                    <span className="text-4xl font-bold text-neutral-300">N/A</span>
+                  )}
+
+                  {!isUserLoggedIn && (
+                    <p className="text-sm text-neutral-500 mt-3 leading-relaxed">
+                      Регистрирайте се или влезте в профила си за специални цени и отстъпки.
+                    </p>
                   )}
                 </div>
 
-                <div className="mb-8">
-                  <p className="text-gray-700 whitespace-pre-wrap">{product.description}</p>
-                </div>
-                <div className="mb-8">
+                {/* Description */}
+                {product.description && (
+                  <div className="mt-6 pb-6 border-b border-neutral-200/60">
+                    <p className="text-neutral-600 leading-relaxed whitespace-pre-wrap text-[15px]">
+                      {product.description}
+                    </p>
+                  </div>
+                )}
+
+                {/* Add to Cart */}
+                <div className="mt-6 pb-6 border-b border-neutral-200/60">
                   <ProductQuantityControls
                     productId={product.objectid}
                     productTitle={product.title}
-                    // Pass 0 if priceToDisplay is null, or actual price
                     productPrice={priceToDisplay !== null ? priceToDisplay : 0}
                     photoUrl={product.photourl}
                     promo_buy_qty={finalPromoBuyQty}
                     promo_free_qty={finalPromoFreeQty}
-                    // Disable controls if price is N/A (null)
                     disabled={priceToDisplay === null}
                   />
                 </div>
-                <div className="border-t border-gray-200 pt-6">
+
+                {/* Product Meta */}
+                <div className="mt-6 space-y-3">
                   {category && (
-                    <div className="flex items-center text-gray-600 mb-2">
-                      <span className="w-32">Категория:</span>
+                    <div className="flex items-center gap-3 text-sm">
+                      <Layers className="h-4 w-4 text-neutral-400 shrink-0" />
+                      <span className="text-neutral-500">Категория:</span>
                       <Link
                         href={`/category/${category.id || category.cateid}`}
-                        className="text-red-600 hover:underline"
+                        className="font-medium text-neutral-700 hover:text-neutral-900 transition-colors"
                       >
                         {category.title}
                       </Link>
                     </div>
                   )}
                   {subcategory && (
-                    <div className="flex items-center text-gray-600 mb-2">
-                      <span className="w-32">Подкатегория:</span>
-                      <Link href={`/subcategory/${subcategory.id}`} className="text-red-600 hover:underline">
+                    <div className="flex items-center gap-3 text-sm">
+                      <Package className="h-4 w-4 text-neutral-400 shrink-0" />
+                      <span className="text-neutral-500">Подкатегория:</span>
+                      <Link href={`/subcategory/${subcategory.id}`} className="font-medium text-neutral-700 hover:text-neutral-900 transition-colors">
                         {subcategory.title}
                       </Link>
                     </div>
                   )}
-                  <div className="flex items-center text-gray-600 mb-2">
-                    <span className="w-32">Код на продукта:</span>
-                    <span>{product.objectid}</span>
+                  <div className="flex items-center gap-3 text-sm">
+                    <Hash className="h-4 w-4 text-neutral-400 shrink-0" />
+                    <span className="text-neutral-500">Код на продукта:</span>
+                    <span className="font-mono text-neutral-700">{product.objectid}</span>
                   </div>
-                  <div className="flex items-center text-gray-600">
-                    <span className="w-32">Наличност:</span>
-                    <span className="text-green-600">В наличност</span>
+                  <div className="flex items-center gap-3 text-sm">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                    <span className="text-neutral-500">Наличност:</span>
+                    <span className="font-medium text-emerald-600">В наличност</span>
                   </div>
                 </div>
               </div>
@@ -316,11 +319,19 @@ export default async function ProductPage({ params }: { params: { id: string } }
           </div>
         </section>
 
+        {/* Similar Products */}
         {similarProducts.length > 0 && (
-          <section className="py-12 bg-white">
+          <section className="py-12 md:py-16 border-t border-neutral-200/60">
             <div className="container mx-auto px-4">
-              <h2 className="text-2xl font-bold mb-8 text-gray-800">Подобни продукти</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              <div className="mb-10">
+                <h2 className="text-2xl font-bold tracking-tight text-neutral-900">
+                  Подобни продукти
+                </h2>
+                <p className="text-neutral-500 mt-1.5 text-sm">
+                  Разгледайте други продукти от тази категория
+                </p>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                 {similarProducts.map(async (similarProd) => {
                   const similarProdPromotion = await getActiveQuantityPromotionForSubcategory(
                     similarProd.subcateid,
@@ -347,14 +358,13 @@ export default async function ProductPage({ params }: { params: { id: string } }
                       id={similarProd.objectid}
                       title={similarProd.title}
                       description={similarProd.description}
-                      price={Number(similarProd.price) || 0} // Standard price
+                      price={Number(similarProd.price) || 0}
                       retailerprice={Number(similarProd.retailerprice)}
                       wholesalerprice={Number(similarProd.wholesalerprice)}
                       europe_price={Number(similarProd.europe_price)}
                       photourl={similarProd.photourl}
                       isLoggedIn={isUserLoggedIn}
                       customerType={user?.customerType}
-                      // discountPercent is no longer used for price calculation in ProductCard
                       promo_buy_qty={similarProdPromotion?.buy_quantity}
                       promo_free_qty={similarProdPromotion?.free_quantity}
                       promo_description={similarProdPromoMsg}
@@ -363,11 +373,11 @@ export default async function ProductPage({ params }: { params: { id: string } }
                 })}
               </div>
               {category && (
-                <div className="mt-8 text-center">
+                <div className="mt-10 text-center">
                   <Button
                     asChild
                     variant="outline"
-                    className="border-gray-300 hover:bg-gray-100 text-gray-700 bg-transparent"
+                    className="rounded-xl border-neutral-300 hover:bg-neutral-100 text-neutral-700 bg-transparent px-8 py-3 font-medium"
                   >
                     <Link href={`/category/${category.id || category.cateid}`}>
                       Вижте всички продукти в категория {category.title}
@@ -379,20 +389,21 @@ export default async function ProductPage({ params }: { params: { id: string } }
           </section>
         )}
 
-        {/* Footer */}
         <SiteFooter categories={categories || []} isEnglish={false} />
       </div>
     )
   } catch (error) {
     console.error("Error in product page:", error)
     return (
-      <div className="min-h-screen bg-gray-100 text-gray-800 flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-          <h1 className="text-3xl font-bold mb-4 text-red-600">Грешка при зареждане на продукта</h1>
-          <p className="text-gray-600 mb-6">
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-8 bg-white rounded-2xl border border-neutral-200/60 shadow-sm">
+          <h1 className="text-2xl font-bold tracking-tight text-red-600 mb-3">
+            Грешка при зареждане на продукта
+          </h1>
+          <p className="text-neutral-500 mb-8 leading-relaxed">
             Възникна проблем при зареждането на информацията за този продукт. Моля, опитайте отново по-късно.
           </p>
-          <Button asChild className="bg-red-600 hover:bg-red-700 text-white">
+          <Button asChild className="rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white px-8 py-3">
             <Link href="/">Към началната страница</Link>
           </Button>
         </div>

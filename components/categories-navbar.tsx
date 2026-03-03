@@ -4,7 +4,7 @@ import { getCategories } from "@/lib/db"
 interface CategoriesNavbarProps {
   currentCategoryId?: string
   isEnglish?: boolean
-  categories?: any[] // Add categories prop
+  categories?: any[]
 }
 
 export async function CategoriesNavbar({
@@ -13,7 +13,6 @@ export async function CategoriesNavbar({
   categories: propCategories,
 }: CategoriesNavbarProps) {
   try {
-    // Use provided categories or fetch them if not provided
     let categories = propCategories
 
     if (!categories) {
@@ -23,26 +22,17 @@ export async function CategoriesNavbar({
       console.log("CategoriesNavbar - Using categories from props:", categories.length)
     }
 
-    console.log("CategoriesNavbar - извлечени категории:", categories.length)
-    console.log(
-      "CategoriesNavbar - категории:",
-      categories.map((c) => ({
-        id: c.id,
-        title: c.title,
-        title_en: c.title_en,
-      })),
-    )
+    console.log("CategoriesNavbar - categories:", categories.length)
 
-    // Филтрираме само активните категории с валидни ID-та
     const activeCategories = categories.filter((category) => category.id && category.title)
 
     if (activeCategories.length === 0) {
-      console.warn("Няма активни категории за показване")
+      console.warn("No active categories")
       return (
-        <div className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 fixed top-[72px] left-0 right-0 w-full z-[9998] shadow-lg">
-          <div className="container mx-auto px-4">
-            <div className="flex space-x-6 py-4">
-              <span className="text-gray-400 text-sm font-medium">
+        <div className="bg-neutral-950 fixed top-[56px] sm:top-[64px] left-0 right-0 w-full z-[9998] border-b border-white/[0.06]">
+          <div className="container mx-auto px-4 sm:px-6">
+            <div className="flex items-center h-11">
+              <span className="text-neutral-500 text-sm">
                 {isEnglish ? "Loading categories..." : "Зареждане на категории..."}
               </span>
             </div>
@@ -52,11 +42,13 @@ export async function CategoriesNavbar({
     }
 
     return (
-      <div className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 fixed top-[60px] left-0 right-0 w-full z-[9998] shadow-lg backdrop-blur-sm">
-        <div className="container mx-auto px-4 overflow-x-auto">
-          <div className="flex space-x-8 py-4 whitespace-nowrap">
+      <div className="bg-neutral-950/95 backdrop-blur-xl fixed top-[56px] sm:top-[64px] left-0 right-0 w-full z-[9998] border-b border-white/[0.06]">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="flex items-center gap-1 h-11 overflow-x-auto scrollbar-none">
             {activeCategories.map((category) => {
-              const categoryTitle = isEnglish ? category.title_en || category.title : category.title
+              const categoryTitle = isEnglish
+                ? category.title_en || category.title
+                : category.title
               const isActive = category.id === currentCategoryId
 
               return (
@@ -64,19 +56,16 @@ export async function CategoriesNavbar({
                   key={category.id}
                   href={isEnglish ? `/en/category/${category.id}` : `/category/${category.id}`}
                   className={`
-                    relative text-sm font-semibold transition-all duration-300 flex-shrink-0 px-3 py-2 rounded-lg
+                    relative flex-shrink-0 px-3 py-1.5 rounded-full text-[13px] font-medium
+                    transition-all duration-200 whitespace-nowrap
                     ${
                       isActive
-                        ? "text-yellow-400 bg-yellow-400/10 shadow-md border border-yellow-400/20"
-                        : "text-gray-200 hover:text-yellow-300 hover:bg-gray-700/50"
+                        ? "bg-white text-neutral-900"
+                        : "text-neutral-400 hover:text-white hover:bg-white/[0.08]"
                     }
-                    hover:scale-105 hover:shadow-lg transform
                   `}
                 >
                   {categoryTitle}
-                  {isActive && (
-                    <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-yellow-400 rounded-full shadow-lg"></div>
-                  )}
                 </Link>
               )
             })}
@@ -85,12 +74,12 @@ export async function CategoriesNavbar({
       </div>
     )
   } catch (error) {
-    console.error("Грешка при зареждане на категориите в навигацията:", error)
+    console.error("Error loading categories:", error)
     return (
-      <div className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 fixed top-[60px] left-0 right-0 w-full z-[9998] shadow-lg">
-        <div className="container mx-auto px-4">
-          <div className="flex space-x-6 py-4">
-            <span className="text-red-400 text-sm font-medium">
+      <div className="bg-neutral-950 fixed top-[56px] sm:top-[64px] left-0 right-0 w-full z-[9998] border-b border-white/[0.06]">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="flex items-center h-11">
+            <span className="text-red-400 text-sm">
               {isEnglish ? "Error loading categories" : "Грешка при зареждане на категориите"}
             </span>
           </div>

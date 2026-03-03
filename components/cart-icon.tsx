@@ -1,10 +1,8 @@
 "use client"
 
 import { ShoppingBag } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
 import { useCart } from "@/context/cart-context"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
 import { usePathname } from "next/navigation"
 
 export function CartIcon() {
@@ -12,26 +10,23 @@ export function CartIcon() {
   const itemCount = getItemCount()
   const pathname = usePathname()
 
-  // Определяме дали сме на английската версия
   const isEnglish = pathname.startsWith("/en")
   const cartUrl = isEnglish ? "/en/cart" : "/cart"
   const ariaLabel = isEnglish ? "Shopping list" : "Списък за запитване"
 
   return (
     <Link href={cartUrl}>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="relative text-gray-300 hover:text-yellow-400"
+      <button
+        className="relative flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-full text-neutral-400 hover:text-white hover:bg-white/[0.08] transition-colors"
         aria-label={ariaLabel}
       >
-        <ShoppingBag className="h-5 w-5" />
+        <ShoppingBag className="h-[18px] w-[18px]" />
         {itemCount > 0 && (
-          <Badge className="absolute -top-1 -right-1 px-1.5 py-0.5 min-w-[20px] h-5 rounded-full bg-red-600 text-white text-xs font-bold flex items-center justify-center">
+          <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-amber-500 text-neutral-900 text-[10px] font-bold leading-none">
             {itemCount}
-          </Badge>
+          </span>
         )}
-      </Button>
+      </button>
     </Link>
   )
 }

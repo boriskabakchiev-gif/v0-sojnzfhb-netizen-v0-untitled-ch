@@ -1,6 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
-import { TrendingUp, Award, Gift, Globe, Truck, BadgePercent, ShieldCheck, Handshake } from "lucide-react"
+import { TrendingUp, Award, Gift, Globe, Truck, BadgePercent, ShieldCheck, Handshake, ArrowRight } from "lucide-react"
 import { CategoriesNavbar } from "@/components/categories-navbar"
 import { Button } from "@/components/ui/button"
 import { getCategories, getSubcategories, getHomePageImage } from "@/lib/db"
@@ -278,49 +278,76 @@ LIMIT 1
           </div>
         </section>
 
-        {/* Categories - обновена секция със снимки на продукти от категориите - по-светъл фон */}
-        <section className="py-12 sm:py-16 bg-white">
+        {/* Categories - Modern Redesigned Section */}
+        <section className="py-16 sm:py-24 bg-gray-50">
           <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 sm:mb-12">
-              <div>
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-3 text-gray-800">
-                  Нашите категории
-                </h2>
-                <p className="text-sm sm:text-base text-gray-600 max-w-2xl">
-                  Разгледайте нашата богата колекция от риболовни принадлежности, организирани в удобни категории
-                </p>
-              </div>
+            {/* Section Header */}
+            <div className="text-center mb-12 sm:mb-16">
+              <span className="inline-block mb-3 rounded-full bg-amber-100 px-4 py-1.5 text-sm font-semibold text-amber-700 tracking-wide uppercase">
+                Каталог
+              </span>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 text-gray-900 text-balance">
+                Нашите категории
+              </h2>
+              <p className="text-base sm:text-lg text-gray-500 max-w-xl mx-auto leading-relaxed">
+                Разгледайте нашата богата колекция от риболовни принадлежности, организирани в удобни категории
+              </p>
             </div>
 
-            {/* Обновен grid с 2 колони по подразбиране, дори на мобилни устройства */}
-            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6 lg:gap-8">
-              {(categories || []).map((category) => (
-                <Link key={category.id} href={`/category/${category.id}`}>
-                  <div className="group relative overflow-hidden rounded-xl shadow-md border border-gray-200 h-full transition-all duration-300 hover:shadow-lg hover:border-gray-300">
-                    <div className="aspect-[4/3] relative bg-white">
+            {/* Categories Grid - Masonry-inspired layout */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6">
+              {(categories || []).map((category, index) => (
+                <Link
+                  key={category.id}
+                  href={`/category/${category.id}`}
+                  className={`group block ${index === 0 ? "md:col-span-2 md:row-span-2" : ""}`}
+                >
+                  <div
+                    className={`relative overflow-hidden rounded-2xl bg-white h-full transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 ${
+                      index === 0 ? "min-h-[280px] sm:min-h-[400px]" : "min-h-[180px] sm:min-h-[240px]"
+                    }`}
+                  >
+                    {/* Image */}
+                    <div className="absolute inset-0">
                       <Image
                         src={getCategoryImage(category) || "/placeholder.svg"}
                         alt={category.title}
                         fill
-                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                        className="object-contain transition-transform duration-500 group-hover:scale-105"
+                        sizes={
+                          index === 0
+                            ? "(max-width: 768px) 100vw, 50vw"
+                            : "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        }
+                        className="object-cover transition-transform duration-700 group-hover:scale-110"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-gray-900/70 via-gray-900/40 to-transparent opacity-80 group-hover:opacity-70 transition-opacity duration-300"></div>
                     </div>
-                    <div className="absolute bottom-0 left-0 p-3 sm:p-4 w-full z-10">
-                      <h3 className="text-sm sm:text-base md:text-lg lg:text-xl font-bold mb-1 sm:mb-2 md:mb-4 text-white group-hover:text-amber-400 transition-colors duration-300 line-clamp-2">
-                        {category.title}
-                      </h3>
-                      <div className="flex items-center justify-between">
-                        <Button
-                          className="bg-amber-600 hover:bg-amber-700 text-white py-1 px-2 md:py-2 md:px-4 rounded-full text-xs sm:text-sm"
-                          size="sm"
+
+                    {/* Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/30 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-500" />
+
+                    {/* Content */}
+                    <div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-5 md:p-6">
+                      <div className="transform transition-transform duration-500 group-hover:translate-y-0 translate-y-1">
+                        <h3
+                          className={`font-bold text-white mb-2 line-clamp-2 leading-tight ${
+                            index === 0
+                              ? "text-xl sm:text-2xl md:text-3xl"
+                              : "text-sm sm:text-base md:text-lg"
+                          }`}
                         >
-                          Виж
-                        </Button>
-                        <span className="text-xs md:text-sm text-gray-200 group-hover:text-white transition-colors duration-300">
-                          {Math.floor(Math.random() * 100) + 50}+
-                        </span>
+                          {category.title}
+                        </h3>
+                        <div className="flex items-center gap-2 text-amber-300 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                          <span>Разгледай</span>
+                          <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Accent corner */}
+                    <div className="absolute top-3 right-3 sm:top-4 sm:right-4">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-amber-500/20 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 group-hover:rotate-45">
+                        <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                       </div>
                     </div>
                   </div>

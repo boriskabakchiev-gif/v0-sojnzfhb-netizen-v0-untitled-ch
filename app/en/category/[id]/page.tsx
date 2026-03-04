@@ -286,12 +286,8 @@ export default async function EnglishCategoryPage({
 
     return (
       <div className="min-h-screen bg-gray-100 text-gray-800">
-        <div className="bg-gray-700">
-          <SiteHeader categories={[]} subcategories={allCategories} currentCategoryId={categoryId} isEnglish={true} />
-        </div>
-        <div className="bg-gray-600">
-          <CategoriesNavbar currentCategoryId={categoryId} isEnglish={true} />
-        </div>
+        <SiteHeader categories={[]} subcategories={allCategories} currentCategoryId={categoryId} isEnglish={true} />
+        <CategoriesNavbar currentCategoryId={categoryId} isEnglish={true} />
 
         <section className="relative py-6 bg-white border-b border-gray-200">
           <div className="container mx-auto px-4">

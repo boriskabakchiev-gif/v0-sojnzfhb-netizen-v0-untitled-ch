@@ -121,13 +121,11 @@ LIMIT 1
     <div className="min-h-screen bg-gray-100 text-gray-800 flex flex-col">
       <HolidayBanner />
 
-      {/* Header - променен на по-светъл сив */}
-      <div className="bg-gray-700">
-        <SiteHeader categories={categories || []} subcategories={allSubcategories || []} />
+      {/* Header */}
+      <SiteHeader categories={categories || []} subcategories={allSubcategories || []} />
 
-        {/* Динамична лента с категории, която се обновява при всяко зареждане */}
-        <CategoriesNavbar />
-      </div>
+      {/* Динамична лента с категории, която се обновява при всяко зареждане */}
+      <CategoriesNavbar />
 
       {/* Main content - flex-1 to push footer to bottom */}
       <main className="flex-1">

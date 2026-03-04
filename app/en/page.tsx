@@ -3,11 +3,12 @@ import Image from "next/image"
 import { TrendingUp, Award, Gift, Globe, Truck, BadgePercent, ShieldCheck, Handshake, ArrowRight } from "lucide-react"
 import { CategoriesNavbar } from "@/components/categories-navbar"
 import { Button } from "@/components/ui/button"
-import { getCategories, getSubcategories, getHomePageImage } from "@/lib/db"
+import { getCategories, getSubcategories, getHeroBanners } from "@/lib/db"
 import { SiteHeader } from "@/components/site-header"
 import { getUser } from "@/lib/auth"
 import { sql } from "@/lib/db"
 import { ProductCard } from "@/components/product-card"
+import { HeroBannerCarousel } from "@/components/hero-banner-carousel"
 
 // Маркираме страницата като динамична
 export const dynamic = "force-dynamic"
@@ -18,18 +19,13 @@ export default async function EnglishHome() {
   // Fetch data from the database
   const categories = await getCategories()
   const allSubcategories = await getSubcategories()
-  const homePageImageUrl = await getHomePageImage()
+  const heroBanners = await getHeroBanners()
 
   // Transform categories to use English titles, with proper null checking
   const englishCategories = (categories || []).map((category) => ({
     ...category,
     title: category.title_en || category.title, // Use title_en if available, fallback to title
   }))
-
-  // Use fetched URL or a fallback
-  const heroImageUrl =
-    homePageImageUrl ||
-    "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/20250510_1413_%D0%A0%D0%B5%D0%BA%D0%BB%D0%B0%D0%BC%D0%B5%D0%BD%20%D0%B1%D0%B0%D0%BD%D0%B5%D1%80%20%D0%B7%D0%B0%D1%85%D1%80%D0%B0%D0%BD%D0%BA%D0%B8_remix_01jtwyb7wwfm9ak0k3cm6xegsp-brtsohEHLLbW96IHzoNdSM5bsYa1G4.png"
 
   // Извличане на информация за потребителя
   const user = await getUser()
@@ -135,68 +131,42 @@ LIMIT 1
         <CategoriesNavbar isEnglish={true} />
       </div>
 
-      {/* Hero Section - с новото изображение като background */}
-      <section
-        className="relative bg-amber-800 text-white"
-        style={{
-          backgroundImage: `url('${heroImageUrl}')`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-        }}
-      >
-        {/* Overlay for better text readability */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent"></div>
+      {/* Hero Banner Carousel - Apple-style, image only */}
+      <div className="group">
+        <HeroBannerCarousel banners={heroBanners} autoPlayInterval={5000} />
+      </div>
 
-        {/* Content container with responsive padding */}
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="flex flex-col justify-center min-h-[60vh] md:min-h-[70vh] py-16 md:py-24 lg:py-32">
-            <div className="max-w-xl md:max-w-2xl">
-              <div className="inline-block mb-4 rounded-full bg-amber-600/30 px-3 py-1 text-sm font-medium text-amber-200 backdrop-blur-sm">
-                Professional fishing tackle
+      {/* Stats Section - standalone below carousel */}
+      <section className="bg-gray-900">
+        <div className="container mx-auto py-5 sm:py-7 px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+            <div className="flex flex-col items-center text-center">
+              <div className="flex items-center gap-2 mb-1">
+                <Award className="h-5 w-5 text-amber-400" />
+                <span className="text-2xl sm:text-3xl font-bold text-white">30</span>
               </div>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 text-white leading-tight">
-                Welcome to the world of <span className="text-amber-400">fishing</span>
-              </h1>
-              <p className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 text-amber-100 md:pr-16 leading-relaxed">
-                High-quality products from Bulgaria's largest groundbait factory
-              </p>
+              <p className="text-xs sm:text-sm text-gray-400 font-medium">Years of experience</p>
             </div>
-          </div>
-        </div>
-
-        {/* Статистики секция - responsive grid */}
-        <div className="relative z-10 backdrop-blur-md bg-black/30 border-t border-amber-800/50">
-          <div className="container mx-auto py-4 sm:py-6 px-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-              <div className="text-center">
-                <div className="flex items-center justify-center mb-1 sm:mb-2">
-                  <Award className="h-5 w-5 sm:h-6 sm:w-6 text-amber-400 mr-2" />
-                  <span className="text-xl sm:text-2xl font-bold text-white">30</span>
-                </div>
-                <p className="text-xs sm:text-sm text-amber-200">Years of experience</p>
+            <div className="flex flex-col items-center text-center">
+              <div className="flex items-center gap-2 mb-1">
+                <Gift className="h-5 w-5 text-amber-400" />
+                <span className="text-2xl sm:text-3xl font-bold text-white">1000+</span>
               </div>
-              <div className="text-center">
-                <div className="flex items-center justify-center mb-1 sm:mb-2">
-                  <Gift className="h-5 w-5 sm:h-6 sm:w-6 text-amber-400 mr-2" />
-                  <span className="text-xl sm:text-2xl font-bold text-white">1000+</span>
-                </div>
-                <p className="text-xs sm:text-sm text-amber-200">Products</p>
+              <p className="text-xs sm:text-sm text-gray-400 font-medium">Products</p>
+            </div>
+            <div className="flex flex-col items-center text-center">
+              <div className="flex items-center gap-2 mb-1">
+                <TrendingUp className="h-5 w-5 text-amber-400" />
+                <span className="text-2xl sm:text-3xl font-bold text-white">{"2M+"}</span>
               </div>
-              <div className="text-center">
-                <div className="flex items-center justify-center mb-1 sm:mb-2">
-                  <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-amber-400 mr-2" />
-                  <span className="text-xl sm:text-2xl font-bold text-white">2M+</span>
-                </div>
-                <p className="text-xs sm:text-sm text-amber-200">Satisfied customers annually</p>
+              <p className="text-xs sm:text-sm text-gray-400 font-medium">Satisfied customers annually</p>
+            </div>
+            <div className="flex flex-col items-center text-center">
+              <div className="flex items-center gap-2 mb-1">
+                <Globe className="h-5 w-5 text-amber-400" />
+                <span className="text-2xl sm:text-3xl font-bold text-white">10+</span>
               </div>
-              <div className="text-center">
-                <div className="flex items-center justify-center mb-1 sm:mb-2">
-                  <Globe className="h-5 w-5 sm:h-6 sm:w-6 text-amber-400 mr-2" />
-                  <span className="text-xl sm:text-2xl font-bold text-white">10+</span>
-                </div>
-                <p className="text-xs sm:text-sm text-amber-200">Export countries</p>
-              </div>
+              <p className="text-xs sm:text-sm text-gray-400 font-medium">Export countries</p>
             </div>
           </div>
         </div>

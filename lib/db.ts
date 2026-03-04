@@ -1254,10 +1254,10 @@ export async function getActiveQuantityPromotionForSubcategory(
 }
 
 export async function updateHomePageImageUrl(id: number, newUrl: string) {
-  console.log(`LIB/DB.TS: updateHomePageImageUrl called. id: ${id}, newUrl: ${newUrl}, dbInitialized: ${dbInitialized}`)
+console.log(`LIB/DB.TS: updateHomePageImageUrl called. id: ${id}, newUrl: ${newUrl}, dbInitialized: ${dbInitialized}`)
   if (!dbInitialized) {
-    console.error("LIB/DB.TS: updateHomePageImageUrl - Database not initialized.")
-    return { success: false, error: "Database not initialized" }
+console.error("LIB/DB.TS: updateHomePageImageUrl - Database not initialized.")
+  return { success: false, error: "Database not initialized" }
   }
   try {
     await executeQueryWithRetry(`UPDATE home_page_image SET image_url = $1 WHERE id = $2`, [newUrl, id])
@@ -1265,6 +1265,80 @@ export async function updateHomePageImageUrl(id: number, newUrl: string) {
   } catch (error) {
     console.error(`LIB/DB.TS: Error updating home page image URL for id ${id}:`, error)
     return { success: false, error: "Failed to update image URL" }
+  }
+}
+
+// Hero Banner Carousel functions
+export async function getHeroBanners() {
+  console.log(`LIB/DB.TS: getHeroBanners called. dbInitialized: ${dbInitialized}`)
+  if (!dbInitialized) {
+    console.error("LIB/DB.TS: getHeroBanners - Database not initialized.")
+    return []
+  }
+  try {
+    const result = await executeQueryWithRetry(`
+      SELECT id, image_url, is_active, sort_order, link_url, created_at
+      FROM home_page_image
+      WHERE is_active = true
+      ORDER BY sort_order ASC, created_at DESC
+    `)
+    return result || []
+  } catch (error) {
+    console.error("LIB/DB.TS: Error fetching hero banners:", error)
+    // Fallback: try without sort_order/link_url columns (pre-migration)
+    try {
+      const fallbackResult = await executeQueryWithRetry(`
+        SELECT id, image_url, is_active, created_at
+        FROM home_page_image
+        WHERE is_active = true
+        ORDER BY created_at DESC
+      `)
+      return (fallbackResult || []).map((r: any) => ({ ...r, sort_order: 0, link_url: null }))
+    } catch {
+      return []
+    }
+  }
+}
+
+export async function toggleBannerActive(id: number, isActive: boolean) {
+  console.log(`LIB/DB.TS: toggleBannerActive called. id: ${id}, isActive: ${isActive}`)
+  if (!dbInitialized) {
+    return { success: false, error: "Database not initialized" }
+  }
+  try {
+    await executeQueryWithRetry(`UPDATE home_page_image SET is_active = $1 WHERE id = $2`, [isActive, id])
+    return { success: true }
+  } catch (error) {
+    console.error("LIB/DB.TS: Error toggling banner active:", error)
+    return { success: false, error: "Failed to toggle banner" }
+  }
+}
+
+export async function updateBannerSortOrder(id: number, sortOrder: number) {
+  console.log(`LIB/DB.TS: updateBannerSortOrder called. id: ${id}, sortOrder: ${sortOrder}`)
+  if (!dbInitialized) {
+    return { success: false, error: "Database not initialized" }
+  }
+  try {
+    await executeQueryWithRetry(`UPDATE home_page_image SET sort_order = $1 WHERE id = $2`, [sortOrder, id])
+    return { success: true }
+  } catch (error) {
+    console.error("LIB/DB.TS: Error updating banner sort order:", error)
+    return { success: false, error: "Failed to update sort order" }
+  }
+}
+
+export async function updateBannerLinkUrl(id: number, linkUrl: string | null) {
+  console.log(`LIB/DB.TS: updateBannerLinkUrl called. id: ${id}, linkUrl: ${linkUrl}`)
+  if (!dbInitialized) {
+    return { success: false, error: "Database not initialized" }
+  }
+  try {
+    await executeQueryWithRetry(`UPDATE home_page_image SET link_url = $1 WHERE id = $2`, [linkUrl, id])
+    return { success: true }
+  } catch (error) {
+    console.error("LIB/DB.TS: Error updating banner link URL:", error)
+    return { success: false, error: "Failed to update link URL" }
   }
 }
 

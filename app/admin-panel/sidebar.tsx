@@ -82,7 +82,7 @@ export function Sidebar({ items }: { items: any[] }) {
       active: isActive("/admin-panel/production"),
     },
     {
-      title: "Главна снимка",
+      title: "Банери (Карусел)",
       href: "/admin-panel/home-image",
       icon: ImageIcon,
       active: isActive("/admin-panel/home-image"),

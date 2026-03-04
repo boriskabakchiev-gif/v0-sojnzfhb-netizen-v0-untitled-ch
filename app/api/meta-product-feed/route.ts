@@ -164,15 +164,6 @@ function generateXmlResponse(products: any[], siteUrl: string, currency: string)
     // Meta requires description to be between 1-9999 characters
     const truncatedDescription = description.substring(0, 9999)
 
-    // Sale price if applicable (wholesale price as an example, if lower than standard price)
-    let salePriceXml = ""
-    if (product.retailerprice && Number(product.retailerprice) < price && Number(product.retailerprice) > 0) {
-      const salePrice = currency === "EUR"
-        ? convertBgnToEur(Number(product.retailerprice))
-        : Number(product.retailerprice).toFixed(2)
-      salePriceXml = `    <g:sale_price>${salePrice} ${displayCurrency}</g:sale_price>`
-    }
-
     return `  <entry>
     <g:id>${escapeXml(productId)}</g:id>
     <g:title>${escapeXml(product.title)}</g:title>
@@ -181,7 +172,7 @@ function generateXmlResponse(products: any[], siteUrl: string, currency: string)
     <g:image_link>${escapeXml(imageUrl)}</g:image_link>
     <g:availability>in stock</g:availability>
     <g:price>${displayPrice} ${displayCurrency}</g:price>
-${salePriceXml ? salePriceXml + "\n" : ""}    <g:condition>new</g:condition>
+    <g:condition>new</g:condition>
     <g:brand>Madiks</g:brand>
     <g:product_type>${escapeXml(productType)}</g:product_type>
     <g:google_product_category>3379</g:google_product_category>
@@ -214,7 +205,6 @@ function generateCsvResponse(products: any[], siteUrl: string, currency: string)
     "availability",
     "condition",
     "price",
-    "sale_price",
     "link",
     "image_link",
     "brand",
@@ -244,13 +234,6 @@ function generateCsvResponse(products: any[], siteUrl: string, currency: string)
 
     const description = (product.description || product.title || "").substring(0, 9999)
 
-    let salePrice = ""
-    if (product.retailerprice && Number(product.retailerprice) < price && Number(product.retailerprice) > 0) {
-      salePrice = currency === "EUR"
-        ? `${convertBgnToEur(Number(product.retailerprice))} ${displayCurrency}`
-        : `${Number(product.retailerprice).toFixed(2)} ${displayCurrency}`
-    }
-
     return [
       csvEscape(productId),
       csvEscape(product.title),
@@ -258,7 +241,6 @@ function generateCsvResponse(products: any[], siteUrl: string, currency: string)
       "in stock",
       "new",
       `${displayPrice} ${displayCurrency}`,
-      salePrice,
       csvEscape(productUrl),
       csvEscape(imageUrl),
       "Madiks",

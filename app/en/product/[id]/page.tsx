@@ -165,17 +165,15 @@ async function ProductContent({ productId }: { productId: string }) {
     return (
       <div className="min-h-screen bg-neutral-50 text-neutral-900">
         {/* Header */}
-        <div className="bg-gray-700">
-          <SiteHeader
-            categories={englishCategories}
-            subcategories={allSubcategories}
-            currentCategoryId={product?.cateid}
-            isLoggedIn={isUserLoggedIn}
-            userName={user?.name || user?.storeName || ""}
-            isEnglish={true}
-          />
-          <CategoriesNavbar currentCategoryId={product?.cateid} isEnglish={true} />
-        </div>
+        <SiteHeader
+          categories={englishCategories}
+          subcategories={allSubcategories}
+          currentCategoryId={product?.cateid}
+          isLoggedIn={isUserLoggedIn}
+          userName={user?.name || user?.storeName || ""}
+          isEnglish={true}
+        />
+        <CategoriesNavbar currentCategoryId={product?.cateid} isEnglish={true} />
 
         {/* Breadcrumb */}
         <div className="border-b border-neutral-200/60 py-3.5">

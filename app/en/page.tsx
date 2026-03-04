@@ -123,13 +123,11 @@ LIMIT 1
 
   return (
     <div className="bg-gray-100 text-gray-800">
-      {/* Header - променен на по-светъл сив */}
-      <div className="bg-gray-700">
-        <SiteHeader categories={englishCategories} subcategories={allSubcategories || []} />
+      {/* Header */}
+      <SiteHeader categories={englishCategories} subcategories={allSubcategories || []} />
 
-        {/* Динамична лента с категории, която се обновява при всяко зареждане */}
-        <CategoriesNavbar isEnglish={true} />
-      </div>
+      {/* Динамична лента с категории, която се обновява при всяко зареждане */}
+      <CategoriesNavbar isEnglish={true} />
 
       {/* Hero Banner Carousel - Apple-style, image only */}
       <div className="group">

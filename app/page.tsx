@@ -172,83 +172,45 @@ LIMIT 1
           </div>
         </section>
 
-        {/* Catalog Section - New Section */}
-        <section className="py-12 sm:py-16 bg-amber-50">
+        {/* Products Section - Препоръчани продукти */}
+        <section className="py-12 sm:py-16 bg-gray-100">
           <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto text-center">
-              <div className="bg-white rounded-2xl shadow-lg border border-amber-200 p-8 sm:p-12">
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-                  <div className="flex-1 text-left">
-                    <h2 className="text-2xl sm:text-3xl font-bold mb-3 text-gray-800">Каталог 2025</h2>
-                    <p className="text-base sm:text-lg text-gray-600 mb-4">
-                      Разгледайте нашия пълен каталог с всички продукти за 2025 година. Открийте новите артикули и
-                      специални оферти.
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-3">
-                      <a
-                        href="https://96ghfafarqg1wwmp.public.blob.vercel-storage.com/Catalog%202025%20Web.pdf"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-lg transition-colors duration-300"
-                      >
-                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                          />
-                        </svg>
-                        Изтегли каталога
-                      </a>
-                      <a
-                        href="https://96ghfafarqg1wwmp.public.blob.vercel-storage.com/Catalog%202025%20Web.pdf"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold rounded-lg transition-colors duration-300"
-                      >
-                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                          />
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                          />
-                        </svg>
-                        Прегледай онлайн
-                      </a>
-                    </div>
-                  </div>
-                  <div className="flex-shrink-0">
-                    <div className="w-24 h-24 sm:w-32 sm:h-32 bg-amber-100 rounded-full flex items-center justify-center">
-                      <svg
-                        className="w-12 h-12 sm:w-16 sm:h-16 text-amber-600"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 sm:mb-12">
+              <div>
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-3 text-gray-800">
+                  Препоръчани продукти
+                </h2>
+                <p className="text-sm sm:text-base text-gray-600 max-w-2xl">
+                  Открийте нашата селекция от висококачествени риболовни продукти, специално подбрани за вас
+                </p>
               </div>
+            </div>
+
+            {/* Products grid - Оптимизиран за точно 4 реда на десктоп */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+              {(featuredProducts || []).map((product) => (
+                <ProductCard
+                  key={product.id}
+                  id={product.id}
+                  title={product.title || "Продукт"}
+                  description={product.description || ""}
+                  price={product.price}
+                  retailerprice={product.retailerprice}
+                  wholesalerprice={product.wholesalerprice}
+                  photourl={product.photourl}
+                  isLoggedIn={isLoggedIn}
+                  customerType={user?.customerType}
+                  discountPercent={user?.discountPercent}
+                  isNew={product.createdat ? isNewProduct(product.createdat) : false}
+                  discount={getRandomDiscount()}
+                  isEnglish={false}
+                />
+              ))}
             </div>
           </div>
         </section>
 
-        {/* Categories - Modern Redesigned Section */}
+        {/* Categories - Нашите категории */}
         <section className="py-16 sm:py-24 bg-gray-50">
           <div className="container mx-auto px-4">
             {/* Section Header */}
@@ -327,40 +289,78 @@ LIMIT 1
           </div>
         </section>
 
-        {/* Products Section - Improved Design - по-светъл фон */}
-        <section className="py-12 sm:py-16 bg-gray-100">
+        {/* Catalog Section - Каталог 2025 */}
+        <section className="py-12 sm:py-16 bg-amber-50">
           <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 sm:mb-12">
-              <div>
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-3 text-gray-800">
-                  Препоръчани продукти
-                </h2>
-                <p className="text-sm sm:text-base text-gray-600 max-w-2xl">
-                  Открийте нашата селекция от висококачествени риболовни продукти, специално подбрани за вас
-                </p>
+            <div className="max-w-4xl mx-auto text-center">
+              <div className="bg-white rounded-2xl shadow-lg border border-amber-200 p-8 sm:p-12">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+                  <div className="flex-1 text-left">
+                    <h2 className="text-2xl sm:text-3xl font-bold mb-3 text-gray-800">Каталог 2025</h2>
+                    <p className="text-base sm:text-lg text-gray-600 mb-4">
+                      Разгледайте нашия пълен каталог с всички продукти за 2025 година. Открийте новите артикули и
+                      специални оферти.
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <a
+                        href="https://96ghfafarqg1wwmp.public.blob.vercel-storage.com/Catalog%202025%20Web.pdf"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-lg transition-colors duration-300"
+                      >
+                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                          />
+                        </svg>
+                        Изтегли каталога
+                      </a>
+                      <a
+                        href="https://96ghfafarqg1wwmp.public.blob.vercel-storage.com/Catalog%202025%20Web.pdf"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold rounded-lg transition-colors duration-300"
+                      >
+                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                          />
+                        </svg>
+                        Прегледай онлайн
+                      </a>
+                    </div>
+                  </div>
+                  <div className="flex-shrink-0">
+                    <div className="w-24 h-24 sm:w-32 sm:h-32 bg-amber-100 rounded-full flex items-center justify-center">
+                      <svg
+                        className="w-12 h-12 sm:w-16 sm:h-16 text-amber-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-
-            {/* Products grid - Оптимизиран за точно 4 реда на десктоп */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-              {(featuredProducts || []).map((product) => (
-                <ProductCard
-                  key={product.id}
-                  id={product.id}
-                  title={product.title || "Продукт"}
-                  description={product.description || ""}
-                  price={product.price}
-                  retailerprice={product.retailerprice}
-                  wholesalerprice={product.wholesalerprice}
-                  photourl={product.photourl}
-                  isLoggedIn={isLoggedIn}
-                  customerType={user?.customerType}
-                  discountPercent={user?.discountPercent}
-                  isNew={product.createdat ? isNewProduct(product.createdat) : false}
-                  discount={getRandomDiscount()}
-                  isEnglish={false}
-                />
-              ))}
             </div>
           </div>
         </section>

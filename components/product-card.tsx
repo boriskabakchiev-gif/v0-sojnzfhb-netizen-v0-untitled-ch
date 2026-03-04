@@ -285,11 +285,11 @@ export function ProductCard({
             {displayPriceNumber !== null ? (
               <div className="flex items-baseline gap-2">
                 <span className="text-lg sm:text-xl font-bold tracking-tight text-neutral-900">
-                  {formatPriceDisplay(displayPriceNumber)}
-                  <span className="text-sm font-semibold text-neutral-500 ml-0.5">лв.</span>
+                  {formatPriceDisplay(convertBgnToEur(displayPriceNumber))}
+                  <span className="text-sm font-semibold text-neutral-500 ml-0.5">€</span>
                 </span>
                 <span className="text-xs text-neutral-400">
-                  {formatPriceDisplay(convertBgnToEur(displayPriceNumber))} {"€"}
+                  {formatPriceDisplay(displayPriceNumber)} лв.
                 </span>
               </div>
             ) : (

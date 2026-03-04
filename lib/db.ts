@@ -856,14 +856,24 @@ export async function getHomePageImages() {
   }
   try {
     const result = await executeQueryWithRetry(`
-      SELECT id, image_url, is_active, created_at
+      SELECT id, image_url, is_active, sort_order, link_url, created_at
       FROM home_page_image
-      ORDER BY created_at DESC
+      ORDER BY sort_order ASC, created_at DESC
     `)
     return result || []
   } catch (error) {
     console.error("LIB/DB.TS: Error fetching home page images:", error)
-    return []
+    // Fallback without sort_order/link_url columns
+    try {
+      const fallback = await executeQueryWithRetry(`
+        SELECT id, image_url, is_active, created_at
+        FROM home_page_image
+        ORDER BY created_at DESC
+      `)
+      return (fallback || []).map((r: any) => ({ ...r, sort_order: 0, link_url: null }))
+    } catch {
+      return []
+    }
   }
 }
 

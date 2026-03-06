@@ -120,26 +120,66 @@ export function StarRating({
   )
 }
 
-// Compact version for product cards
+// Compact version for product cards - shows all 5 stars
 export function StarRatingCompact({
-  rating,
+  rating = 0,
   reviewCount,
   size = "sm",
   className,
+  showEmpty = true,
 }: {
-  rating: number
+  rating?: number
   reviewCount?: number
   size?: "sm" | "md"
   className?: string
+  showEmpty?: boolean
 }) {
-  if (!rating || rating === 0) return null
+  const maxRating = 5
+  
+  // If no rating and showEmpty is false, don't render anything
+  if ((!rating || rating === 0) && !showEmpty) return null
   
   return (
     <div className={cn("flex items-center gap-1", className)}>
-      <Star className={cn(sizeClasses[size], "text-amber-400 fill-amber-400")} />
-      <span className={cn("font-medium text-neutral-700", textSizeClasses[size])}>
-        {rating.toFixed(1)}
-      </span>
+      <div className="flex items-center gap-0.5">
+        {Array.from({ length: maxRating }).map((_, index) => {
+          const fillPercentage = Math.min(Math.max((rating || 0) - index, 0), 1) * 100
+          const isFilled = fillPercentage > 0
+          const isPartial = fillPercentage > 0 && fillPercentage < 100
+
+          return (
+            <div key={index} className="relative">
+              {/* Background star (empty) */}
+              <Star
+                className={cn(
+                  sizeClasses[size],
+                  "text-neutral-300 stroke-neutral-300",
+                  !isFilled && "fill-transparent"
+                )}
+              />
+              {/* Foreground star (filled) - overlaid with clip for partial fill */}
+              {isFilled && (
+                <div
+                  className="absolute inset-0 overflow-hidden"
+                  style={{ width: isPartial ? `${fillPercentage}%` : "100%" }}
+                >
+                  <Star
+                    className={cn(
+                      sizeClasses[size],
+                      "text-amber-400 fill-amber-400"
+                    )}
+                  />
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+      {rating > 0 && (
+        <span className={cn("font-medium text-neutral-700", textSizeClasses[size])}>
+          {rating.toFixed(1)}
+        </span>
+      )}
       {reviewCount !== undefined && reviewCount > 0 && (
         <span className={cn("text-neutral-400", textSizeClasses[size])}>
           ({reviewCount})

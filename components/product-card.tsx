@@ -265,10 +265,13 @@ export function ProductCard({
             {title}
           </h3>
 
-          {/* Rating */}
-          {averageRating && averageRating > 0 && (
-            <StarRatingCompact rating={averageRating} reviewCount={reviewCount || undefined} size="sm" />
-          )}
+          {/* Rating - always show 5 stars (empty if no reviews) */}
+          <StarRatingCompact 
+            rating={averageRating || 0} 
+            reviewCount={reviewCount || undefined} 
+            size="sm" 
+            showEmpty={true}
+          />
 
           {/* Description - subtle, one line */}
           {description && (

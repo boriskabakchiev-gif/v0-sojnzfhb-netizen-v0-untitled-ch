@@ -222,6 +222,7 @@ async function ProductContent({ productId }: { productId: string }) {
                       fill
                       className="object-contain p-8 md:p-12"
                       priority
+                      unoptimized
                     />
 
                     {promotionDisplayMessage && (
@@ -252,15 +253,15 @@ async function ProductContent({ productId }: { productId: string }) {
                     <>
                       {priceToDisplay !== null ? (
                         <div className="flex items-baseline gap-3">
-                          <span className="text-4xl font-bold tracking-tight text-neutral-900">
-                            {formatDisplayPrice(priceToDisplay)}
-                            <span className="text-xl font-semibold text-neutral-500 ml-1">BGN</span>
-                          </span>
                           {eurPrice !== null && (
-                            <span className="text-lg text-neutral-400 font-medium">
-                              {formatDisplayPrice(eurPrice)} {"€"}
+                            <span className="text-4xl font-bold tracking-tight text-neutral-900">
+                              {formatDisplayPrice(eurPrice)}
+                              <span className="text-xl font-semibold text-neutral-500 ml-1">{"€"}</span>
                             </span>
                           )}
+                          <span className="text-lg text-neutral-400 font-medium">
+                            {formatDisplayPrice(priceToDisplay)} BGN
+                          </span>
                         </div>
                       ) : (
                         <span className="text-4xl font-bold text-neutral-300">N/A</span>
@@ -270,11 +271,11 @@ async function ProductContent({ productId }: { productId: string }) {
                     <>
                       <div className="flex items-baseline gap-3">
                         <span className="text-4xl font-bold tracking-tight text-neutral-900">
-                          {formatDisplayPrice(Number(product.price))}
-                          <span className="text-xl font-semibold text-neutral-500 ml-1">BGN</span>
+                          {formatDisplayPrice(convertBgnToEur(Number(product.price)))}
+                          <span className="text-xl font-semibold text-neutral-500 ml-1">{"€"}</span>
                         </span>
                         <span className="text-lg text-neutral-400 font-medium">
-                          {formatDisplayPrice(convertBgnToEur(Number(product.price)))} {"€"}
+                          {formatDisplayPrice(Number(product.price))} BGN
                         </span>
                       </div>
                       <p className="text-sm text-neutral-500 mt-3 leading-relaxed">

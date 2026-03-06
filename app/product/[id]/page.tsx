@@ -208,6 +208,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
                       fill
                       className="object-contain p-8 md:p-12"
                       priority
+                      unoptimized
                     />
 
                     {/* Promo badge on image */}
@@ -237,15 +238,15 @@ export default async function ProductPage({ params }: { params: { id: string } }
                   </p>
                   {priceToDisplay !== null ? (
                     <div className="flex items-baseline gap-3">
-                      <span className="text-4xl font-bold tracking-tight text-neutral-900">
-                        {formatDisplayPrice(priceToDisplay)}
-                        <span className="text-xl font-semibold text-neutral-500 ml-1">{"лв."}</span>
-                      </span>
                       {eurPrice !== null && (
-                        <span className="text-lg text-neutral-400 font-medium">
-                          {formatDisplayPrice(eurPrice)} {"€"}
+                        <span className="text-4xl font-bold tracking-tight text-neutral-900">
+                          {formatDisplayPrice(eurPrice)}
+                          <span className="text-xl font-semibold text-neutral-500 ml-1">{"€"}</span>
                         </span>
                       )}
+                      <span className="text-lg text-neutral-400 font-medium">
+                        {formatDisplayPrice(priceToDisplay)} {"лв."}
+                      </span>
                     </div>
                   ) : (
                     <span className="text-4xl font-bold text-neutral-300">N/A</span>

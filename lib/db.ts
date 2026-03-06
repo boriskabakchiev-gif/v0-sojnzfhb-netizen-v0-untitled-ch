@@ -1416,3 +1416,223 @@ export async function getTableSchema(tableName: string) {
     return { columns: [] }
   }
 }
+
+// Product Reviews
+export interface ProductReview {
+  id: number
+  product_id: string
+  rating: number
+  reviewer_name: string | null
+  reviewer_email: string | null
+  review_text: string | null
+  is_approved: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface ProductRatingSummary {
+  product_id: string
+  review_count: number
+  average_rating: number
+}
+
+export async function getProductReviews(productId: string, approvedOnly = true): Promise<ProductReview[]> {
+  console.log(`LIB/DB.TS: getProductReviews called. Product ID: ${productId}, dbInitialized: ${dbInitialized}`)
+  if (!dbInitialized) {
+    console.error("LIB/DB.TS: getProductReviews - Database not initialized.")
+    return []
+  }
+  if (!productId) {
+    console.error("LIB/DB.TS: getProductReviews - Product ID is undefined or null.")
+    return []
+  }
+  try {
+    let query = `SELECT * FROM product_reviews WHERE product_id = $1`
+    if (approvedOnly) {
+      query += ` AND is_approved = true`
+    }
+    query += ` ORDER BY created_at DESC`
+    const result = await executeQueryWithRetry(query, [productId])
+    return result as ProductReview[]
+  } catch (error) {
+    console.error(`LIB/DB.TS: Error fetching reviews for product ${productId}:`, error)
+    return []
+  }
+}
+
+export async function getProductRatingSummary(productId: string): Promise<ProductRatingSummary | null> {
+  console.log(`LIB/DB.TS: getProductRatingSummary called. Product ID: ${productId}, dbInitialized: ${dbInitialized}`)
+  if (!dbInitialized) {
+    console.error("LIB/DB.TS: getProductRatingSummary - Database not initialized.")
+    return null
+  }
+  if (!productId) {
+    console.error("LIB/DB.TS: getProductRatingSummary - Product ID is undefined or null.")
+    return null
+  }
+  try {
+    const result = await executeQueryWithRetry(
+      `SELECT product_id, review_count, average_rating FROM product_rating_summary WHERE product_id = $1`,
+      [productId],
+    )
+    if (result[0]) {
+      return {
+        product_id: result[0].product_id,
+        review_count: parseInt(result[0].review_count),
+        average_rating: parseFloat(result[0].average_rating),
+      }
+    }
+    return null
+  } catch (error) {
+    console.error(`LIB/DB.TS: Error fetching rating summary for product ${productId}:`, error)
+    return null
+  }
+}
+
+export async function createProductReview(
+  productId: string,
+  rating: number,
+  reviewerName?: string,
+  reviewerEmail?: string,
+  reviewText?: string,
+): Promise<ProductReview | null> {
+  console.log(`LIB/DB.TS: createProductReview called. Product ID: ${productId}, Rating: ${rating}`)
+  if (!dbInitialized) {
+    console.error("LIB/DB.TS: createProductReview - Database not initialized.")
+    return null
+  }
+  if (!productId || rating < 1 || rating > 5) {
+    console.error("LIB/DB.TS: createProductReview - Invalid product ID or rating.")
+    return null
+  }
+  try {
+    const result = await executeQueryWithRetry(
+      `INSERT INTO product_reviews (product_id, rating, reviewer_name, reviewer_email, review_text, is_approved) 
+       VALUES ($1, $2, $3, $4, $5, true) 
+       RETURNING *`,
+      [productId, rating, reviewerName || null, reviewerEmail || null, reviewText || null],
+    )
+    return result[0] as ProductReview
+  } catch (error) {
+    console.error(`LIB/DB.TS: Error creating review for product ${productId}:`, error)
+    return null
+  }
+}
+
+export async function updateProductReviewApproval(reviewId: number, isApproved: boolean): Promise<boolean> {
+  console.log(`LIB/DB.TS: updateProductReviewApproval called. Review ID: ${reviewId}, Approved: ${isApproved}`)
+  if (!dbInitialized) {
+    console.error("LIB/DB.TS: updateProductReviewApproval - Database not initialized.")
+    return false
+  }
+  try {
+    await executeQueryWithRetry(
+      `UPDATE product_reviews SET is_approved = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $1`,
+      [reviewId, isApproved],
+    )
+    return true
+  } catch (error) {
+    console.error(`LIB/DB.TS: Error updating review approval ${reviewId}:`, error)
+    return false
+  }
+}
+
+export async function deleteProductReview(reviewId: number): Promise<boolean> {
+  console.log(`LIB/DB.TS: deleteProductReview called. Review ID: ${reviewId}`)
+  if (!dbInitialized) {
+    console.error("LIB/DB.TS: deleteProductReview - Database not initialized.")
+    return false
+  }
+  try {
+    await executeQueryWithRetry(`DELETE FROM product_reviews WHERE id = $1`, [reviewId])
+    return true
+  } catch (error) {
+    console.error(`LIB/DB.TS: Error deleting review ${reviewId}:`, error)
+    return false
+  }
+}
+
+export async function getAllReviews(page = 1, limit = 20): Promise<{ reviews: ProductReview[]; total: number }> {
+  console.log(`LIB/DB.TS: getAllReviews called. Page: ${page}, Limit: ${limit}`)
+  if (!dbInitialized) {
+    console.error("LIB/DB.TS: getAllReviews - Database not initialized.")
+    return { reviews: [], total: 0 }
+  }
+  try {
+    const offset = (page - 1) * limit
+    const countResult = await executeQueryWithRetry(`SELECT COUNT(*) as count FROM product_reviews`)
+    const total = parseInt(countResult[0]?.count || "0")
+    
+    const result = await executeQueryWithRetry(
+      `SELECT * FROM product_reviews ORDER BY created_at DESC LIMIT $1 OFFSET $2`,
+      [limit, offset],
+    )
+    return { reviews: result as ProductReview[], total }
+  } catch (error) {
+    console.error("LIB/DB.TS: Error fetching all reviews:", error)
+    return { reviews: [], total: 0 }
+  }
+}
+
+export async function updateProductReview(
+  reviewId: number,
+  rating: number,
+  reviewerName?: string,
+  reviewText?: string,
+  isApproved?: boolean,
+): Promise<boolean> {
+  console.log(`LIB/DB.TS: updateProductReview called. Review ID: ${reviewId}`)
+  if (!dbInitialized) {
+    console.error("LIB/DB.TS: updateProductReview - Database not initialized.")
+    return false
+  }
+  try {
+    await executeQueryWithRetry(
+      `UPDATE product_reviews 
+       SET rating = $2, reviewer_name = $3, review_text = $4, is_approved = $5, updated_at = CURRENT_TIMESTAMP 
+       WHERE id = $1`,
+      [reviewId, rating, reviewerName || null, reviewText || null, isApproved ?? true],
+    )
+    return true
+  } catch (error) {
+    console.error(`LIB/DB.TS: Error updating review ${reviewId}:`, error)
+    return false
+  }
+}
+
+export async function getBatchProductRatings(productIds: string[]): Promise<Map<string, ProductRatingSummary>> {
+  console.log(`LIB/DB.TS: getBatchProductRatings called. Product count: ${productIds.length}`)
+  const ratingsMap = new Map<string, ProductRatingSummary>()
+  
+  if (!dbInitialized) {
+    console.error("LIB/DB.TS: getBatchProductRatings - Database not initialized.")
+    return ratingsMap
+  }
+  
+  if (productIds.length === 0) {
+    return ratingsMap
+  }
+  
+  try {
+    const placeholders = productIds.map((_, i) => `$${i + 1}`).join(", ")
+    const result = await executeQueryWithRetry(
+      `SELECT product_id, review_count, average_rating 
+       FROM product_rating_summary 
+       WHERE product_id IN (${placeholders})`,
+      productIds,
+    )
+    
+    for (const row of result) {
+      ratingsMap.set(row.product_id, {
+        product_id: row.product_id,
+        review_count: parseInt(row.review_count),
+        average_rating: parseFloat(row.average_rating),
+      })
+    }
+    
+    return ratingsMap
+  } catch (error) {
+    console.error("LIB/DB.TS: Error fetching batch product ratings:", error)
+    return ratingsMap
+  }
+}

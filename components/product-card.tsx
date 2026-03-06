@@ -10,6 +10,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { useCart, type CartItem } from "@/context/cart-context"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { StarRatingCompact } from "@/components/star-rating"
 
 interface ProductCardProps {
   id: string
@@ -29,6 +30,8 @@ interface ProductCardProps {
   promo_free_qty?: number | null
   promo_description?: string | null
   isEnglish?: boolean
+  averageRating?: number | null
+  reviewCount?: number | null
 }
 
 export function ProductCard({
@@ -49,6 +52,8 @@ export function ProductCard({
   promo_free_qty,
   promo_description,
   isEnglish = false,
+  averageRating,
+  reviewCount,
 }: ProductCardProps) {
   const { toast } = useToast()
   const router = useRouter()
@@ -259,6 +264,14 @@ export function ProductCard({
           <h3 className="line-clamp-2 text-[13px] sm:text-sm font-semibold leading-snug text-neutral-900 group-hover:text-neutral-700 transition-colors duration-300">
             {title}
           </h3>
+
+          {/* Rating - always show 5 stars (empty if no reviews) */}
+          <StarRatingCompact 
+            rating={averageRating || 0} 
+            reviewCount={reviewCount || undefined} 
+            size="sm" 
+            showEmpty={true}
+          />
 
           {/* Description - subtle, one line */}
           {description && (

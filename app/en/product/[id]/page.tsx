@@ -1,13 +1,15 @@
 import { Suspense } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { ChevronRight, Tag, Package, Layers, Hash, CheckCircle2 } from "lucide-react"
+import { ChevronRight, Tag, Package, Layers, Hash, CheckCircle2, Phone } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { CategoriesNavbar } from "@/components/categories-navbar"
 import { ProductCard } from "@/components/product-card"
 import { ProductQuantityControls } from "@/components/product-quantity-controls"
+import { StarRating } from "@/components/star-rating"
+import { ProductReviewsSection } from "@/components/product-reviews-section"
 import { getUser } from "@/lib/auth"
 import {
   getCategories,
@@ -17,6 +19,7 @@ import {
   getSubcategoryById,
   getProductsByCategory,
   getActiveQuantityPromotionForSubcategory,
+  getProductRatingSummary,
 } from "@/lib/db"
 
 export const dynamic = "force-dynamic"
@@ -91,6 +94,8 @@ async function ProductContent({ productId }: { productId: string }) {
           .filter((p) => p["Document ID"] !== product["Document ID"])
           .slice(0, 8)
       : []
+
+    const ratingSummary = await getProductRatingSummary(product["Document ID"] || product.objectid).catch(() => null)
 
     const englishCategories = (categories || []).map((cat) => ({
       ...cat,
@@ -222,6 +227,7 @@ async function ProductContent({ productId }: { productId: string }) {
                       fill
                       className="object-contain p-8 md:p-12"
                       priority
+                      unoptimized
                     />
 
                     {promotionDisplayMessage && (
@@ -243,6 +249,19 @@ async function ProductContent({ productId }: { productId: string }) {
                   {displayTitle}
                 </h1>
 
+                {/* Rating */}
+                {ratingSummary && ratingSummary.review_count > 0 && (
+                  <div className="mt-3">
+                    <StarRating
+                      rating={ratingSummary.average_rating}
+                      size="md"
+                      showValue
+                      reviewCount={ratingSummary.review_count}
+                      isEnglish={true}
+                    />
+                  </div>
+                )}
+
                 {/* Price Block */}
                 <div className="mt-6 pb-6 border-b border-neutral-200/60">
                   <p className="text-[11px] font-semibold uppercase tracking-widest text-neutral-400 mb-2">
@@ -252,15 +271,15 @@ async function ProductContent({ productId }: { productId: string }) {
                     <>
                       {priceToDisplay !== null ? (
                         <div className="flex items-baseline gap-3">
-                          <span className="text-4xl font-bold tracking-tight text-neutral-900">
-                            {formatDisplayPrice(priceToDisplay)}
-                            <span className="text-xl font-semibold text-neutral-500 ml-1">BGN</span>
-                          </span>
                           {eurPrice !== null && (
-                            <span className="text-lg text-neutral-400 font-medium">
-                              {formatDisplayPrice(eurPrice)} {"€"}
+                            <span className="text-4xl font-bold tracking-tight text-neutral-900">
+                              {formatDisplayPrice(eurPrice)}
+                              <span className="text-xl font-semibold text-neutral-500 ml-1">{"€"}</span>
                             </span>
                           )}
+                          <span className="text-lg text-neutral-400 font-medium">
+                            {formatDisplayPrice(priceToDisplay)} BGN
+                          </span>
                         </div>
                       ) : (
                         <span className="text-4xl font-bold text-neutral-300">N/A</span>
@@ -270,11 +289,11 @@ async function ProductContent({ productId }: { productId: string }) {
                     <>
                       <div className="flex items-baseline gap-3">
                         <span className="text-4xl font-bold tracking-tight text-neutral-900">
-                          {formatDisplayPrice(Number(product.price))}
-                          <span className="text-xl font-semibold text-neutral-500 ml-1">BGN</span>
+                          {formatDisplayPrice(convertBgnToEur(Number(product.price)))}
+                          <span className="text-xl font-semibold text-neutral-500 ml-1">{"€"}</span>
                         </span>
                         <span className="text-lg text-neutral-400 font-medium">
-                          {formatDisplayPrice(convertBgnToEur(Number(product.price)))} {"€"}
+                          {formatDisplayPrice(Number(product.price))} BGN
                         </span>
                       </div>
                       <p className="text-sm text-neutral-500 mt-3 leading-relaxed">
@@ -338,10 +357,25 @@ async function ProductContent({ productId }: { productId: string }) {
                     <span className="font-medium text-emerald-600">In Stock</span>
                   </div>
                 </div>
+
+                {/* Call Button */}
+                <div className="mt-6 pt-6 border-t border-neutral-200/60">
+                  <p className="text-sm text-neutral-500 mb-3">Have questions? Call us:</p>
+                  <a
+                    href="tel:+359894352204"
+                    className="inline-flex items-center gap-2 px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl transition-colors"
+                  >
+                    <Phone className="h-5 w-5" />
+                    +359 894 352 204
+                  </a>
+                </div>
               </div>
             </div>
           </div>
         </section>
+
+        {/* Reviews Section */}
+        <ProductReviewsSection productId={product["Document ID"] || product.objectid} isEnglish={true} />
 
         {/* Similar Products */}
         {similarProducts.length > 0 && (

@@ -16,7 +16,7 @@ import {
 
 import { Button } from "@/components/ui/button"
 import { getCategoryById, getSubcategories, getProductsByCategory } from "@/lib/data"
-import { getActiveQuantityPromotionForSubcategory } from "@/lib/db"
+import { getActiveQuantityPromotionForSubcategory, getBatchProductRatings } from "@/lib/db"
 import { SiteHeader } from "@/components/site-header"
 import { CategoriesNavbar } from "@/components/categories-navbar"
 import { getUser } from "@/lib/auth"
@@ -197,6 +197,10 @@ export default async function EnglishCategoryPage({
           }
         : "No products to display",
     )
+
+    // Fetch ratings for all products
+    const productIds = productsToDisplay.map((p) => p.objectid)
+    const ratingsMap = await getBatchProductRatings(productIds)
 
     const getCategoryIcon = (categoryTitle: string) => {
       const iconMap: Record<string, React.ReactNode> = {
@@ -393,6 +397,8 @@ export default async function EnglishCategoryPage({
 
                   // Only use English description - no fallback
                   const productDescription = product.description_en || ""
+                  
+                  const rating = ratingsMap.get(product.objectid)
 
                   return (
                     <ProductCard
@@ -414,6 +420,8 @@ export default async function EnglishCategoryPage({
                       promo_free_qty={product.promo_free_qty}
                       promo_description={product.promo_description}
                       isEnglish={true}
+                      averageRating={rating?.average_rating}
+                      reviewCount={rating?.review_count}
                     />
                   )
                 })}

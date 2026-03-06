@@ -9,6 +9,7 @@ import {
   getSubcategories,
   getCategoryById,
   getActiveQuantityPromotionForSubcategory,
+  getBatchProductRatings,
 } from "@/lib/db"
 import { SiteHeader } from "@/components/site-header"
 import { CategoriesNavbar } from "@/components/categories-navbar"
@@ -101,6 +102,10 @@ export default async function SubcategoryPage({
   console.log(
     `[SubcategoryPage] Final filteredProducts count: ${filteredProducts.length}. First product's promo data will use subcategoryPromotion.`,
   )
+
+  // Fetch ratings for all products
+  const productIds = filteredProducts.map((p) => p.objectid)
+  const ratingsMap = await getBatchProductRatings(productIds)
 
   const categories = await getCategories()
   const parentCategoryId = subcategory.cateid
@@ -245,26 +250,31 @@ export default async function SubcategoryPage({
         <div className="container mx-auto px-4">
           {filteredProducts.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-              {filteredProducts.map((product) => (
-                <ProductCard
-                  key={product.objectid}
-                  id={product.objectid}
-                  title={product.title}
-                  description={product.description}
-                  price={Number(product.price)}
-                  retailerprice={product.retailerprice ? Number(product.retailerprice) : undefined}
-                  wholesalerprice={product.wholesalerprice ? Number(product.wholesalerprice) : undefined}
-                  photourl={product.photourl}
-                  isLoggedIn={isLoggedIn}
-                  customerType={user?.customerType}
-                  discountPercent={user?.discountPercent}
-                  isNew={product.createdat ? isNewProduct(product.createdat) : false}
-                  discount={getRandomDiscount()}
-                  promo_buy_qty={subcategoryPromotion?.buy_quantity}
-                  promo_free_qty={subcategoryPromotion?.free_quantity}
-                  promo_description={subcategoryPromotion?.description}
-                />
-              ))}
+              {filteredProducts.map((product) => {
+                const rating = ratingsMap.get(product.objectid)
+                return (
+                  <ProductCard
+                    key={product.objectid}
+                    id={product.objectid}
+                    title={product.title}
+                    description={product.description}
+                    price={Number(product.price)}
+                    retailerprice={product.retailerprice ? Number(product.retailerprice) : undefined}
+                    wholesalerprice={product.wholesalerprice ? Number(product.wholesalerprice) : undefined}
+                    photourl={product.photourl}
+                    isLoggedIn={isLoggedIn}
+                    customerType={user?.customerType}
+                    discountPercent={user?.discountPercent}
+                    isNew={product.createdat ? isNewProduct(product.createdat) : false}
+                    discount={getRandomDiscount()}
+                    promo_buy_qty={subcategoryPromotion?.buy_quantity}
+                    promo_free_qty={subcategoryPromotion?.free_quantity}
+                    promo_description={subcategoryPromotion?.description}
+                    averageRating={rating?.average_rating}
+                    reviewCount={rating?.review_count}
+                  />
+                )
+              })}
             </div>
           ) : (
             <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
@@ -328,7 +338,7 @@ export default async function SubcategoryPage({
                 </li>
                 <li>
                   <Link href="#" className="text-gray-400 hover:text-yellow-400 transition-colors">
-                    Условия за ползване
+                    Условия ��а ползване
                   </Link>
                 </li>
               </ul>

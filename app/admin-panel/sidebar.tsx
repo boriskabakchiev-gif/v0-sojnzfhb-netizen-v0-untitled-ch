@@ -17,6 +17,7 @@ import {
   Factory,
   Bell,
   Rss,
+  Star,
 } from "lucide-react"
 
 export function Sidebar({ items }: { items: any[] }) {
@@ -38,6 +39,12 @@ export function Sidebar({ items }: { items: any[] }) {
       href: "/admin-panel/products",
       icon: Package,
       active: isActive("/admin-panel/products"),
+    },
+    {
+      title: "Отзиви",
+      href: "/admin-panel/reviews",
+      icon: Star,
+      active: isActive("/admin-panel/reviews"),
     },
     {
       title: "Категории",

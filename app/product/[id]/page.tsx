@@ -1,6 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
-import { ChevronRight, Tag, Package, Layers, Hash, CheckCircle2 } from "lucide-react"
+import { ChevronRight, Tag, Package, Layers, Hash, CheckCircle2, Phone } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -10,7 +10,10 @@ import {
   getProductsByCategory,
   getSubcategories,
   getActiveQuantityPromotionForSubcategory,
+  getProductRatingSummary,
 } from "@/lib/db"
+import { StarRating } from "@/components/star-rating"
+import { ProductReviewsSection } from "@/components/product-reviews-section"
 import { getUser } from "@/lib/auth"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
@@ -89,6 +92,8 @@ export default async function ProductPage({ params }: { params: { id: string } }
           .filter((p) => p.objectid !== product.objectid)
           .slice(0, 8)
       : []
+
+    const ratingSummary = await getProductRatingSummary(product.objectid).catch(() => null)
 
     const isEuropeanCustomer = () => {
       const type = user?.customerType?.toLowerCase()
@@ -208,6 +213,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
                       fill
                       className="object-contain p-8 md:p-12"
                       priority
+                      unoptimized
                     />
 
                     {/* Promo badge on image */}
@@ -230,6 +236,19 @@ export default async function ProductPage({ params }: { params: { id: string } }
                   {product.title}
                 </h1>
 
+                {/* Rating */}
+                {ratingSummary && ratingSummary.review_count > 0 && (
+                  <div className="mt-3">
+                    <StarRating
+                      rating={ratingSummary.average_rating}
+                      size="md"
+                      showValue
+                      reviewCount={ratingSummary.review_count}
+                      isEnglish={false}
+                    />
+                  </div>
+                )}
+
                 {/* Price Block */}
                 <div className="mt-6 pb-6 border-b border-neutral-200/60">
                   <p className="text-[11px] font-semibold uppercase tracking-widest text-neutral-400 mb-2">
@@ -237,15 +256,15 @@ export default async function ProductPage({ params }: { params: { id: string } }
                   </p>
                   {priceToDisplay !== null ? (
                     <div className="flex items-baseline gap-3">
-                      <span className="text-4xl font-bold tracking-tight text-neutral-900">
-                        {formatDisplayPrice(priceToDisplay)}
-                        <span className="text-xl font-semibold text-neutral-500 ml-1">{"лв."}</span>
-                      </span>
                       {eurPrice !== null && (
-                        <span className="text-lg text-neutral-400 font-medium">
-                          {formatDisplayPrice(eurPrice)} {"€"}
+                        <span className="text-4xl font-bold tracking-tight text-neutral-900">
+                          {formatDisplayPrice(eurPrice)}
+                          <span className="text-xl font-semibold text-neutral-500 ml-1">{"€"}</span>
                         </span>
                       )}
+                      <span className="text-lg text-neutral-400 font-medium">
+                        {formatDisplayPrice(priceToDisplay)} {"лв."}
+                      </span>
                     </div>
                   ) : (
                     <span className="text-4xl font-bold text-neutral-300">N/A</span>
@@ -314,10 +333,25 @@ export default async function ProductPage({ params }: { params: { id: string } }
                     <span className="font-medium text-emerald-600">В наличност</span>
                   </div>
                 </div>
+
+                {/* Call Button */}
+                <div className="mt-6 pt-6 border-t border-neutral-200/60">
+                  <p className="text-sm text-neutral-500 mb-3">Имате въпроси? Обадете се на:</p>
+                  <a
+                    href="tel:+359894352204"
+                    className="inline-flex items-center gap-2 px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl transition-colors"
+                  >
+                    <Phone className="h-5 w-5" />
+                    +359 894 352 204
+                  </a>
+                </div>
               </div>
             </div>
           </div>
         </section>
+
+        {/* Reviews Section */}
+        <ProductReviewsSection productId={product.objectid} isEnglish={false} />
 
         {/* Similar Products */}
         {similarProducts.length > 0 && (

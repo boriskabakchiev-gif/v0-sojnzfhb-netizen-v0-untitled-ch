@@ -16,7 +16,7 @@ import {
 
 import { Button } from "@/components/ui/button"
 import { getCategoryById, getSubcategories, getProductsByCategory, getCategories } from "@/lib/data" // Added getCategories
-import { getActiveQuantityPromotionForSubcategory } from "@/lib/db" // For specific DB calls like promotions
+import { getActiveQuantityPromotionForSubcategory, getBatchProductRatings } from "@/lib/db" // For specific DB calls like promotions
 import { SiteHeader } from "@/components/site-header"
 import { CategoriesNavbar } from "@/components/categories-navbar"
 import { SiteFooter } from "@/components/site-footer"
@@ -193,6 +193,10 @@ export default async function CategoryPage({
         : "No products to display",
     )
 
+    // Fetch ratings for all products
+    const productIds = productsToDisplay.map((p) => p.objectid)
+    const ratingsMap = await getBatchProductRatings(productIds)
+
     const getCategoryIcon = (categoryTitle: string) => {
       const iconMap: Record<string, React.ReactNode> = {
         Въдици: <Package className="h-8 w-8 text-red-500" />,
@@ -336,27 +340,32 @@ export default async function CategoryPage({
           <div className="container mx-auto px-4">
             {productsToDisplay.length > 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
-                {productsToDisplay.map((product) => (
-                  <ProductCard
-                    key={product.objectid}
-                    id={product.objectid}
-                    title={product.title}
-                    description={product.description}
-                    price={Number(product.price)}
-                    retailerprice={product.retailerprice ? Number(product.retailerprice) : undefined}
-                    wholesalerprice={product.wholesalerprice ? Number(product.wholesalerprice) : undefined}
-                    europe_price={product.europe_price ? Number(product.europe_price) : undefined}
-                    photourl={normalizeImageUrl(product.photourl)}
-                    isLoggedIn={isLoggedIn}
-                    customerType={user?.customerType}
-                    discountPercent={user?.discountPercent}
-                    isNew={product.createdat ? isNewProduct(product.createdat) : false}
-                    discount={getRandomDiscount()}
-                    promo_buy_qty={product.promo_buy_qty}
-                    promo_free_qty={product.promo_free_qty}
-                    promo_description={product.promo_description}
-                  />
-                ))}
+                {productsToDisplay.map((product) => {
+                  const rating = ratingsMap.get(product.objectid)
+                  return (
+                    <ProductCard
+                      key={product.objectid}
+                      id={product.objectid}
+                      title={product.title}
+                      description={product.description}
+                      price={Number(product.price)}
+                      retailerprice={product.retailerprice ? Number(product.retailerprice) : undefined}
+                      wholesalerprice={product.wholesalerprice ? Number(product.wholesalerprice) : undefined}
+                      europe_price={product.europe_price ? Number(product.europe_price) : undefined}
+                      photourl={normalizeImageUrl(product.photourl)}
+                      isLoggedIn={isLoggedIn}
+                      customerType={user?.customerType}
+                      discountPercent={user?.discountPercent}
+                      isNew={product.createdat ? isNewProduct(product.createdat) : false}
+                      discount={getRandomDiscount()}
+                      promo_buy_qty={product.promo_buy_qty}
+                      promo_free_qty={product.promo_free_qty}
+                      promo_description={product.promo_description}
+                      averageRating={rating?.average_rating}
+                      reviewCount={rating?.review_count}
+                    />
+                  )
+                })}
               </div>
             ) : (
               <div className="text-center py-12 bg-white rounded-lg border border-gray-200">

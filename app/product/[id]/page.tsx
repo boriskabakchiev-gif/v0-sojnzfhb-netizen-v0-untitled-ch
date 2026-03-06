@@ -1,6 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
-import { ChevronRight, Tag, Package, Layers, Hash, CheckCircle2 } from "lucide-react"
+import { ChevronRight, Tag, Package, Layers, Hash, CheckCircle2, Phone } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -332,6 +332,18 @@ export default async function ProductPage({ params }: { params: { id: string } }
                     <span className="text-neutral-500">Наличност:</span>
                     <span className="font-medium text-emerald-600">В наличност</span>
                   </div>
+                </div>
+
+                {/* Call Button */}
+                <div className="mt-6 pt-6 border-t border-neutral-200/60">
+                  <p className="text-sm text-neutral-500 mb-3">Имате въпроси? Обадете се на:</p>
+                  <a
+                    href="tel:+359894352204"
+                    className="inline-flex items-center gap-2 px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl transition-colors"
+                  >
+                    <Phone className="h-5 w-5" />
+                    +359 894 352 204
+                  </a>
                 </div>
               </div>
             </div>

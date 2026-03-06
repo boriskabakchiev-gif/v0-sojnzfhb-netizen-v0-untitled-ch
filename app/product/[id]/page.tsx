@@ -10,7 +10,10 @@ import {
   getProductsByCategory,
   getSubcategories,
   getActiveQuantityPromotionForSubcategory,
+  getProductRatingSummary,
 } from "@/lib/db"
+import { StarRating } from "@/components/star-rating"
+import { ProductReviewsSection } from "@/components/product-reviews-section"
 import { getUser } from "@/lib/auth"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
@@ -89,6 +92,8 @@ export default async function ProductPage({ params }: { params: { id: string } }
           .filter((p) => p.objectid !== product.objectid)
           .slice(0, 8)
       : []
+
+    const ratingSummary = await getProductRatingSummary(product.objectid).catch(() => null)
 
     const isEuropeanCustomer = () => {
       const type = user?.customerType?.toLowerCase()
@@ -231,6 +236,19 @@ export default async function ProductPage({ params }: { params: { id: string } }
                   {product.title}
                 </h1>
 
+                {/* Rating */}
+                {ratingSummary && ratingSummary.review_count > 0 && (
+                  <div className="mt-3">
+                    <StarRating
+                      rating={ratingSummary.average_rating}
+                      size="md"
+                      showValue
+                      reviewCount={ratingSummary.review_count}
+                      isEnglish={false}
+                    />
+                  </div>
+                )}
+
                 {/* Price Block */}
                 <div className="mt-6 pb-6 border-b border-neutral-200/60">
                   <p className="text-[11px] font-semibold uppercase tracking-widest text-neutral-400 mb-2">
@@ -319,6 +337,9 @@ export default async function ProductPage({ params }: { params: { id: string } }
             </div>
           </div>
         </section>
+
+        {/* Reviews Section */}
+        <ProductReviewsSection productId={product.objectid} isEnglish={false} />
 
         {/* Similar Products */}
         {similarProducts.length > 0 && (

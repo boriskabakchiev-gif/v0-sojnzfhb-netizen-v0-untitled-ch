@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Loader2, Euro } from "lucide-react"
+import { Loader2, Euro, Star, Plus } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
 import { ProductImageUpload } from "@/components/product-image-upload" // Импортираме компонента за качване
+import { StarRating } from "@/components/star-rating"
 
 interface Category {
   id: string
@@ -53,6 +54,11 @@ export function EditProductModal({ isOpen, onClose, product, categories, onProdu
   const [subcategories, setSubcategories] = useState<Subcategory[]>([])
   const [loadingSubcategories, setLoadingSubcategories] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [showAddReview, setShowAddReview] = useState(false)
+  const [newReviewRating, setNewReviewRating] = useState(5)
+  const [newReviewName, setNewReviewName] = useState("")
+  const [newReviewText, setNewReviewText] = useState("")
+  const [addingReview, setAddingReview] = useState(false)
 
   useEffect(() => {
     if (product) {
@@ -119,6 +125,49 @@ export function EditProductModal({ isOpen, onClose, product, categories, onProdu
       updatedData.subcateid = ""
       fetchSubcategories(value)
       setFormData(updatedData)
+    }
+  }
+
+  const handleAddReview = async () => {
+    if (!formData || newReviewRating === 0) return
+    setAddingReview(true)
+    try {
+      const response = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productId: formData.objectid,
+          rating: newReviewRating,
+          reviewerName: newReviewName.trim() || null,
+          reviewText: newReviewText.trim() || null,
+        }),
+      })
+      const data = await response.json()
+      if (data.success) {
+        toast({
+          title: "Успех",
+          description: "Отзивът е добавен успешно.",
+        })
+        setShowAddReview(false)
+        setNewReviewRating(5)
+        setNewReviewName("")
+        setNewReviewText("")
+      } else {
+        toast({
+          title: "Грешка",
+          description: data.error || "Неуспешно добавяне на отзив.",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error("Error adding review:", error)
+      toast({
+        title: "Грешка",
+        description: "Възникна грешка при добавяне на отзива.",
+        variant: "destructive",
+      })
+    } finally {
+      setAddingReview(false)
     }
   }
 
@@ -431,6 +480,81 @@ export function EditProductModal({ isOpen, onClose, product, categories, onProdu
                   className="bg-gray-800 border-gray-700 text-gray-400"
                 />
               </div>
+            </div>
+
+            {/* Add Review Section */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-amber-400 flex items-center gap-2">
+                <Star className="h-5 w-5" />
+                Отзиви
+              </h3>
+              {!showAddReview ? (
+                <Button
+                  type="button"
+                  onClick={() => setShowAddReview(true)}
+                  className="bg-amber-600 hover:bg-amber-700 text-white"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Добави отзив
+                </Button>
+              ) : (
+                <div className="space-y-3 p-4 bg-gray-800 rounded-lg">
+                  <div>
+                    <Label>Оценка</Label>
+                    <StarRating
+                      rating={newReviewRating}
+                      interactive
+                      onRatingChange={setNewReviewRating}
+                      size="lg"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="reviewerName">Име на рецензента</Label>
+                    <Input
+                      id="reviewerName"
+                      value={newReviewName}
+                      onChange={(e) => setNewReviewName(e.target.value)}
+                      placeholder="Въведете име"
+                      className="bg-gray-700 border-gray-600 text-white"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="reviewText">Текст на отзива</Label>
+                    <Textarea
+                      id="reviewText"
+                      value={newReviewText}
+                      onChange={(e) => setNewReviewText(e.target.value)}
+                      placeholder="Въведете текст на отзива"
+                      className="bg-gray-700 border-gray-600 text-white"
+                      rows={3}
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      onClick={handleAddReview}
+                      disabled={addingReview || newReviewRating === 0}
+                      className="bg-amber-600 hover:bg-amber-700 text-white"
+                    >
+                      {addingReview && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Запази отзива
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        setShowAddReview(false)
+                        setNewReviewRating(5)
+                        setNewReviewName("")
+                        setNewReviewText("")
+                      }}
+                      className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                    >
+                      Отказ
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

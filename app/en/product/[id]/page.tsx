@@ -8,6 +8,8 @@ import { SiteFooter } from "@/components/site-footer"
 import { CategoriesNavbar } from "@/components/categories-navbar"
 import { ProductCard } from "@/components/product-card"
 import { ProductQuantityControls } from "@/components/product-quantity-controls"
+import { StarRating } from "@/components/star-rating"
+import { ProductReviewsSection } from "@/components/product-reviews-section"
 import { getUser } from "@/lib/auth"
 import {
   getCategories,
@@ -17,6 +19,7 @@ import {
   getSubcategoryById,
   getProductsByCategory,
   getActiveQuantityPromotionForSubcategory,
+  getProductRatingSummary,
 } from "@/lib/db"
 
 export const dynamic = "force-dynamic"
@@ -91,6 +94,8 @@ async function ProductContent({ productId }: { productId: string }) {
           .filter((p) => p["Document ID"] !== product["Document ID"])
           .slice(0, 8)
       : []
+
+    const ratingSummary = await getProductRatingSummary(product["Document ID"] || product.objectid).catch(() => null)
 
     const englishCategories = (categories || []).map((cat) => ({
       ...cat,
@@ -244,6 +249,19 @@ async function ProductContent({ productId }: { productId: string }) {
                   {displayTitle}
                 </h1>
 
+                {/* Rating */}
+                {ratingSummary && ratingSummary.review_count > 0 && (
+                  <div className="mt-3">
+                    <StarRating
+                      rating={ratingSummary.average_rating}
+                      size="md"
+                      showValue
+                      reviewCount={ratingSummary.review_count}
+                      isEnglish={true}
+                    />
+                  </div>
+                )}
+
                 {/* Price Block */}
                 <div className="mt-6 pb-6 border-b border-neutral-200/60">
                   <p className="text-[11px] font-semibold uppercase tracking-widest text-neutral-400 mb-2">
@@ -343,6 +361,9 @@ async function ProductContent({ productId }: { productId: string }) {
             </div>
           </div>
         </section>
+
+        {/* Reviews Section */}
+        <ProductReviewsSection productId={product["Document ID"] || product.objectid} isEnglish={true} />
 
         {/* Similar Products */}
         {similarProducts.length > 0 && (

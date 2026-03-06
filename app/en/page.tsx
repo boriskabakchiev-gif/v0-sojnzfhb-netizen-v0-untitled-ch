@@ -3,7 +3,7 @@ import Image from "next/image"
 import { TrendingUp, Award, Gift, Globe, Truck, BadgePercent, ShieldCheck, Handshake, ArrowRight } from "lucide-react"
 import { CategoriesNavbar } from "@/components/categories-navbar"
 import { Button } from "@/components/ui/button"
-import { getCategories, getSubcategories, getHeroBanners } from "@/lib/db"
+import { getCategories, getSubcategories, getHeroBanners, getBatchProductRatings } from "@/lib/db"
 import { SiteHeader } from "@/components/site-header"
 import { getUser } from "@/lib/auth"
 import { sql } from "@/lib/db"
@@ -53,6 +53,10 @@ WHERE deleted = false
 ORDER BY RANDOM()
 LIMIT ${totalProducts}
 `
+
+  // Fetch ratings for all featured products
+  const productIds = (featuredProducts || []).map((p) => p.id)
+  const ratingsMap = await getBatchProductRatings(productIds)
 
   // Извличане на продукти за всяка категория, за да вземем снимки
   const categoryProductsMap = new Map()
@@ -265,24 +269,29 @@ LIMIT 1
 
           {/* Products grid - Оптимизиран за точно 4 реда на десктоп */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-            {(featuredProducts || []).map((product) => (
-              <ProductCard
-                key={product.id}
-                id={product.id}
-                title={product.title_en || product.title || "Product"}
-                description={product.description_en || product.description || ""}
-                price={product.price}
-                retailerprice={product.retailerprice}
-                wholesalerprice={product.wholesalerprice}
-                photourl={product.photourl}
-                isLoggedIn={isLoggedIn}
-                customerType={user?.customerType}
-                discountPercent={user?.discountPercent}
-                isNew={product.createdat ? isNewProduct(product.createdat) : false}
-                discount={getRandomDiscount()}
-                isEnglish={true}
-              />
-            ))}
+            {(featuredProducts || []).map((product) => {
+              const rating = ratingsMap.get(product.id)
+              return (
+                <ProductCard
+                  key={product.id}
+                  id={product.id}
+                  title={product.title_en || product.title || "Product"}
+                  description={product.description_en || product.description || ""}
+                  price={product.price}
+                  retailerprice={product.retailerprice}
+                  wholesalerprice={product.wholesalerprice}
+                  photourl={product.photourl}
+                  isLoggedIn={isLoggedIn}
+                  customerType={user?.customerType}
+                  discountPercent={user?.discountPercent}
+                  isNew={product.createdat ? isNewProduct(product.createdat) : false}
+                  discount={getRandomDiscount()}
+                  isEnglish={true}
+                  averageRating={rating?.average_rating}
+                  reviewCount={rating?.review_count}
+                />
+              )
+            })}
           </div>
         </div>
       </section>

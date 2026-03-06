@@ -1599,3 +1599,40 @@ export async function updateProductReview(
     return false
   }
 }
+
+export async function getBatchProductRatings(productIds: string[]): Promise<Map<string, ProductRatingSummary>> {
+  console.log(`LIB/DB.TS: getBatchProductRatings called. Product count: ${productIds.length}`)
+  const ratingsMap = new Map<string, ProductRatingSummary>()
+  
+  if (!dbInitialized) {
+    console.error("LIB/DB.TS: getBatchProductRatings - Database not initialized.")
+    return ratingsMap
+  }
+  
+  if (productIds.length === 0) {
+    return ratingsMap
+  }
+  
+  try {
+    const placeholders = productIds.map((_, i) => `$${i + 1}`).join(", ")
+    const result = await executeQueryWithRetry(
+      `SELECT product_id, review_count, average_rating 
+       FROM product_rating_summary 
+       WHERE product_id IN (${placeholders})`,
+      productIds,
+    )
+    
+    for (const row of result) {
+      ratingsMap.set(row.product_id, {
+        product_id: row.product_id,
+        review_count: parseInt(row.review_count),
+        average_rating: parseFloat(row.average_rating),
+      })
+    }
+    
+    return ratingsMap
+  } catch (error) {
+    console.error("LIB/DB.TS: Error fetching batch product ratings:", error)
+    return ratingsMap
+  }
+}

@@ -8,9 +8,10 @@ export const fetchCache = "force-no-store"
 // Helper to get the site base URL - ALWAYS use production domain for Meta feeds
 // This ensures product links in Facebook ads always point to the production site
 function getSiteUrl(): string {
-  // For Meta product feeds, always use the production domain
+  // ALWAYS use the production domain for Meta product feeds
   // This is critical because these URLs appear in Facebook/Instagram ads
-  return process.env.NEXT_PUBLIC_SITE_URL || "https://www.madiks.bg"
+  // DO NOT use environment variables here as they may contain preview URLs
+  return "https://www.madiks.bg"
 }
 
 // Convert BGN to EUR (1 EUR = 1.96 BGN)

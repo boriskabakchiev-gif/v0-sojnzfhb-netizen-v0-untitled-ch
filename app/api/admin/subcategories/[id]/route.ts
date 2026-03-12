@@ -26,9 +26,9 @@ const SubcategoryUpdateSchema = z
   })
   .catchall(z.any()) // Allow other dynamic fields
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const subcategoryId = params.id
+    const { id: subcategoryId } = await params
     const body = await request.json()
 
     console.log("Получена PUT заявка за обновяване на подкатегория:", {
@@ -134,9 +134,9 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 }
 
 // GET method for fetching single subcategory (if needed)
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const subcategoryId = params.id
+    const { id: subcategoryId } = await params
 
     if (!subcategoryId) {
       return NextResponse.json({ success: false, error: "ID на подкатегорията е задължително." }, { status: 400 })

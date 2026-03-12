@@ -21,11 +21,12 @@ export default async function SubcategoryPage({
   params,
   searchParams,
 }: {
-  params: { id: string }
-  searchParams: { minPrice?: string; maxPrice?: string; sort?: string }
+  params: Promise<{ id: string }>
+  searchParams: Promise<{ minPrice?: string; maxPrice?: string; sort?: string }>
 }) {
-  const subcategoryId = params.id
-  console.log("[SubcategoryPage] Rendering. Subcategory ID:", subcategoryId, "Search Params:", searchParams)
+  const { id: subcategoryId } = await params
+  const searchParamsResolved = await searchParams
+  console.log("[SubcategoryPage] Rendering. Subcategory ID:", subcategoryId, "Search Params:", searchParamsResolved)
 
   const allSubcategories = await getSubcategories()
   const subcategory = allSubcategories.find((sub) => sub.id === subcategoryId)
@@ -61,8 +62,8 @@ export default async function SubcategoryPage({
 
   let filteredProducts = [...products]
 
-  const minPriceParam = searchParams.minPrice ? Number.parseFloat(searchParams.minPrice) : undefined
-  const maxPriceParam = searchParams.maxPrice ? Number.parseFloat(searchParams.maxPrice) : undefined
+  const minPriceParam = searchParamsResolved.minPrice ? Number.parseFloat(searchParamsResolved.minPrice) : undefined
+  const maxPriceParam = searchParamsResolved.maxPrice ? Number.parseFloat(searchParamsResolved.maxPrice) : undefined
 
   if (minPriceParam !== undefined) {
     filteredProducts = filteredProducts.filter((product) => {
@@ -80,7 +81,7 @@ export default async function SubcategoryPage({
     console.log(`[SubcategoryPage] Filtered by maxPrice ${maxPriceParam}: ${filteredProducts.length} products`)
   }
 
-  const sortOption = searchParams.sort || "title-asc"
+  const sortOption = searchParamsResolved.sort || "title-asc"
   // Sorting logic...
   switch (sortOption) {
     case "title-asc":
@@ -240,9 +241,9 @@ export default async function SubcategoryPage({
         <div className="container mx-auto px-4">
           <SubcategoryFilterPanel
             subcategoryId={subcategoryId}
-            minPrice={searchParams.minPrice}
-            maxPrice={searchParams.maxPrice}
-            sortOption={searchParams.sort || "title-asc"}
+              minPrice={searchParamsResolved.minPrice}
+              maxPrice={searchParamsResolved.maxPrice}
+              sortOption={searchParamsResolved.sort || "title-asc"}
           />
         </div>
       </section>

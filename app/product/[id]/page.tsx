@@ -35,9 +35,9 @@ function convertBgnToEur(bgnPrice: number | null | undefined): number | null {
   return Number(bgnPrice) / 1.96
 }
 
-export default async function ProductPage({ params }: { params: { id: string } }) {
+export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   try {
-    const productId = params.id
+    const { id: productId } = await params
 
     if (!productId || productId === "null" || productId === "undefined") {
       return (

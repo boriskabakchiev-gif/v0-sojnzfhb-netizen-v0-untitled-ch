@@ -25,9 +25,9 @@ import {
 export const dynamic = "force-dynamic"
 
 interface ProductPageProps {
-  params: {
-    id: string
-  }
+  params: Promise<{
+  id: string
+  }>
 }
 
 function formatDisplayPrice(price: number | null | undefined): string {
@@ -464,7 +464,8 @@ async function ProductContent({ productId }: { productId: string }) {
   }
 }
 
-export default function EnglishProductPage({ params }: ProductPageProps) {
+export default async function EnglishProductPage({ params }: ProductPageProps) {
+  const { id } = await params
   return (
     <Suspense
       fallback={
@@ -476,7 +477,7 @@ export default function EnglishProductPage({ params }: ProductPageProps) {
         </div>
       }
     >
-      <ProductContent productId={params.id} />
+      <ProductContent productId={id} />
     </Suspense>
   )
 }

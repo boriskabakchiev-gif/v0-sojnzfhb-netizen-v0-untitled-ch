@@ -52,19 +52,21 @@ export default async function EnglishCategoryPage({
   params,
   searchParams,
 }: {
-  params: { id: string }
-  searchParams: { subcategory?: string; minPrice?: string; maxPrice?: string; sort?: string }
+  params: Promise<{ id: string }>
+  searchParams: Promise<{ subcategory?: string; minPrice?: string; maxPrice?: string; sort?: string }>
 }) {
-  console.log("[EnglishCategoryPage] Rendering. Category ID:", params.id, "Search Params:", searchParams)
+  const { id } = await params
+  const searchParamsResolved = await searchParams
+  console.log("[EnglishCategoryPage] Rendering. Category ID:", id, "Search Params:", searchParamsResolved)
 
   try {
-    if (!params.id) {
+    if (!id) {
       console.error("[EnglishCategoryPage] Category ID is required but not provided.")
       throw new Error("Category ID is required")
     }
 
-    const categoryId = params.id
-    const subcategoryId = searchParams.subcategory
+    const categoryId = id
+    const subcategoryId = searchParamsResolved.subcategory
     console.log(`[EnglishCategoryPage] Current categoryId: ${categoryId}, subcategoryId: ${subcategoryId}`)
 
     const [category, subcategories, allCategories, user, productsByCategory] = await Promise.all([
@@ -106,8 +108,8 @@ export default async function EnglishCategoryPage({
       console.log(`[EnglishCategoryPage] Filtered by subcategory ${subcategoryId}: ${filteredProducts.length} products`)
     }
 
-    const minPriceParam = searchParams.minPrice ? Number.parseFloat(searchParams.minPrice) : undefined
-    const maxPriceParam = searchParams.maxPrice ? Number.parseFloat(searchParams.maxPrice) : undefined
+    const minPriceParam = searchParamsResolved.minPrice ? Number.parseFloat(searchParamsResolved.minPrice) : undefined
+    const maxPriceParam = searchParamsResolved.maxPrice ? Number.parseFloat(searchParamsResolved.maxPrice) : undefined
 
     if (minPriceParam !== undefined) {
       filteredProducts = filteredProducts.filter((product) => {
@@ -125,7 +127,7 @@ export default async function EnglishCategoryPage({
       console.log(`[EnglishCategoryPage] Filtered by maxPrice ${maxPriceParam}: ${filteredProducts.length} products`)
     }
 
-    const sortOption = searchParams.sort || "title-asc"
+    const sortOption = searchParamsResolved.sort || "title-asc"
     // Sorting logic using English titles
     switch (sortOption) {
       case "title-asc":
@@ -379,9 +381,9 @@ export default async function EnglishCategoryPage({
               categoryId={categoryId}
               subcategories={subcategoriesWithEnglishTitles}
               currentSubcategoryId={subcategoryId}
-              minPrice={searchParams.minPrice}
-              maxPrice={searchParams.maxPrice}
-              sortOption={searchParams.sort || "title-asc"}
+                minPrice={searchParamsResolved.minPrice}
+                maxPrice={searchParamsResolved.maxPrice}
+                sortOption={searchParamsResolved.sort || "title-asc"}
               isEnglish={true}
             />
           </div>

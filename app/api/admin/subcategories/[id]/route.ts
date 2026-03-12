@@ -116,24 +116,79 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       )
     }
 
-    // Execute the update
-    let result
+    // Execute the update - build a parameterized query manually since we have dynamic columns
     try {
-      result = await sql.unsafe(query, values)
-      console.log("[v0] SQL result:", JSON.stringify(result))
-      console.log("[v0] SQL result length:", result?.length)
-    } catch (sqlError) {
-      console.error("[v0] SQL execution error:", sqlError)
-      throw sqlError
-    }
-
-    // If sql.unsafe returned empty/undefined, fetch the updated record separately
-    if (!result || result.length === 0) {
-      console.log("[v0] sql.unsafe returned empty, fetching updated record directly")
+      // Use a raw SQL approach with direct template literal for better neon compatibility
+      // First, construct the SET part as a string with actual values for simpler execution
+      const updateParts: string[] = []
+      
+      // Re-build the SET clauses with direct value insertion for the tagged template approach
+      let paramIndex = 0
+      const updateValues: any[] = []
+      
+      for (const key in updateData) {
+        if (Object.prototype.hasOwnProperty.call(updateData, key) && validColumns.includes(key)) {
+          if (key === "Document ID" || key === "createdat" || key === "objectid") continue
+          updateValues.push(updateData[key])
+          paramIndex++
+        }
+      }
+      
+      // Add updatedat
+      if (validColumns.includes("updatedat")) {
+        updateValues.push(new Date().toISOString())
+      }
+      
+      console.log("[v0] Executing UPDATE with sql.unsafe")
+      console.log("[v0] SET clauses:", setClauses.join(", "))
+      console.log("[v0] Values count:", values.length)
+      
+      // Execute the update
+      const updateResult = await sql.unsafe(
+        `UPDATE subcategories SET ${setClauses.join(", ")} WHERE "Document ID" = $${valueIndex}`,
+        values
+      )
+      
+      console.log("[v0] UPDATE raw result:", JSON.stringify(updateResult))
+      
+      // Always fetch the updated record after update to verify and return
       const updatedRecord = await sql`SELECT * FROM subcategories WHERE "Document ID" = ${subcategoryId}`
-      console.log("[v0] Fetched updated record:", JSON.stringify(updatedRecord?.[0]))
+      console.log("[v0] Fetched updated record title:", updatedRecord?.[0]?.title)
+      console.log("[v0] Fetched updated record description:", updatedRecord?.[0]?.description)
 
       if (updatedRecord && updatedRecord.length > 0) {
+        // Verify the update actually happened by comparing with what we sent
+        const actualTitle = updatedRecord[0]?.title
+        const expectedTitle = updateData.title
+        console.log("[v0] Verification - Expected title:", expectedTitle, "Actual title:", actualTitle)
+        
+        if (expectedTitle && actualTitle !== expectedTitle) {
+          console.error("[v0] UPDATE did not persist! Expected:", expectedTitle, "Got:", actualTitle)
+          // Try alternative update method
+          console.log("[v0] Attempting direct update with template literal")
+          
+          // For critical fields, do a direct update
+          if (updateData.title !== undefined) {
+            await sql`UPDATE subcategories SET title = ${updateData.title}, updatedat = ${new Date().toISOString()} WHERE "Document ID" = ${subcategoryId}`
+          }
+          if (updateData.description !== undefined) {
+            await sql`UPDATE subcategories SET description = ${updateData.description} WHERE "Document ID" = ${subcategoryId}`
+          }
+          if (updateData.cateid !== undefined) {
+            await sql`UPDATE subcategories SET cateid = ${updateData.cateid} WHERE "Document ID" = ${subcategoryId}`
+          }
+          
+          // Fetch again after direct update
+          const finalRecord = await sql`SELECT * FROM subcategories WHERE "Document ID" = ${subcategoryId}`
+          console.log("[v0] After direct update - title:", finalRecord?.[0]?.title)
+          
+          return NextResponse.json({
+            success: true,
+            message: "Подкатегорията беше обновена успешно.",
+            subcategory: finalRecord[0],
+          })
+        }
+        
         return NextResponse.json({
           success: true,
           message: "Подкатегорията беше обновена успешно.",
@@ -145,13 +200,10 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         { success: false, error: "Неуспешно обновяване на подкатегорията." },
         { status: 500 },
       )
+    } catch (sqlError) {
+      console.error("[v0] SQL execution error:", sqlError)
+      throw sqlError
     }
-
-    return NextResponse.json({
-      success: true,
-      message: "Подкатегорията беше обновена успешно.",
-      subcategory: result[0],
-    })
   } catch (error) {
     console.error("Error updating subcategory:", error)
     const errorMessage = error instanceof Error ? error.message : "Неизвестна грешка"

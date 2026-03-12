@@ -45,7 +45,12 @@ title_en,
 description_en, 
 price, 
 retailerprice, 
-wholesalerprice, 
+wholesalerprice,
+europe_price,
+price_eur,
+retailerprice_eur,
+wholesalerprice_eur,
+europe_price_eur,
 photourl,
 createdat
 FROM new_products
@@ -272,7 +277,7 @@ LIMIT 1
             {(featuredProducts || []).map((product) => {
               const rating = ratingsMap.get(product.id)
               return (
-                <ProductCard
+                  <ProductCard
                   key={product.id}
                   id={product.id}
                   title={product.title_en || product.title || "Product"}
@@ -280,6 +285,11 @@ LIMIT 1
                   price={product.price}
                   retailerprice={product.retailerprice}
                   wholesalerprice={product.wholesalerprice}
+                  europe_price={product.europe_price}
+                  price_eur={product.price_eur}
+                  retailerprice_eur={product.retailerprice_eur}
+                  wholesalerprice_eur={product.wholesalerprice_eur}
+                  europe_price_eur={product.europe_price_eur}
                   photourl={product.photourl}
                   isLoggedIn={isLoggedIn}
                   customerType={user?.customerType}

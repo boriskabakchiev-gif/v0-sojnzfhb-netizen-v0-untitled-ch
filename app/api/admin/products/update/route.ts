@@ -28,6 +28,10 @@ export async function POST(request: NextRequest) {
       retailerprice,
       wholesalerprice,
       europe_price,
+      price_eur,
+      retailerprice_eur,
+      wholesalerprice_eur,
+      europe_price_eur,
       cateid, // Expecting string or null/undefined
       subcateid, // Expecting string or null/undefined
       photourl,
@@ -55,6 +59,23 @@ export async function POST(request: NextRequest) {
     const numEuropePrice =
       europe_price !== undefined && europe_price !== "" && europe_price !== null
         ? Number.parseFloat(String(europe_price))
+        : null
+    // EUR prices
+    const numPriceEur =
+      price_eur !== undefined && price_eur !== "" && price_eur !== null
+        ? Number.parseFloat(String(price_eur))
+        : null
+    const numRetailerPriceEur =
+      retailerprice_eur !== undefined && retailerprice_eur !== "" && retailerprice_eur !== null
+        ? Number.parseFloat(String(retailerprice_eur))
+        : null
+    const numWholesalerPriceEur =
+      wholesalerprice_eur !== undefined && wholesalerprice_eur !== "" && wholesalerprice_eur !== null
+        ? Number.parseFloat(String(wholesalerprice_eur))
+        : null
+    const numEuropePriceEur =
+      europe_price_eur !== undefined && europe_price_eur !== "" && europe_price_eur !== null
+        ? Number.parseFloat(String(europe_price_eur))
         : null
 
     // Correct handling for cateid and subcateid as strings or null
@@ -91,6 +112,10 @@ export async function POST(request: NextRequest) {
         retailerprice = ${numRetailerPrice},
         wholesalerprice = ${numWholesalerPrice},
         europe_price = ${numEuropePrice},
+        price_eur = ${numPriceEur},
+        retailerprice_eur = ${numRetailerPriceEur},
+        wholesalerprice_eur = ${numWholesalerPriceEur},
+        europe_price_eur = ${numEuropePriceEur},
         cateid = ${finalCateId}, -- Use processed string or null
         subcateid = ${finalSubCateId}, -- Use processed string or null
         photourl = ${photourl || null},

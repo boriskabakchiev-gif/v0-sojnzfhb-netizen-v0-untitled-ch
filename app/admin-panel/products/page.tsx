@@ -317,7 +317,8 @@ export default function ProductsPage() {
                     <tr className="border-b border-gray-200">
                       <th className="text-left py-3 px-4">Снимка</th>
                       <th className="text-left py-3 px-4">Име</th>
-                      <th className="text-left py-3 px-4">Цена</th>
+                      <th className="text-left py-3 px-4">Цена (лв)</th>
+                      <th className="text-left py-3 px-4">Цена (€)</th>
                       <th className="text-left py-3 px-4">Категория</th>
                       <th className="text-left py-3 px-4">Подкатегория</th>
                       <th className="text-left py-3 px-4">Статус</th>
@@ -346,6 +347,9 @@ export default function ProductsPage() {
                         <td className="py-3 px-4 font-medium text-gray-700">{product.title}</td>
                         <td className="py-3 px-4">
                           {typeof product.price === "number" ? `${product.price.toFixed(2)} лв.` : "Н/А"}
+                        </td>
+                        <td className="py-3 px-4">
+                          {typeof product.europe_price === "number" ? `${product.europe_price.toFixed(2)} €` : "Н/А"}
                         </td>
                         <td className="py-3 px-4 text-sm text-gray-600">{product.category_title || "Н/А"}</td>
                         <td className="py-3 px-4 text-sm text-gray-600">{product.subcategory_title || "Н/А"}</td>

@@ -67,8 +67,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
     for (const key in updateData) {
       if (Object.prototype.hasOwnProperty.call(updateData, key) && validColumns.includes(key)) {
-        // Skip 'Document ID' from SET clauses, it's used in WHERE
-        if (key === "Document ID" || key === "createdat") continue
+        // Skip 'Document ID', 'objectid' (legacy), and 'createdat' from SET clauses
+        if (key === "Document ID" || key === "createdat" || key === "objectid") continue
 
         // Handle updatedat specially to avoid duplicates
         if (key === "updatedat") {
@@ -104,16 +104,46 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     console.log("[v0] With values:", JSON.stringify(values))
     console.log("[v0] WHERE Document ID =", subcategoryId)
 
-    const result = await sql.unsafe(query, values)
+    // First, verify the record exists
+    const existingRecord = await sql`SELECT "Document ID", title FROM subcategories WHERE "Document ID" = ${subcategoryId}`
+    console.log("[v0] Existing record check:", existingRecord?.length > 0 ? `Found: ${existingRecord[0].title}` : "NOT FOUND")
 
-    console.log("[v0] SQL result length:", result?.length)
-    console.log("[v0] Updated record title:", result?.[0]?.title)
-    console.log("[v0] Updated record description:", result?.[0]?.description)
-
-    if (!result || result.length === 0) {
+    if (!existingRecord || existingRecord.length === 0) {
+      console.log("[v0] No record found with Document ID:", subcategoryId)
       return NextResponse.json(
-        { success: false, error: "Неуспешно обновяване на подкатегорията или подкатегорията не е намерена." },
+        { success: false, error: `Подкатегорията с ID ${subcategoryId} не е намерена.` },
         { status: 404 },
+      )
+    }
+
+    // Execute the update
+    let result
+    try {
+      result = await sql.unsafe(query, values)
+      console.log("[v0] SQL result:", JSON.stringify(result))
+      console.log("[v0] SQL result length:", result?.length)
+    } catch (sqlError) {
+      console.error("[v0] SQL execution error:", sqlError)
+      throw sqlError
+    }
+
+    // If sql.unsafe returned empty/undefined, fetch the updated record separately
+    if (!result || result.length === 0) {
+      console.log("[v0] sql.unsafe returned empty, fetching updated record directly")
+      const updatedRecord = await sql`SELECT * FROM subcategories WHERE "Document ID" = ${subcategoryId}`
+      console.log("[v0] Fetched updated record:", JSON.stringify(updatedRecord?.[0]))
+
+      if (updatedRecord && updatedRecord.length > 0) {
+        return NextResponse.json({
+          success: true,
+          message: "Подкатегорията беше обновена успешно.",
+          subcategory: updatedRecord[0],
+        })
+      }
+
+      return NextResponse.json(
+        { success: false, error: "Неуспешно обновяване на подкатегорията." },
+        { status: 500 },
       )
     }
 

@@ -31,11 +31,6 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     const { id: subcategoryId } = await params
     const body = await request.json()
 
-    console.log("[v0] PUT /api/admin/subcategories/[id] - subcategoryId from params:", subcategoryId)
-    console.log("[v0] PUT - Request body keys:", Object.keys(body))
-    console.log("[v0] PUT - body.title:", body.title)
-    console.log("[v0] PUT - body.description:", body.description)
-
     if (!subcategoryId) {
       return NextResponse.json({ success: false, error: "ID на подкатегорията е задължително." }, { status: 400 })
     }
@@ -58,7 +53,6 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
     // Fetch valid column names for 'subcategories' table
     const validColumns = await getTableColumns(sql, "subcategories")
-    console.log("[v0] Valid columns in subcategories table:", validColumns)
 
     const setClauses: string[] = []
     const values: any[] = []
@@ -93,15 +87,11 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       values.push(new Date().toISOString())
     }
 
-    console.log("[v0] SET clauses to be applied:", setClauses)
-    console.log("[v0] Values to be set:", values)
-
     if (setClauses.length === 0) {
       return NextResponse.json({ success: false, error: "Няма данни за обновяване." }, { status: 400 })
     }
 
     values.push(subcategoryId) // Add the ID for the WHERE clause
-    console.log("[v0] Final WHERE clause uses Document ID:", subcategoryId)
 
     const query = `UPDATE subcategories SET ${setClauses.join(", ")} WHERE "Document ID" = $${valueIndex} RETURNING *;`
 
@@ -109,11 +99,6 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     console.log("With values:", values)
 
     const result = await sql.unsafe(query, values)
-
-    console.log("[v0] SQL query result length:", result?.length)
-    console.log("[v0] Updated record Document ID:", result?.[0]?.["Document ID"])
-    console.log("[v0] Updated record title:", result?.[0]?.title)
-    console.log("[v0] Updated record description:", result?.[0]?.description)
 
     if (!result || result.length === 0) {
       return NextResponse.json(

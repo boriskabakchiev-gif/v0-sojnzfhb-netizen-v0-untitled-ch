@@ -5,11 +5,12 @@ export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 export const fetchCache = "force-no-store"
 
-// Helper to get the site base URL
+// Helper to get the site base URL - ALWAYS use production domain for Meta feeds
+// This ensures product links in Facebook ads always point to the production site
 function getSiteUrl(): string {
-  if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL
-  if (process.env.NEXT_PUBLIC_VERCEL_URL) return `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`
+  // ALWAYS use the production domain for Meta product feeds
+  // This is critical because these URLs appear in Facebook/Instagram ads
+  // DO NOT use environment variables here as they may contain preview URLs
   return "https://www.madiks.bg"
 }
 

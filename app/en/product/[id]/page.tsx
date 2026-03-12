@@ -128,7 +128,26 @@ async function ProductContent({ productId }: { productId: string }) {
     }
 
     const priceToDisplay = getBasePriceForCustomer()
-    const eurPrice = convertBgnToEur(priceToDisplay)
+    
+    // Get EUR price directly from database for customer type
+    const getEurPriceForCustomer = (): number | null => {
+      if (!isUserLoggedIn) {
+        return product.price_eur !== undefined && product.price_eur !== null ? Number(product.price_eur) : null
+      }
+      const type = user?.customerType?.toLowerCase()
+      if (isEuropeanCustomer()) {
+        return product.europe_price_eur !== undefined && product.europe_price_eur !== null ? Number(product.europe_price_eur) : null
+      } else if (type === "wholesaler" || type === "едро") {
+        return product.wholesalerprice_eur !== undefined && product.wholesalerprice_eur !== null ? Number(product.wholesalerprice_eur) : null
+      } else if (type === "retailer" || type === "дребно") {
+        return product.retailerprice_eur !== undefined && product.retailerprice_eur !== null ? Number(product.retailerprice_eur) : null
+      } else {
+        return product.price_eur !== undefined && product.price_eur !== null ? Number(product.price_eur) : null
+      }
+    }
+    
+    const dbEurPrice = getEurPriceForCustomer()
+    const eurPrice = dbEurPrice !== null ? dbEurPrice : convertBgnToEur(priceToDisplay)
 
     const getPriceLabel = (): string => {
       if (!isUserLoggedIn) return "Standard Price"
@@ -389,19 +408,23 @@ async function ProductContent({ productId }: { productId: string }) {
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                 {similarProducts.map((similarProd) => (
-                  <ProductCard
-                    key={similarProd["Document ID"] || similarProd.objectid}
-                    id={similarProd["Document ID"] || similarProd.objectid}
-                    title={similarProd.title_en || similarProd.title}
-                    description={similarProd.description_en || similarProd.description}
-                    price={Number(similarProd.price) || 0}
-                    retailerprice={Number(similarProd.retailerprice)}
-                    wholesalerprice={Number(similarProd.wholesalerprice)}
-                    europe_price={Number(similarProd.europe_price)}
-                    photourl={similarProd.photourl}
-                    isLoggedIn={isUserLoggedIn}
-                    customerType={user?.customerType}
-                    isEnglish={true}
+                <ProductCard
+                  key={similarProd["Document ID"] || similarProd.objectid}
+                  id={similarProd["Document ID"] || similarProd.objectid}
+                  title={similarProd.title_en || similarProd.title}
+                  description={similarProd.description_en || similarProd.description}
+                  price={Number(similarProd.price) || 0}
+                  retailerprice={Number(similarProd.retailerprice)}
+                  wholesalerprice={Number(similarProd.wholesalerprice)}
+                  europe_price={Number(similarProd.europe_price)}
+                  price_eur={similarProd.price_eur ? Number(similarProd.price_eur) : null}
+                  retailerprice_eur={similarProd.retailerprice_eur ? Number(similarProd.retailerprice_eur) : null}
+                  wholesalerprice_eur={similarProd.wholesalerprice_eur ? Number(similarProd.wholesalerprice_eur) : null}
+                  europe_price_eur={similarProd.europe_price_eur ? Number(similarProd.europe_price_eur) : null}
+                  photourl={similarProd.photourl}
+                  isLoggedIn={isUserLoggedIn}
+                  customerType={user?.customerType}
+                  isEnglish={true}
                   />
                 ))}
               </div>

@@ -28,6 +28,10 @@ interface Product {
   retailerprice?: number | string
   wholesalerprice?: number | string
   europe_price?: number | string
+  price_eur?: number | string
+  retailerprice_eur?: number | string
+  wholesalerprice_eur?: number | string
+  europe_price_eur?: number | string
   cateid?: string
   subcateid?: string
   photourl?: string
@@ -183,6 +187,10 @@ export function EditProductModal({ isOpen, onClose, product, categories, onProdu
         retailerprice: formData.retailerprice,
         wholesalerprice: formData.wholesalerprice,
         europe_price: formData.europe_price,
+        price_eur: formData.price_eur,
+        retailerprice_eur: formData.retailerprice_eur,
+        wholesalerprice_eur: formData.wholesalerprice_eur,
+        europe_price_eur: formData.europe_price_eur,
         cateid: formData.cateid,
         subcateid: formData.subcateid,
         photourl: formData.photourl,
@@ -352,8 +360,7 @@ export function EditProductModal({ isOpen, onClose, product, categories, onProdu
               </div>
               <div>
                 <Label htmlFor="europe_price" className="flex items-center">
-                  <Euro className="h-4 w-4 mr-1" />
-                  Europe Price (€)
+                  Europe Price (лв)
                 </Label>
                 <Input
                   id="europe_price"
@@ -364,6 +371,83 @@ export function EditProductModal({ isOpen, onClose, product, categories, onProdu
                   }
                   onChange={(e) =>
                     handleFieldChange("europe_price", e.target.value === "" ? null : Number.parseFloat(e.target.value))
+                  }
+                  className="bg-gray-800 border-gray-700 text-white"
+                />
+              </div>
+
+              <h3 className="text-lg font-semibold text-yellow-400 pt-4 flex items-center">
+                <Euro className="h-5 w-5 mr-2" />
+                Цени в Евро (EUR)
+              </h3>
+              <div>
+                <Label htmlFor="price_eur" className="flex items-center">
+                  <Euro className="h-4 w-4 mr-1" />
+                  Price (€)
+                </Label>
+                <Input
+                  id="price_eur"
+                  type="number"
+                  step="0.01"
+                  value={
+                    formData.price_eur === null || formData.price_eur === undefined ? "" : formData.price_eur
+                  }
+                  onChange={(e) =>
+                    handleFieldChange("price_eur", e.target.value === "" ? null : Number.parseFloat(e.target.value))
+                  }
+                  className="bg-gray-800 border-gray-700 text-white"
+                />
+              </div>
+              <div>
+                <Label htmlFor="retailerprice_eur" className="flex items-center">
+                  <Euro className="h-4 w-4 mr-1" />
+                  Retailer Price (€)
+                </Label>
+                <Input
+                  id="retailerprice_eur"
+                  type="number"
+                  step="0.01"
+                  value={
+                    formData.retailerprice_eur === null || formData.retailerprice_eur === undefined ? "" : formData.retailerprice_eur
+                  }
+                  onChange={(e) =>
+                    handleFieldChange("retailerprice_eur", e.target.value === "" ? null : Number.parseFloat(e.target.value))
+                  }
+                  className="bg-gray-800 border-gray-700 text-white"
+                />
+              </div>
+              <div>
+                <Label htmlFor="wholesalerprice_eur" className="flex items-center">
+                  <Euro className="h-4 w-4 mr-1" />
+                  Wholesaler Price (€)
+                </Label>
+                <Input
+                  id="wholesalerprice_eur"
+                  type="number"
+                  step="0.01"
+                  value={
+                    formData.wholesalerprice_eur === null || formData.wholesalerprice_eur === undefined ? "" : formData.wholesalerprice_eur
+                  }
+                  onChange={(e) =>
+                    handleFieldChange("wholesalerprice_eur", e.target.value === "" ? null : Number.parseFloat(e.target.value))
+                  }
+                  className="bg-gray-800 border-gray-700 text-white"
+                />
+              </div>
+              <div>
+                <Label htmlFor="europe_price_eur" className="flex items-center">
+                  <Euro className="h-4 w-4 mr-1" />
+                  Europe Price (€)
+                </Label>
+                <Input
+                  id="europe_price_eur"
+                  type="number"
+                  step="0.01"
+                  value={
+                    formData.europe_price_eur === null || formData.europe_price_eur === undefined ? "" : formData.europe_price_eur
+                  }
+                  onChange={(e) =>
+                    handleFieldChange("europe_price_eur", e.target.value === "" ? null : Number.parseFloat(e.target.value))
                   }
                   className="bg-gray-800 border-gray-700 text-white"
                 />

@@ -261,6 +261,11 @@ export default async function SubcategoryPage({
                     price={Number(product.price)}
                     retailerprice={product.retailerprice ? Number(product.retailerprice) : undefined}
                     wholesalerprice={product.wholesalerprice ? Number(product.wholesalerprice) : undefined}
+                    europe_price={product.europe_price ? Number(product.europe_price) : undefined}
+                    price_eur={product.price_eur ? Number(product.price_eur) : undefined}
+                    retailerprice_eur={product.retailerprice_eur ? Number(product.retailerprice_eur) : undefined}
+                    wholesalerprice_eur={product.wholesalerprice_eur ? Number(product.wholesalerprice_eur) : undefined}
+                    europe_price_eur={product.europe_price_eur ? Number(product.europe_price_eur) : undefined}
                     photourl={product.photourl}
                     isLoggedIn={isLoggedIn}
                     customerType={user?.customerType}

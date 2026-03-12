@@ -20,6 +20,10 @@ interface ProductCardProps {
   retailerprice?: number | null
   wholesalerprice?: number | null
   europe_price?: number | null
+  price_eur?: number | null
+  retailerprice_eur?: number | null
+  wholesalerprice_eur?: number | null
+  europe_price_eur?: number | null
   photourl?: string
   isLoggedIn: boolean
   customerType?: string | null
@@ -42,6 +46,10 @@ export function ProductCard({
   retailerprice,
   wholesalerprice,
   europe_price,
+  price_eur,
+  retailerprice_eur,
+  wholesalerprice_eur,
+  europe_price_eur,
   photourl,
   isLoggedIn,
   customerType,
@@ -77,6 +85,7 @@ export function ProductCard({
     return type === "european" || type === "europen"
   }
 
+  // Get BGN price for customer type
   const getBasePriceForCustomer = (): number | null => {
     if (!isLoggedIn) {
       return Number(price)
@@ -93,7 +102,25 @@ export function ProductCard({
     }
   }
 
+  // Get EUR price directly from database for customer type
+  const getEurPriceForCustomer = (): number | null => {
+    if (!isLoggedIn) {
+      return price_eur !== undefined && price_eur !== null ? Number(price_eur) : null
+    }
+    const type = customerType?.toLowerCase()
+    if (isEuropeanCustomer()) {
+      return europe_price_eur !== undefined && europe_price_eur !== null ? Number(europe_price_eur) : null
+    } else if (type === "wholesaler" || type === "едро") {
+      return wholesalerprice_eur !== undefined && wholesalerprice_eur !== null ? Number(wholesalerprice_eur) : null
+    } else if (type === "retailer" || type === "дребно") {
+      return retailerprice_eur !== undefined && retailerprice_eur !== null ? Number(retailerprice_eur) : null
+    } else {
+      return price_eur !== undefined && price_eur !== null ? Number(price_eur) : null
+    }
+  }
+
   const displayPriceNumber = getBasePriceForCustomer()
+  const displayEurPriceNumber = getEurPriceForCustomer()
 
   const getPriceLabel = (): string => {
     if (!isLoggedIn) return isEnglish ? "Standard Price" : "Стандартна цена"
@@ -298,7 +325,7 @@ export function ProductCard({
             {displayPriceNumber !== null ? (
               <div className="flex items-baseline gap-2">
                 <span className="text-lg sm:text-xl font-bold tracking-tight text-neutral-900">
-                  {formatPriceDisplay(convertBgnToEur(displayPriceNumber))}
+                  {formatPriceDisplay(displayEurPriceNumber !== null ? displayEurPriceNumber : convertBgnToEur(displayPriceNumber))}
                   <span className="text-sm font-semibold text-neutral-500 ml-0.5">€</span>
                 </span>
                 <span className="text-xs text-neutral-400">

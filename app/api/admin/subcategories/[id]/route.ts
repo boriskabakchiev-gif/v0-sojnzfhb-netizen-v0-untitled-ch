@@ -31,11 +31,6 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     const { id: subcategoryId } = await params
     const body = await request.json()
 
-    console.log("Получена PUT заявка за обновяване на подкатегория:", {
-      id: subcategoryId,
-      body: JSON.stringify(body, null, 2),
-    })
-
     if (!subcategoryId) {
       return NextResponse.json({ success: false, error: "ID на подкатегорията е задължително." }, { status: 400 })
     }
@@ -104,8 +99,6 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     console.log("With values:", values)
 
     const result = await sql.unsafe(query, values)
-
-    console.log("Резултат от обновяване:", result)
 
     if (!result || result.length === 0) {
       return NextResponse.json(

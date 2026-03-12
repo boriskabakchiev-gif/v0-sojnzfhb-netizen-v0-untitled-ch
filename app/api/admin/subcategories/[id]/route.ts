@@ -53,6 +53,10 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
     // Fetch valid column names for 'subcategories' table
     const validColumns = await getTableColumns(sql, "subcategories")
+    console.log("[v0] Valid columns from DB:", validColumns)
+    console.log("[v0] Update data keys:", Object.keys(updateData))
+    console.log("[v0] Title in updateData:", updateData.title)
+    console.log("[v0] Description in updateData:", updateData.description)
 
     const setClauses: string[] = []
     const values: any[] = []
@@ -95,10 +99,16 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
     const query = `UPDATE subcategories SET ${setClauses.join(", ")} WHERE "Document ID" = $${valueIndex} RETURNING *;`
 
-    console.log("Executing SQL query:", query)
-    console.log("With values:", values)
+    console.log("[v0] Final SET clauses:", setClauses)
+    console.log("[v0] Executing SQL query:", query)
+    console.log("[v0] With values:", JSON.stringify(values))
+    console.log("[v0] WHERE Document ID =", subcategoryId)
 
     const result = await sql.unsafe(query, values)
+
+    console.log("[v0] SQL result length:", result?.length)
+    console.log("[v0] Updated record title:", result?.[0]?.title)
+    console.log("[v0] Updated record description:", result?.[0]?.description)
 
     if (!result || result.length === 0) {
       return NextResponse.json(

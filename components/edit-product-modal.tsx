@@ -213,6 +213,7 @@ export function EditProductModal({ isOpen, onClose, product, categories, onProdu
           description: result.message || "Продуктът е обновен успешно.",
         })
         onProductUpdate()
+        onClose() // Close the modal after successful save
       } else {
         toast({
           title: "Грешка при запазване",

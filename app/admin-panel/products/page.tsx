@@ -45,6 +45,10 @@ interface EditProductForm {
   wholesalerprice?: number | string | null
   retailerprice?: number | string | null
   europe_price?: number | string | null
+  price_eur?: number | string | null
+  retailerprice_eur?: number | string | null
+  wholesalerprice_eur?: number | string | null
+  europe_price_eur?: number | string | null
   cateid: string
   subcateid?: string
   photourl: string
@@ -213,6 +217,22 @@ export default function ProductsPage() {
           europe_price:
             fullProduct.europe_price !== null && fullProduct.europe_price !== undefined
               ? String(fullProduct.europe_price)
+              : null,
+          price_eur:
+            fullProduct.price_eur !== null && fullProduct.price_eur !== undefined
+              ? String(fullProduct.price_eur)
+              : null,
+          retailerprice_eur:
+            fullProduct.retailerprice_eur !== null && fullProduct.retailerprice_eur !== undefined
+              ? String(fullProduct.retailerprice_eur)
+              : null,
+          wholesalerprice_eur:
+            fullProduct.wholesalerprice_eur !== null && fullProduct.wholesalerprice_eur !== undefined
+              ? String(fullProduct.wholesalerprice_eur)
+              : null,
+          europe_price_eur:
+            fullProduct.europe_price_eur !== null && fullProduct.europe_price_eur !== undefined
+              ? String(fullProduct.europe_price_eur)
               : null,
           cateid: String(fullProduct.cateid || ""),
           subcateid: String(fullProduct.subcateid || ""),

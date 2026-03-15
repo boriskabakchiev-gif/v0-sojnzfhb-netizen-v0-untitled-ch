@@ -430,8 +430,6 @@ export default function EcontDeliverySelector({
 
   useEffect(() => {
     if (isSelectingSuggestion || isAutoFilling) {
-      setIsSelectingSuggestion(false)
-      setIsAutoFilling(false)
       return
     }
 
@@ -1125,6 +1123,8 @@ export default function EcontDeliverySelector({
                 onChange={(e) => {
                   setOfficeStreetAddress(e.target.value)
                   setHasUserEditedAddress(true)
+                  setIsSelectingSuggestion(false)
+                  setIsAutoFilling(false)
                 }}
                 onFocus={() => {
                   if (addressSuggestions.length > 0) {

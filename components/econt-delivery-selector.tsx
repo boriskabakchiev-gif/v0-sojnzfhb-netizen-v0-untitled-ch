@@ -1054,7 +1054,7 @@ export default function EcontDeliverySelector({
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent 
-  className="w-[--radix-popover-trigger-width] p-0 border-0 shadow-xl rounded-xl bg-white/95 backdrop-blur-md"
+  className="w-[--radix-popover-trigger-width] p-0 border-0 shadow-xl rounded-xl bg-white"
   side="bottom"
   avoidCollisions={false}
 >
@@ -1097,7 +1097,7 @@ export default function EcontDeliverySelector({
                                   setOpenCitySelect(false)
                                   setCitySearchInput("")
                                 }}
-                                className="px-4 py-3 hover:bg-gray-50/80 cursor-pointer transition-colors duration-150 rounded-lg mx-2 my-1"
+                                className="px-4 py-3 hover:bg-gray-50 cursor-pointer rounded-lg mx-2 my-1"
                               >
                                 <Check
                                   className={cn(

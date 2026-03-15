@@ -1143,6 +1143,8 @@ export default function EcontDeliverySelector({
                       className="p-4 hover:bg-gray-50/80 cursor-pointer text-sm border-b border-gray-100/50 last:border-b-0 transition-colors duration-150 first:rounded-t-xl last:rounded-b-xl text-gray-700"
                       onClick={() => {
                         console.log("[v0] Suggestion clicked:", suggestion)
+                        // Hide suggestions immediately BEFORE any state changes to prevent race conditions
+                        setShowAddressSuggestions(false)
                         setIsSelectingSuggestion(true)
 
                         const selectedOfficeSuggestion = officeSuggestions[index]
@@ -1167,9 +1169,6 @@ export default function EcontDeliverySelector({
                             setDistanceToSelectedOffice(distance)
                           }
                         }
-
-                        console.log("[v0] Hiding suggestions")
-                        setShowAddressSuggestions(false)
                       }}
                     >
                       {suggestion}

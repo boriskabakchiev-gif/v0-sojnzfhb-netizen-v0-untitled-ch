@@ -404,11 +404,16 @@ export default function EcontDeliverySelector({
         office.cityId === selectedCity.id || office.address.toLowerCase().includes(selectedCity.name.toLowerCase()),
     )
 
-    // Filter by the user's query text
+    // Filter by the user's query text, but fall back to all city offices if no matches
     const queryLower = query.toLowerCase().trim()
-    const matchingOffices = queryLower
-      ? cityOffices.filter((office) => office.address.toLowerCase().includes(queryLower))
-      : cityOffices
+    let matchingOffices = cityOffices
+    if (queryLower) {
+      const filtered = cityOffices.filter((office) => office.address.toLowerCase().includes(queryLower))
+      // Only use filtered results if there are matches, otherwise show all
+      if (filtered.length > 0) {
+        matchingOffices = filtered
+      }
+    }
 
     const suggestions = matchingOffices.map((office) => {
       return {
@@ -1269,7 +1274,7 @@ export default function EcontDeliverySelector({
                     <div className="space-y-2 text-sm">
                       <p className="flex items-center">
                         <User className="h-4 w-4 mr-2 text-gray-500" />
-                        <span className="font-medium text-gray-600 mr-2">{isEnglish ? "Name:" : "Име:"}</span>
+                        <span className="font-medium text-gray-600 mr-2">{isEnglish ? "Name:" : "��ме:"}</span>
                         {customerNameProp || (isEnglish ? "No data" : "Няма данни")}
                       </p>
                       <p className="flex items-center">

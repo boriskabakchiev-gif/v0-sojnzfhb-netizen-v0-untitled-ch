@@ -387,6 +387,11 @@ export default function EcontDeliverySelector({
   }
 
   const fetchOfficeSuggestions = (query: string) => {
+    // Don't show suggestions if we're in the middle of selecting one
+    if (isSelectingSuggestion || isAutoFilling) {
+      return
+    }
+
     console.log("[v0] fetchOfficeSuggestions called with query:", query)
     console.log("[v0] selectedCity:", selectedCity)
     console.log("[v0] filteredOffices count:", filteredOffices.length)
@@ -1142,19 +1147,18 @@ export default function EcontDeliverySelector({
                       key={index}
                       className="p-4 hover:bg-gray-50/80 cursor-pointer text-sm border-b border-gray-100/50 last:border-b-0 transition-colors duration-150 first:rounded-t-xl last:rounded-b-xl text-gray-700"
                       onClick={() => {
-                        console.log("[v0] Suggestion clicked:", suggestion)
-                        // Hide suggestions immediately BEFORE any state changes to prevent race conditions
-                        setShowAddressSuggestions(false)
-                        setIsSelectingSuggestion(true)
-
+                        // Get the selected office data FIRST before clearing anything
                         const selectedOfficeSuggestion = officeSuggestions[index]
-                        console.log("[v0] Selected office suggestion:", selectedOfficeSuggestion)
+                        
+                        // Hide suggestions immediately and clear the arrays to prevent any re-showing
+                        setShowAddressSuggestions(false)
+                        setAddressSuggestions([])
+                        setOfficeSuggestions([])
+                        setIsSelectingSuggestion(true)
 
                         if (selectedOfficeSuggestion) {
                           const office = selectedOfficeSuggestion.office
-                          console.log("[v0] Setting address to:", selectedOfficeSuggestion.displayText)
                           setOfficeStreetAddress(selectedOfficeSuggestion.displayText)
-                          console.log("[v0] Address set, calling onOfficeSelect")
                           onOfficeSelect(office)
                           setShowOfficeDetails(true)
 

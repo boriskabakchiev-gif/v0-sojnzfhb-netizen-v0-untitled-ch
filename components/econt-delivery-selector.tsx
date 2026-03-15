@@ -392,12 +392,7 @@ export default function EcontDeliverySelector({
       return
     }
 
-    console.log("[v0] fetchOfficeSuggestions called with query:", query)
-    console.log("[v0] selectedCity:", selectedCity)
-    console.log("[v0] filteredOffices count:", filteredOffices.length)
-
     if (!selectedCity) {
-      console.log("[v0] No selected city, clearing suggestions")
       setAddressSuggestions([])
       setOfficeSuggestions([])
       setShowAddressSuggestions(false)
@@ -409,24 +404,19 @@ export default function EcontDeliverySelector({
         office.cityId === selectedCity.id || office.address.toLowerCase().includes(selectedCity.name.toLowerCase()),
     )
 
-    console.log("[v0] cityOffices count:", cityOffices.length)
-    console.log(
-      "[v0] cityOffices:",
-      cityOffices.map((o) => o.address),
-    )
+    // Filter by the user's query text
+    const queryLower = query.toLowerCase().trim()
+    const matchingOffices = queryLower
+      ? cityOffices.filter((office) => office.address.toLowerCase().includes(queryLower))
+      : cityOffices
 
-    const suggestions = cityOffices.map((office) => {
+    const suggestions = matchingOffices.map((office) => {
       return {
         id: office.id,
         displayText: office.address,
         office: office,
       }
     })
-
-    console.log(
-      "[v0] Final suggestions:",
-      suggestions.map((s) => s.displayText),
-    )
 
     setOfficeSuggestions(suggestions)
     setAddressSuggestions(suggestions.map((s) => s.displayText))

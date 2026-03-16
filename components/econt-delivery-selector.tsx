@@ -570,7 +570,7 @@ export default function EcontDeliverySelector({
     }
 
     // Priority 2: Selected city (use geocoding to get coordinates)
-    // Only geocode if no offices are loaded yet (fitBounds in markers effect handles it when offices exist)
+    // Always center on the selected city - the markers effect will handle fitBounds after offices load
     if (selectedCity) {
       const cityName = getCityTitle(selectedCity, isEnglish)
       console.log("[v0] City centering effect: city:", cityName, "offices count:", offices.length)
@@ -586,9 +586,9 @@ export default function EcontDeliverySelector({
             const cityPosition = results[0].geometry.location
             console.log("[v0] Geocoding successful for:", cityName, cityPosition.toJSON())
 
-            // Only center/zoom if no office markers have been placed yet
-            // (fitBounds in markers effect handles centering when offices exist)
-            if (googleMap.current && officeMarkers.current.length === 0) {
+            // Always center the map on the selected city immediately
+            // This ensures the map moves to the correct city when selected
+            if (googleMap.current) {
               googleMap.current.panTo(cityPosition)
               googleMap.current.setZoom(13)
               console.log("[v0] Map centered on city via geocoding:", cityName)
@@ -1091,6 +1091,10 @@ export default function EcontDeliverySelector({
                                 key={city.id}
                                 value={city.name}
                                 onSelect={() => {
+                                  // Clear existing offices and markers when selecting a new city
+                                  setOffices([])
+                                  setFilteredOffices([])
+                                  onOfficeSelect(null)
                                   setSelectedCity(city)
                                   setOpenCitySelect(false)
                                   setCitySearchInput("")

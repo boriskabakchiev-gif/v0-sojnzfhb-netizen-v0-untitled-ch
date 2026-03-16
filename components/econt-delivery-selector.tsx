@@ -152,6 +152,7 @@ export default function EcontDeliverySelector({
   const [showOfficeDetails, setShowOfficeDetails] = useState(false)
   const [distanceToSelectedOffice, setDistanceToSelectedOffice] = useState<number | null>(null)
   const [showMap, setShowMap] = useState(true)
+  const [cityCenterCoords, setCityCenterCoords] = useState<{ lat: number; lng: number } | null>(null)
   const [showSearchForm, setShowSearchForm] = useState(true)
   const [showSyncButton, setShowSyncButton] = useState(false)
   const [isSyncing, setIsSyncing] = useState(false)
@@ -570,7 +571,7 @@ export default function EcontDeliverySelector({
     }
 
     // Priority 2: Selected city (use geocoding to get coordinates)
-    // Only geocode if no offices are loaded yet (fitBounds in markers effect handles it when offices exist)
+    // Always center on the selected city - the markers effect will handle fitBounds after offices load
     if (selectedCity) {
       const cityName = getCityTitle(selectedCity, isEnglish)
       console.log("[v0] City centering effect: city:", cityName, "offices count:", offices.length)
@@ -585,10 +586,13 @@ export default function EcontDeliverySelector({
           if (status === "OK" && results && results[0]) {
             const cityPosition = results[0].geometry.location
             console.log("[v0] Geocoding successful for:", cityName, cityPosition.toJSON())
+            
+            // Store city center coordinates for filtering offices by distance
+            setCityCenterCoords({ lat: cityPosition.lat(), lng: cityPosition.lng() })
 
-            // Only center/zoom if no office markers have been placed yet
-            // (fitBounds in markers effect handles centering when offices exist)
-            if (googleMap.current && officeMarkers.current.length === 0) {
+            // Always center the map on the selected city immediately
+            // This ensures the map moves to the correct city when selected
+            if (googleMap.current) {
               googleMap.current.panTo(cityPosition)
               googleMap.current.setZoom(13)
               console.log("[v0] Map centered on city via geocoding:", cityName)
@@ -691,33 +695,57 @@ export default function EcontDeliverySelector({
         })
 
         // Fit map bounds to show all office markers if no specific office is selected
+        // But only include offices within 30km of the city center to avoid zooming out too far
         if (!selectedOffice && officeMarkers.current.length > 0) {
           const bounds = new window.google.maps.LatLngBounds()
+          let includedOfficesCount = 0
+          
           offices.forEach((office) => {
             if (office.location && office.location.latitude && office.location.longitude) {
-              bounds.extend({ lat: office.location.latitude, lng: office.location.longitude })
+              // If we have city center coords, only include offices within 30km
+              if (cityCenterCoords) {
+                const distance = haversineDistance(
+                  cityCenterCoords.lat, 
+                  cityCenterCoords.lng, 
+                  office.location.latitude, 
+                  office.location.longitude
+                )
+                if (distance <= 30) {
+                  bounds.extend({ lat: office.location.latitude, lng: office.location.longitude })
+                  includedOfficesCount++
+                }
+              } else {
+                bounds.extend({ lat: office.location.latitude, lng: office.location.longitude })
+                includedOfficesCount++
+              }
             }
           })
-          googleMap.current.fitBounds(bounds)
-          // Limit zoom levels after fitting bounds - don't zoom too far out or too close
-          const listener = window.google.maps.event.addListener(googleMap.current, "idle", () => {
-            if (googleMap.current) {
-              const currentZoom = googleMap.current.getZoom()
-              // Don't zoom out too far (prevents showing all offices globally)
-              if (currentZoom < 10 && selectedCity) {
-                googleMap.current.setZoom(12)
+          
+          // Only fitBounds if we have offices to show, otherwise the city centering handles it
+          if (includedOfficesCount > 0) {
+            googleMap.current.fitBounds(bounds)
+            // Limit zoom levels after fitting bounds - don't zoom too far out or too close
+            const listener = window.google.maps.event.addListener(googleMap.current, "idle", () => {
+              if (googleMap.current) {
+                const currentZoom = googleMap.current.getZoom()
+                // Don't zoom out too far (prevents showing all offices globally)
+                if (currentZoom < 10 && selectedCity) {
+                  googleMap.current.setZoom(12)
+                }
+                if (currentZoom > 16) {
+                  googleMap.current.setZoom(16)
+                }
               }
-              if (currentZoom > 16) {
-                googleMap.current.setZoom(16)
-              }
-            }
-            window.google.maps.event.removeListener(listener)
-          })
-          console.log("[v0] Fitted map bounds to", officeMarkers.current.length, "office markers")
+              window.google.maps.event.removeListener(listener)
+            })
+            console.log("[v0] Fitted map bounds to", includedOfficesCount, "nearby office markers (within 30km)")
+          } else {
+            console.log("[v0] No nearby offices found, keeping city-centered view")
+          }
         }
       }
     }
-  }, [offices, selectedOffice, showOfficeDetails, showMap, mapInitialized])
+  }, [offices, selectedOffice, showOfficeDetails, showMap, mapInitialized, cityCenterCoords])
 
   // Fetch cities on mount
   useEffect(() => {
@@ -1091,6 +1119,11 @@ export default function EcontDeliverySelector({
                                 key={city.id}
                                 value={city.name}
                                 onSelect={() => {
+                                  // Clear existing offices, markers, and city center when selecting a new city
+                                  setOffices([])
+                                  setFilteredOffices([])
+                                  onOfficeSelect(null)
+                                  setCityCenterCoords(null) // Clear so fitBounds won't run until new coords are set
                                   setSelectedCity(city)
                                   setOpenCitySelect(false)
                                   setCitySearchInput("")

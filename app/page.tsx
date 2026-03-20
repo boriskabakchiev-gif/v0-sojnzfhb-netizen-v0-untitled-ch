@@ -3,7 +3,7 @@ import Image from "next/image"
 import { TrendingUp, Award, Gift, Globe, Truck, BadgePercent, ShieldCheck, Handshake, ArrowRight } from "lucide-react"
 import { CategoriesNavbar } from "@/components/categories-navbar"
 import { Button } from "@/components/ui/button"
-import { getCategories, getSubcategories, getHeroBanners, getBatchProductRatings } from "@/lib/db"
+import { getCategories, getSubcategories, getHeroBanners, getBatchProductRatings, getNews } from "@/lib/db"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { getUser } from "@/lib/auth"
@@ -12,6 +12,7 @@ import { ProductCard } from "@/components/product-card"
 import { HolidayBanner } from "@/components/holiday-banner"
 import { HeroBannerCarousel } from "@/components/hero-banner-carousel"
 import { StickyBottomNav } from "@/components/sticky-bottom-nav"
+import { NewsSection } from "@/components/news-section"
 
 // Маркираме страницата като динамична
 export const dynamic = "force-dynamic"
@@ -23,6 +24,7 @@ export default async function Home() {
   const categories = await getCategories()
   const allSubcategories = await getSubcategories()
   const heroBanners = await getHeroBanners()
+  const newsItems = await getNews(true) // Get only active news
 
   // Извличане на информация за потребителя
   const user = await getUser()
@@ -306,6 +308,9 @@ LIMIT 1
             </div>
           </div>
         </section>
+
+        {/* News Section - Новини */}
+        <NewsSection news={newsItems} isEnglish={false} />
 
         {/* Catalog Section - Каталог 2025 */}
         <section className="py-12 sm:py-16 bg-amber-50">

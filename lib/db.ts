@@ -1636,3 +1636,191 @@ export async function getBatchProductRatings(productIds: string[]): Promise<Map<
     return ratingsMap
   }
 }
+
+// News functions
+export async function getNews(activeOnly = true) {
+  console.log(`LIB/DB.TS: getNews called. activeOnly: ${activeOnly}, dbInitialized: ${dbInitialized}`)
+  if (!dbInitialized) {
+    console.error("LIB/DB.TS: getNews - Database not initialized.")
+    return []
+  }
+  try {
+    const whereClause = activeOnly ? "WHERE is_active = true" : ""
+    const result = await executeQueryWithRetry(`
+      SELECT id, title, title_en, summary, summary_en, content, content_en, 
+             image_url, link_url, is_active, is_featured, sort_order, created_at, updated_at
+      FROM news
+      ${whereClause}
+      ORDER BY sort_order ASC, created_at DESC
+    `)
+    return result || []
+  } catch (error) {
+    console.error("LIB/DB.TS: Error fetching news:", error)
+    return []
+  }
+}
+
+export async function getNewsById(id: number) {
+  console.log(`LIB/DB.TS: getNewsById called. ID: ${id}, dbInitialized: ${dbInitialized}`)
+  if (!dbInitialized) {
+    console.error("LIB/DB.TS: getNewsById - Database not initialized.")
+    return null
+  }
+  try {
+    const result = await executeQueryWithRetry(
+      `SELECT id, title, title_en, summary, summary_en, content, content_en, 
+              image_url, link_url, is_active, is_featured, sort_order, created_at, updated_at
+       FROM news
+       WHERE id = $1`,
+      [id]
+    )
+    return result[0] || null
+  } catch (error) {
+    console.error(`LIB/DB.TS: Error fetching news ${id}:`, error)
+    return null
+  }
+}
+
+export async function createNews(data: {
+  title: string
+  title_en?: string
+  summary?: string
+  summary_en?: string
+  content?: string
+  content_en?: string
+  image_url?: string
+  link_url?: string
+  is_active?: boolean
+  is_featured?: boolean
+  sort_order?: number
+}) {
+  console.log(`LIB/DB.TS: createNews called. dbInitialized: ${dbInitialized}`)
+  if (!dbInitialized) {
+    console.error("LIB/DB.TS: createNews - Database not initialized.")
+    return null
+  }
+  try {
+    const result = await executeQueryWithRetry(
+      `INSERT INTO news (title, title_en, summary, summary_en, content, content_en, image_url, link_url, is_active, is_featured, sort_order)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+       RETURNING *`,
+      [
+        data.title,
+        data.title_en || null,
+        data.summary || null,
+        data.summary_en || null,
+        data.content || null,
+        data.content_en || null,
+        data.image_url || null,
+        data.link_url || null,
+        data.is_active ?? true,
+        data.is_featured ?? false,
+        data.sort_order ?? 0,
+      ]
+    )
+    return result[0] || null
+  } catch (error) {
+    console.error("LIB/DB.TS: Error creating news:", error)
+    return null
+  }
+}
+
+export async function updateNews(
+  id: number,
+  data: {
+    title?: string
+    title_en?: string
+    summary?: string
+    summary_en?: string
+    content?: string
+    content_en?: string
+    image_url?: string
+    link_url?: string
+    is_active?: boolean
+    is_featured?: boolean
+    sort_order?: number
+  }
+) {
+  console.log(`LIB/DB.TS: updateNews called. ID: ${id}, dbInitialized: ${dbInitialized}`)
+  if (!dbInitialized) {
+    console.error("LIB/DB.TS: updateNews - Database not initialized.")
+    return null
+  }
+  try {
+    const fields: string[] = []
+    const values: any[] = []
+    let paramIndex = 1
+
+    if (data.title !== undefined) {
+      fields.push(`title = $${paramIndex++}`)
+      values.push(data.title)
+    }
+    if (data.title_en !== undefined) {
+      fields.push(`title_en = $${paramIndex++}`)
+      values.push(data.title_en)
+    }
+    if (data.summary !== undefined) {
+      fields.push(`summary = $${paramIndex++}`)
+      values.push(data.summary)
+    }
+    if (data.summary_en !== undefined) {
+      fields.push(`summary_en = $${paramIndex++}`)
+      values.push(data.summary_en)
+    }
+    if (data.content !== undefined) {
+      fields.push(`content = $${paramIndex++}`)
+      values.push(data.content)
+    }
+    if (data.content_en !== undefined) {
+      fields.push(`content_en = $${paramIndex++}`)
+      values.push(data.content_en)
+    }
+    if (data.image_url !== undefined) {
+      fields.push(`image_url = $${paramIndex++}`)
+      values.push(data.image_url)
+    }
+    if (data.link_url !== undefined) {
+      fields.push(`link_url = $${paramIndex++}`)
+      values.push(data.link_url)
+    }
+    if (data.is_active !== undefined) {
+      fields.push(`is_active = $${paramIndex++}`)
+      values.push(data.is_active)
+    }
+    if (data.is_featured !== undefined) {
+      fields.push(`is_featured = $${paramIndex++}`)
+      values.push(data.is_featured)
+    }
+    if (data.sort_order !== undefined) {
+      fields.push(`sort_order = $${paramIndex++}`)
+      values.push(data.sort_order)
+    }
+
+    fields.push(`updated_at = CURRENT_TIMESTAMP`)
+    values.push(id)
+
+    const result = await executeQueryWithRetry(
+      `UPDATE news SET ${fields.join(", ")} WHERE id = $${paramIndex} RETURNING *`,
+      values
+    )
+    return result[0] || null
+  } catch (error) {
+    console.error(`LIB/DB.TS: Error updating news ${id}:`, error)
+    return null
+  }
+}
+
+export async function deleteNews(id: number) {
+  console.log(`LIB/DB.TS: deleteNews called. ID: ${id}, dbInitialized: ${dbInitialized}`)
+  if (!dbInitialized) {
+    console.error("LIB/DB.TS: deleteNews - Database not initialized.")
+    return false
+  }
+  try {
+    await executeQueryWithRetry(`DELETE FROM news WHERE id = $1`, [id])
+    return true
+  } catch (error) {
+    console.error(`LIB/DB.TS: Error deleting news ${id}:`, error)
+    return false
+  }
+}

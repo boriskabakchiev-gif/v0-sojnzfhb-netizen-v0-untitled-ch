@@ -18,6 +18,7 @@ import {
   Bell,
   Rss,
   Star,
+  Newspaper,
 } from "lucide-react"
 
 export function Sidebar({ items }: { items: any[] }) {
@@ -87,6 +88,12 @@ export function Sidebar({ items }: { items: any[] }) {
       href: "/admin-panel/production",
       icon: Factory,
       active: isActive("/admin-panel/production"),
+    },
+    {
+      title: "Новини",
+      href: "/admin-panel/news",
+      icon: Newspaper,
+      active: isActive("/admin-panel/news"),
     },
     {
       title: "Банери (Карусел)",

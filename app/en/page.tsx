@@ -3,13 +3,14 @@ import Image from "next/image"
 import { TrendingUp, Award, Gift, Globe, Truck, BadgePercent, ShieldCheck, Handshake, ArrowRight } from "lucide-react"
 import { CategoriesNavbar } from "@/components/categories-navbar"
 import { Button } from "@/components/ui/button"
-import { getCategories, getSubcategories, getHeroBanners, getBatchProductRatings } from "@/lib/db"
+import { getCategories, getSubcategories, getHeroBanners, getBatchProductRatings, getNews } from "@/lib/db"
 import { SiteHeader } from "@/components/site-header"
 import { getUser } from "@/lib/auth"
 import { sql } from "@/lib/db"
 import { ProductCard } from "@/components/product-card"
 import { HeroBannerCarousel } from "@/components/hero-banner-carousel"
 import { StickyBottomNav } from "@/components/sticky-bottom-nav"
+import { NewsSection } from "@/components/news-section"
 
 // Маркираме страницата като динамична
 export const dynamic = "force-dynamic"
@@ -21,6 +22,7 @@ export default async function EnglishHome() {
   const categories = await getCategories()
   const allSubcategories = await getSubcategories()
   const heroBanners = await getHeroBanners()
+  const newsItems = await getNews(true) // Get only active news
 
   // Transform categories to use English titles, with proper null checking
   const englishCategories = (categories || []).map((category) => ({
@@ -258,6 +260,9 @@ return (
           </div>
         </div>
       </section>
+
+      {/* News Section */}
+      <NewsSection news={newsItems} isEnglish={true} />
 
       {/* Products Section - Improved Design - по-светъл фон */}
       <section className="py-12 sm:py-16 bg-gray-100">

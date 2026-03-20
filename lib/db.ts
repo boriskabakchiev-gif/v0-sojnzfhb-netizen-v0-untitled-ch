@@ -1647,12 +1647,7 @@ export async function getNews(activeOnly = true) {
   try {
     const whereClause = activeOnly ? "WHERE is_active = true" : ""
     const result = await executeQueryWithRetry(`
-      SELECT id, title, title_en, summary, summary_en, content, content_en, 
-             image_url, link_url, is_active, is_featured, sort_order, 
-             slug, meta_title, meta_title_en, meta_description, meta_description_en,
-             meta_keywords, meta_keywords_en, content_blocks, content_blocks_en,
-             related_products, gallery_images, created_at, updated_at
-      FROM news
+      SELECT * FROM news
       ${whereClause}
       ORDER BY sort_order ASC, created_at DESC
     `)
@@ -1671,13 +1666,7 @@ export async function getNewsById(id: number) {
   }
   try {
     const result = await executeQueryWithRetry(
-      `SELECT id, title, title_en, summary, summary_en, content, content_en, 
-              image_url, link_url, is_active, is_featured, sort_order,
-              slug, meta_title, meta_title_en, meta_description, meta_description_en,
-              meta_keywords, meta_keywords_en, content_blocks, content_blocks_en,
-              related_products, gallery_images, created_at, updated_at
-       FROM news
-       WHERE id = $1`,
+      `SELECT * FROM news WHERE id = $1`,
       [id]
     )
     return result[0] || null
@@ -1694,18 +1683,39 @@ export async function getNewsBySlug(slug: string) {
     return null
   }
   try {
+    // Try to find by slug first, if slug column exists
     const result = await executeQueryWithRetry(
-      `SELECT id, title, title_en, summary, summary_en, content, content_en, 
-              image_url, link_url, is_active, is_featured, sort_order,
-              slug, meta_title, meta_title_en, meta_description, meta_description_en,
-              meta_keywords, meta_keywords_en, content_blocks, content_blocks_en,
-              related_products, gallery_images, created_at, updated_at
-       FROM news
-       WHERE slug = $1 AND is_active = true`,
+      `SELECT * FROM news WHERE slug = $1 AND is_active = true`,
       [slug]
     )
-    return result[0] || null
+    if (result && result[0]) return result[0]
+    
+    // Fallback: try to find by ID if slug is numeric
+    const numericId = parseInt(slug, 10)
+    if (!isNaN(numericId)) {
+      const byIdResult = await executeQueryWithRetry(
+        `SELECT * FROM news WHERE id = $1 AND is_active = true`,
+        [numericId]
+      )
+      return byIdResult[0] || null
+    }
+    
+    return null
   } catch (error) {
+    // If slug column doesn't exist, try by ID
+    const numericId = parseInt(slug, 10)
+    if (!isNaN(numericId)) {
+      try {
+        const byIdResult = await executeQueryWithRetry(
+          `SELECT * FROM news WHERE id = $1 AND is_active = true`,
+          [numericId]
+        )
+        return byIdResult[0] || null
+      } catch {
+        console.error(`LIB/DB.TS: Error fetching news by slug/id ${slug}:`, error)
+        return null
+      }
+    }
     console.error(`LIB/DB.TS: Error fetching news by slug ${slug}:`, error)
     return null
   }

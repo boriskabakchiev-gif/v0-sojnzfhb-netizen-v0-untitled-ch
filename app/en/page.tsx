@@ -9,6 +9,7 @@ import { getUser } from "@/lib/auth"
 import { sql } from "@/lib/db"
 import { ProductCard } from "@/components/product-card"
 import { HeroBannerCarousel } from "@/components/hero-banner-carousel"
+import { StickyBottomNav } from "@/components/sticky-bottom-nav"
 
 // Маркираме страницата като динамична
 export const dynamic = "force-dynamic"
@@ -130,8 +131,8 @@ LIMIT 1
     return 0
   }
 
-  return (
-    <div className="bg-gray-100 text-gray-800">
+return (
+  <div className="bg-gray-100 text-gray-800 pb-20 md:pb-0">
       {/* Header */}
       <SiteHeader categories={englishCategories} subcategories={allSubcategories || []} />
 
@@ -485,6 +486,9 @@ LIMIT 1
           </div>
         </div>
       </section>
+
+      {/* Sticky Bottom Navigation - Mobile only */}
+      <StickyBottomNav isEnglish={true} />
     </div>
   )
 }

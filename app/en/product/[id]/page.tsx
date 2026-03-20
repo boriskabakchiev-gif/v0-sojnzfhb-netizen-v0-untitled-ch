@@ -8,6 +8,7 @@ import { SiteFooter } from "@/components/site-footer"
 import { CategoriesNavbar } from "@/components/categories-navbar"
 import { ProductCard } from "@/components/product-card"
 import { ProductQuantityControls } from "@/components/product-quantity-controls"
+import { StickyBuyButton } from "@/components/sticky-buy-button"
 import { StarRating } from "@/components/star-rating"
 import { ProductReviewsSection } from "@/components/product-reviews-section"
 import { getUser } from "@/lib/auth"
@@ -187,7 +188,7 @@ async function ProductContent({ productId }: { productId: string }) {
     const subcategoryTitle = subcategory?.title_en || subcategory?.title
 
     return (
-      <div className="min-h-screen bg-neutral-50 text-neutral-900">
+      <div className="min-h-screen bg-neutral-50 text-neutral-900 pb-24 md:pb-0">
         {/* Header */}
         <SiteHeader
           categories={englishCategories}
@@ -444,6 +445,18 @@ async function ProductContent({ productId }: { productId: string }) {
         )}
 
         <SiteFooter categories={englishCategories} isEnglish={true} />
+
+        {/* Sticky Buy Button - Mobile only */}
+        <StickyBuyButton
+          productId={product["Document ID"] || product.objectid}
+          productTitle={displayTitle}
+          productPrice={priceToDisplay !== null ? priceToDisplay : 0}
+          photoUrl={product.photourl}
+          promo_buy_qty={finalPromoBuyQty}
+          promo_free_qty={finalPromoFreeQty}
+          disabled={priceToDisplay === null}
+          isEnglish={true}
+        />
       </div>
     )
   } catch (error) {

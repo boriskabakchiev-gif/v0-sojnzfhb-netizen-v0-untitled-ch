@@ -23,6 +23,7 @@ import { getUser } from "@/lib/auth"
 import { ProductCard } from "@/components/product-card"
 import { CategoryFilterPanel } from "@/components/category-filter-panel"
 import { SubcategoryImage } from "@/components/images"
+import { StickyBottomNav } from "@/components/sticky-bottom-nav"
 
 // Force dynamic rendering to ensure fresh data
 export const dynamic = "force-dynamic"
@@ -291,7 +292,7 @@ export default async function EnglishCategoryPage({
     })
 
     return (
-      <div className="min-h-screen bg-gray-100 text-gray-800">
+      <div className="min-h-screen bg-gray-100 text-gray-800 pb-20 md:pb-0">
         <SiteHeader categories={[]} subcategories={allCategories} currentCategoryId={categoryId} isEnglish={true} />
         <CategoriesNavbar currentCategoryId={categoryId} isEnglish={true} />
 
@@ -449,6 +450,9 @@ export default async function EnglishCategoryPage({
             )}
           </div>
         </section>
+
+        {/* Sticky Bottom Navigation - Mobile only */}
+        <StickyBottomNav isEnglish={true} />
       </div>
     )
   } catch (error) {

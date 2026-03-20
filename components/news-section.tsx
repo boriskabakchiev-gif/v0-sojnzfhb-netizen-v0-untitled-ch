@@ -10,6 +10,7 @@ interface NewsItem {
   summary_en: string | null
   image_url: string | null
   link_url: string | null
+  slug: string | null
   is_featured: boolean
   created_at: string
 }
@@ -116,28 +117,34 @@ export function NewsSection({ news, isEnglish = false }: NewsSectionProps) {
       </div>
     )
 
-    if (item.link_url) {
-      const isExternal = item.link_url.startsWith("http")
-      if (isExternal) {
-        return (
-          <a
-            href={item.link_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block h-full"
-          >
-            {content}
-          </a>
-        )
-      }
+    // Determine the link destination
+    const getNewsLink = () => {
+      if (item.link_url) return item.link_url
+      const slug = item.slug || item.id
+      return isEnglish ? `/en/news/${slug}` : `/news/${slug}`
+    }
+
+    const link = getNewsLink()
+    const isExternal = link.startsWith("http")
+
+    if (isExternal) {
       return (
-        <Link href={item.link_url} className="block h-full">
+        <a
+          href={link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block h-full"
+        >
           {content}
-        </Link>
+        </a>
       )
     }
 
-    return <div className="h-full">{content}</div>
+    return (
+      <Link href={link} className="block h-full">
+        {content}
+      </Link>
+    )
   }
 
   return (

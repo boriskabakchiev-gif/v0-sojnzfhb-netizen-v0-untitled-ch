@@ -137,7 +137,7 @@ LIMIT 1
       <SiteHeader categories={categories || []} subcategories={allSubcategories || []} />
 
       {/* Динамична лента с категории, която се обновява при всяко зареждане */}
-      <CategoriesNavbar />
+      <CategoriesNavbar categories={categories || []} subcategories={allSubcategories || []} isEnglish={false} />
 
       {/* Main content - flex-1 to push footer to bottom */}
       <main className="flex-1">

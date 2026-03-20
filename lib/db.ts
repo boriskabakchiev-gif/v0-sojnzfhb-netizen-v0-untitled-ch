@@ -1648,7 +1648,10 @@ export async function getNews(activeOnly = true) {
     const whereClause = activeOnly ? "WHERE is_active = true" : ""
     const result = await executeQueryWithRetry(`
       SELECT id, title, title_en, summary, summary_en, content, content_en, 
-             image_url, link_url, is_active, is_featured, sort_order, created_at, updated_at
+             image_url, link_url, is_active, is_featured, sort_order, 
+             slug, meta_title, meta_title_en, meta_description, meta_description_en,
+             meta_keywords, meta_keywords_en, content_blocks, content_blocks_en,
+             related_products, gallery_images, created_at, updated_at
       FROM news
       ${whereClause}
       ORDER BY sort_order ASC, created_at DESC
@@ -1669,7 +1672,10 @@ export async function getNewsById(id: number) {
   try {
     const result = await executeQueryWithRetry(
       `SELECT id, title, title_en, summary, summary_en, content, content_en, 
-              image_url, link_url, is_active, is_featured, sort_order, created_at, updated_at
+              image_url, link_url, is_active, is_featured, sort_order,
+              slug, meta_title, meta_title_en, meta_description, meta_description_en,
+              meta_keywords, meta_keywords_en, content_blocks, content_blocks_en,
+              related_products, gallery_images, created_at, updated_at
        FROM news
        WHERE id = $1`,
       [id]
@@ -1677,6 +1683,30 @@ export async function getNewsById(id: number) {
     return result[0] || null
   } catch (error) {
     console.error(`LIB/DB.TS: Error fetching news ${id}:`, error)
+    return null
+  }
+}
+
+export async function getNewsBySlug(slug: string) {
+  console.log(`LIB/DB.TS: getNewsBySlug called. Slug: ${slug}, dbInitialized: ${dbInitialized}`)
+  if (!dbInitialized) {
+    console.error("LIB/DB.TS: getNewsBySlug - Database not initialized.")
+    return null
+  }
+  try {
+    const result = await executeQueryWithRetry(
+      `SELECT id, title, title_en, summary, summary_en, content, content_en, 
+              image_url, link_url, is_active, is_featured, sort_order,
+              slug, meta_title, meta_title_en, meta_description, meta_description_en,
+              meta_keywords, meta_keywords_en, content_blocks, content_blocks_en,
+              related_products, gallery_images, created_at, updated_at
+       FROM news
+       WHERE slug = $1 AND is_active = true`,
+      [slug]
+    )
+    return result[0] || null
+  } catch (error) {
+    console.error(`LIB/DB.TS: Error fetching news by slug ${slug}:`, error)
     return null
   }
 }
@@ -1693,6 +1723,17 @@ export async function createNews(data: {
   is_active?: boolean
   is_featured?: boolean
   sort_order?: number
+  slug?: string
+  meta_title?: string
+  meta_title_en?: string
+  meta_description?: string
+  meta_description_en?: string
+  meta_keywords?: string
+  meta_keywords_en?: string
+  content_blocks?: any[]
+  content_blocks_en?: any[]
+  related_products?: string[]
+  gallery_images?: string[]
 }) {
   console.log(`LIB/DB.TS: createNews called. dbInitialized: ${dbInitialized}`)
   if (!dbInitialized) {
@@ -1701,8 +1742,11 @@ export async function createNews(data: {
   }
   try {
     const result = await executeQueryWithRetry(
-      `INSERT INTO news (title, title_en, summary, summary_en, content, content_en, image_url, link_url, is_active, is_featured, sort_order)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      `INSERT INTO news (title, title_en, summary, summary_en, content, content_en, image_url, link_url, 
+                         is_active, is_featured, sort_order, slug, meta_title, meta_title_en, 
+                         meta_description, meta_description_en, meta_keywords, meta_keywords_en,
+                         content_blocks, content_blocks_en, related_products, gallery_images)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
        RETURNING *`,
       [
         data.title,
@@ -1716,6 +1760,17 @@ export async function createNews(data: {
         data.is_active ?? true,
         data.is_featured ?? false,
         data.sort_order ?? 0,
+        data.slug || null,
+        data.meta_title || null,
+        data.meta_title_en || null,
+        data.meta_description || null,
+        data.meta_description_en || null,
+        data.meta_keywords || null,
+        data.meta_keywords_en || null,
+        JSON.stringify(data.content_blocks || []),
+        JSON.stringify(data.content_blocks_en || []),
+        JSON.stringify(data.related_products || []),
+        JSON.stringify(data.gallery_images || []),
       ]
     )
     return result[0] || null
@@ -1739,6 +1794,17 @@ export async function updateNews(
     is_active?: boolean
     is_featured?: boolean
     sort_order?: number
+    slug?: string
+    meta_title?: string
+    meta_title_en?: string
+    meta_description?: string
+    meta_description_en?: string
+    meta_keywords?: string
+    meta_keywords_en?: string
+    content_blocks?: any[]
+    content_blocks_en?: any[]
+    related_products?: string[]
+    gallery_images?: string[]
   }
 ) {
   console.log(`LIB/DB.TS: updateNews called. ID: ${id}, dbInitialized: ${dbInitialized}`)
@@ -1794,6 +1860,50 @@ export async function updateNews(
     if (data.sort_order !== undefined) {
       fields.push(`sort_order = $${paramIndex++}`)
       values.push(data.sort_order)
+    }
+    if (data.slug !== undefined) {
+      fields.push(`slug = $${paramIndex++}`)
+      values.push(data.slug)
+    }
+    if (data.meta_title !== undefined) {
+      fields.push(`meta_title = $${paramIndex++}`)
+      values.push(data.meta_title)
+    }
+    if (data.meta_title_en !== undefined) {
+      fields.push(`meta_title_en = $${paramIndex++}`)
+      values.push(data.meta_title_en)
+    }
+    if (data.meta_description !== undefined) {
+      fields.push(`meta_description = $${paramIndex++}`)
+      values.push(data.meta_description)
+    }
+    if (data.meta_description_en !== undefined) {
+      fields.push(`meta_description_en = $${paramIndex++}`)
+      values.push(data.meta_description_en)
+    }
+    if (data.meta_keywords !== undefined) {
+      fields.push(`meta_keywords = $${paramIndex++}`)
+      values.push(data.meta_keywords)
+    }
+    if (data.meta_keywords_en !== undefined) {
+      fields.push(`meta_keywords_en = $${paramIndex++}`)
+      values.push(data.meta_keywords_en)
+    }
+    if (data.content_blocks !== undefined) {
+      fields.push(`content_blocks = $${paramIndex++}`)
+      values.push(JSON.stringify(data.content_blocks))
+    }
+    if (data.content_blocks_en !== undefined) {
+      fields.push(`content_blocks_en = $${paramIndex++}`)
+      values.push(JSON.stringify(data.content_blocks_en))
+    }
+    if (data.related_products !== undefined) {
+      fields.push(`related_products = $${paramIndex++}`)
+      values.push(JSON.stringify(data.related_products))
+    }
+    if (data.gallery_images !== undefined) {
+      fields.push(`gallery_images = $${paramIndex++}`)
+      values.push(JSON.stringify(data.gallery_images))
     }
 
     fields.push(`updated_at = CURRENT_TIMESTAMP`)

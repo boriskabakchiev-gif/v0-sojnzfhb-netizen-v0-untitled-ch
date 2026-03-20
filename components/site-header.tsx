@@ -285,8 +285,8 @@ export function SiteHeader({
         </div>
       </header>
 
-      {/* Spacer */}
-      <div className="h-[112px]" />
+      {/* Spacer - matches header height (56px on mobile, 64px on desktop) */}
+      <div className="h-14 sm:h-16" />
     </>
   )
 }

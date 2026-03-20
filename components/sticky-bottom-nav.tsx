@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Home, Search, Grid3X3, ShoppingBag, User } from "lucide-react"
 import { useCart } from "@/context/cart-context"
+import { useMobileMenu } from "@/context/mobile-menu-context"
 
 interface StickyBottomNavProps {
   isEnglish?: boolean
@@ -12,6 +13,7 @@ interface StickyBottomNavProps {
 export function StickyBottomNav({ isEnglish = false }: StickyBottomNavProps) {
   const pathname = usePathname()
   const { items } = useCart()
+  const { isOpen, activeTab, openMenu } = useMobileMenu()
   
   const cartItemsCount = items.reduce((acc, item) => acc + item.quantity, 0)
 
@@ -24,7 +26,21 @@ export function StickyBottomNav({ isEnglish = false }: StickyBottomNavProps) {
     return "home"
   }
 
-  const activeTab = getActiveTab()
+  const currentActiveTab = getActiveTab()
+
+  // Check if search or categories tab in menu is active
+  const isSearchActive = isOpen && activeTab === "search"
+  const isCategoriesActive = isOpen && activeTab === "categories"
+
+  const handleSearchClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    openMenu("search")
+  }
+
+  const handleCategoriesClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    openMenu("categories")
+  }
 
   const navItems = [
     {
@@ -32,22 +48,23 @@ export function StickyBottomNav({ isEnglish = false }: StickyBottomNavProps) {
       href: isEnglish ? "/en" : "/",
       icon: Home,
       label: isEnglish ? "Home" : "Начало",
+      isActive: currentActiveTab === "home" && !isOpen,
     },
     {
       id: "search",
-      href: isEnglish ? "/en" : "/",
+      href: "#",
       icon: Search,
       label: isEnglish ? "Search" : "Търсене",
-      onClick: () => {
-        // Scroll to top and focus search
-        window.scrollTo({ top: 0, behavior: "smooth" })
-      },
+      onClick: handleSearchClick,
+      isActive: isSearchActive,
     },
     {
       id: "categories",
-      href: isEnglish ? "/en" : "/",
+      href: "#",
       icon: Grid3X3,
       label: isEnglish ? "Categories" : "Категории",
+      onClick: handleCategoriesClick,
+      isActive: isCategoriesActive,
     },
     {
       id: "cart",
@@ -55,42 +72,76 @@ export function StickyBottomNav({ isEnglish = false }: StickyBottomNavProps) {
       icon: ShoppingBag,
       label: isEnglish ? "Cart" : "Количка",
       badge: cartItemsCount > 0 ? cartItemsCount : undefined,
+      isActive: currentActiveTab === "cart" && !isOpen,
     },
     {
       id: "account",
       href: isEnglish ? "/en/account" : "/account",
       icon: User,
       label: isEnglish ? "Account" : "Профил",
+      isActive: currentActiveTab === "account" && !isOpen,
     },
   ]
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-[9999] md:hidden">
       {/* Apple-style backdrop blur */}
-      <div className="bg-white/80 backdrop-blur-xl border-t border-neutral-200/50 shadow-[0_-1px_3px_rgba(0,0,0,0.05)]">
+      <div className="bg-white/90 backdrop-blur-xl border-t border-neutral-200/60 shadow-[0_-1px_3px_rgba(0,0,0,0.08)]">
         <div className="safe-area-bottom">
-          <div className="flex items-center justify-around px-2 py-2">
+          <div className="flex items-center justify-around px-1 py-1.5">
             {navItems.map((item) => {
-              const isActive = activeTab === item.id
               const Icon = item.icon
+
+              if (item.onClick) {
+                return (
+                  <button
+                    key={item.id}
+                    onClick={item.onClick}
+                    className={`relative flex flex-col items-center justify-center min-w-[60px] py-1.5 px-2 rounded-xl transition-all duration-200 ${
+                      item.isActive
+                        ? "text-amber-600"
+                        : "text-neutral-400 active:text-neutral-600 active:scale-95"
+                    }`}
+                  >
+                    <div className="relative">
+                      <Icon
+                        className={`h-6 w-6 transition-all duration-200 ${
+                          item.isActive ? "scale-110" : ""
+                        }`}
+                        strokeWidth={item.isActive ? 2.5 : 1.8}
+                      />
+                    </div>
+                    <span
+                      className={`mt-0.5 text-[10px] font-semibold tracking-tight ${
+                        item.isActive ? "text-amber-600" : "text-neutral-500"
+                      }`}
+                    >
+                      {item.label}
+                    </span>
+                    {/* Active indicator */}
+                    {item.isActive && (
+                      <div className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-amber-600" />
+                    )}
+                  </button>
+                )
+              }
 
               return (
                 <Link
                   key={item.id}
                   href={item.href}
-                  onClick={item.onClick}
-                  className={`relative flex flex-col items-center justify-center min-w-[64px] py-1 px-2 rounded-xl transition-all duration-200 ${
-                    isActive
-                      ? "text-neutral-900"
-                      : "text-neutral-400 active:text-neutral-600"
+                  className={`relative flex flex-col items-center justify-center min-w-[60px] py-1.5 px-2 rounded-xl transition-all duration-200 ${
+                    item.isActive
+                      ? "text-amber-600"
+                      : "text-neutral-400 active:text-neutral-600 active:scale-95"
                   }`}
                 >
                   <div className="relative">
                     <Icon
-                      className={`h-6 w-6 transition-transform duration-200 ${
-                        isActive ? "scale-105" : ""
+                      className={`h-6 w-6 transition-all duration-200 ${
+                        item.isActive ? "scale-110" : ""
                       }`}
-                      strokeWidth={isActive ? 2.2 : 1.8}
+                      strokeWidth={item.isActive ? 2.5 : 1.8}
                     />
                     {/* Cart badge */}
                     {item.badge && (
@@ -100,15 +151,15 @@ export function StickyBottomNav({ isEnglish = false }: StickyBottomNavProps) {
                     )}
                   </div>
                   <span
-                    className={`mt-1 text-[10px] font-medium tracking-tight ${
-                      isActive ? "text-neutral-900" : "text-neutral-500"
+                    className={`mt-0.5 text-[10px] font-semibold tracking-tight ${
+                      item.isActive ? "text-amber-600" : "text-neutral-500"
                     }`}
                   >
                     {item.label}
                   </span>
-                  {/* Active indicator dot */}
-                  {isActive && (
-                    <div className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-neutral-900" />
+                  {/* Active indicator */}
+                  {item.isActive && (
+                    <div className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-amber-600" />
                   )}
                 </Link>
               )

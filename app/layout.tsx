@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Inter } from 'next/font/google'
 import Script from "next/script"
 import { CartProvider } from "@/context/cart-context"
+import { MobileMenuProvider } from "@/context/mobile-menu-context"
 import { Toaster } from "@/components/ui/sonner"
 import { ThemeProvider } from "@/components/theme-provider"
 
@@ -101,8 +102,10 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           <CartProvider>
-            {children}
-            <Toaster />
+            <MobileMenuProvider>
+              {children}
+              <Toaster />
+            </MobileMenuProvider>
           </CartProvider>
         </ThemeProvider>
       </body>

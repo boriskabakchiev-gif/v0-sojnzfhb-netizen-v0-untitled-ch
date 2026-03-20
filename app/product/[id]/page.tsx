@@ -20,6 +20,7 @@ import { SiteFooter } from "@/components/site-footer"
 import { CategoriesNavbar } from "@/components/categories-navbar"
 import { ProductCard } from "@/components/product-card"
 import { ProductQuantityControls } from "@/components/product-quantity-controls"
+import { StickyBuyButton } from "@/components/sticky-buy-button"
 
 function formatDisplayPrice(price: number | null | undefined): string {
   if (price === null || price === undefined || isNaN(Number(price))) {
@@ -174,7 +175,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     }
 
     return (
-      <div className="min-h-screen bg-neutral-50 text-neutral-900">
+      <div className="min-h-screen bg-neutral-50 text-neutral-900 pb-24 md:pb-0">
         <SiteHeader
           categories={categories}
           subcategories={allSubcategories}
@@ -447,6 +448,18 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         )}
 
         <SiteFooter categories={categories || []} isEnglish={false} />
+
+        {/* Sticky Buy Button - Mobile only */}
+        <StickyBuyButton
+          productId={product.objectid}
+          productTitle={product.title}
+          productPrice={priceToDisplay !== null ? priceToDisplay : 0}
+          photoUrl={product.photourl}
+          promo_buy_qty={finalPromoBuyQty}
+          promo_free_qty={finalPromoFreeQty}
+          disabled={priceToDisplay === null}
+          isEnglish={false}
+        />
       </div>
     )
   } catch (error) {

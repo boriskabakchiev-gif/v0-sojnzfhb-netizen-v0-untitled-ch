@@ -26,6 +26,7 @@ import { ProductCard } from "@/components/product-card"
 // import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import { CategoryFilterPanel } from "@/components/category-filter-panel"
 import { SubcategoryImage } from "@/components/images"
+import { StickyBottomNav } from "@/components/sticky-bottom-nav"
 
 // Force dynamic rendering to ensure fresh data
 export const dynamic = "force-dynamic"
@@ -251,7 +252,7 @@ export default async function CategoryPage({
     const isLoggedIn = !!user
 
     return (
-      <div className="min-h-screen bg-gray-100 text-gray-800">
+      <div className="min-h-screen bg-gray-100 text-gray-800 pb-20 md:pb-0">
         <SiteHeader categories={[]} subcategories={allSubcategories} currentCategoryId={categoryId} />
         <CategoriesNavbar currentCategoryId={categoryId} />
 
@@ -392,6 +393,9 @@ export default async function CategoryPage({
         </section>
 
         <SiteFooter categories={categories || []} isEnglish={false} />
+
+        {/* Sticky Bottom Navigation - Mobile only */}
+        <StickyBottomNav isEnglish={false} />
       </div>
     )
   } catch (error) {

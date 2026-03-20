@@ -11,6 +11,7 @@ import { sql } from "@/lib/db"
 import { ProductCard } from "@/components/product-card"
 import { HolidayBanner } from "@/components/holiday-banner"
 import { HeroBannerCarousel } from "@/components/hero-banner-carousel"
+import { StickyBottomNav } from "@/components/sticky-bottom-nav"
 
 // Маркираме страницата като динамична
 export const dynamic = "force-dynamic"
@@ -127,7 +128,7 @@ LIMIT 1
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-800 flex flex-col">
+    <div className="min-h-screen bg-gray-100 text-gray-800 flex flex-col pb-20 md:pb-0">
       <HolidayBanner />
 
       {/* Header */}
@@ -558,7 +559,7 @@ LIMIT 1
               </Link>
               <span className="text-gray-400">|</span>
               <Link href="/contact" className="hover:text-gray-900 underline transition-colors">
-                Контакти
+                Контак��и
               </Link>
             </div>
           </div>
@@ -567,6 +568,9 @@ LIMIT 1
 
       {/* Footer - САМО ЕДИН ФУТЕР */}
       <SiteFooter categories={categories || []} isEnglish={false} />
+
+      {/* Sticky Bottom Navigation - Mobile only */}
+      <StickyBottomNav isEnglish={false} />
     </div>
   )
 }

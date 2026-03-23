@@ -256,23 +256,33 @@ export default async function CategoryPage({
         <SiteHeader categories={categories} subcategories={allSubcategories} currentCategoryId={categoryId} />
         <CategoriesNavbar categories={categories} subcategories={allSubcategories} currentCategoryId={categoryId} isEnglish={false} />
 
-        <section className="relative py-6 bg-white border-b border-gray-200">
+        {/* Apple-style Header Section */}
+        <section className="relative py-8 md:py-12 bg-gradient-to-b from-gray-50 to-white">
           <div className="container mx-auto px-4">
-            <div className="flex items-center space-x-2 text-sm text-gray-600 mb-4">
-              <Link href="/" className="hover:text-red-600">
+            {/* Breadcrumb */}
+            <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
+              <Link href="/" className="hover:text-gray-900 transition-colors">
                 Начало
               </Link>
-              <ChevronRight className="h-4 w-4" />
-              <span className="text-red-600">{category?.title || "Категория"}</span>
-            </div>
-            <div className="grid grid-cols-1 gap-8 items-center">
-              <div>
-                <h1 className="text-3xl md:text-4xl font-bold text-gray-800">{category?.title || "Категория"}</h1>
-                {category?.description && <p className="mt-2 text-gray-600 max-w-3xl">{category.description}</p>}
-                <p className="mt-2 text-red-600 font-medium">
-                  Намерени продукти: {productsToDisplay.length} от {productsByCategory.length}
-                </p>
-              </div>
+              <ChevronRight className="h-3.5 w-3.5" />
+              <span className="text-gray-900 font-medium">{category?.title || "Категория"}</span>
+            </nav>
+            
+            {/* Title and Stats */}
+            <div className="space-y-3">
+              <h1 className="text-3xl md:text-5xl font-semibold tracking-tight text-gray-900">
+                {category?.title || "Категория"}
+              </h1>
+              {category?.description && (
+                <p className="text-lg text-gray-500 max-w-2xl leading-relaxed">{category.description}</p>
+              )}
+              <p className="text-sm text-gray-400">
+                {productsToDisplay.length === productsByCategory.length ? (
+                  <span>{productsToDisplay.length} продукта</span>
+                ) : (
+                  <span>{productsToDisplay.length} от {productsByCategory.length} продукта</span>
+                )}
+              </p>
             </div>
           </div>
         </section>

@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Filter, X, SlidersHorizontal } from "lucide-react"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { Filter, X, SlidersHorizontal, ChevronDown, Check } from "lucide-react"
 
 interface CategoryFilterPanelProps {
   categoryId: string
@@ -99,20 +100,58 @@ export function CategoryFilterPanel({
             : "bottom-24 opacity-0 translate-y-4 pointer-events-none"
         }`}
       >
-        <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 p-3">
-          <div className="flex items-center gap-2">
-            {/* Filter button */}
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => setShowFilters(!showFilters)} 
-              className="flex items-center gap-1.5 px-3 py-2 h-9 rounded-xl bg-gray-100/80 hover:bg-gray-200/80 text-gray-700 font-medium text-sm"
-            >
-              <SlidersHorizontal className="h-4 w-4" />
-              {isEnglish ? "Filters" : "Филтри"}
-            </Button>
+        <div className="bg-white/90 backdrop-blur-2xl rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-white/20 p-2">
+          <div className="flex items-center gap-1.5">
+            {/* Filter button with Sheet for mobile */}
+            <Sheet>
+              <SheetTrigger asChild>
+                <button 
+                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-[14px] bg-gray-100/90 hover:bg-gray-200/90 active:scale-[0.98] text-gray-800 font-medium text-[13px] transition-all"
+                >
+                  <SlidersHorizontal className="h-4 w-4" />
+                  {isEnglish ? "Filters" : "Филтри"}
+                </button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="rounded-t-[20px] max-h-[70vh]">
+                <SheetHeader className="text-left pb-4 border-b">
+                  <SheetTitle className="text-lg font-semibold">{isEnglish ? "Price Range" : "Ценови диапазон"}</SheetTitle>
+                </SheetHeader>
+                <div className="py-6 space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="minPriceMobile" className="text-sm text-gray-500">{isEnglish ? "Min Price" : "Минимална цена"}</Label>
+                    <Input
+                      id="minPriceMobile"
+                      type="number"
+                      placeholder="0"
+                      value={localMinPrice}
+                      onChange={(e) => setLocalMinPrice(e.target.value)}
+                      className="h-12 rounded-xl text-base"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="maxPriceMobile" className="text-sm text-gray-500">{isEnglish ? "Max Price" : "Максимална цена"}</Label>
+                    <Input
+                      id="maxPriceMobile"
+                      type="number"
+                      placeholder="1000"
+                      value={localMaxPrice}
+                      onChange={(e) => setLocalMaxPrice(e.target.value)}
+                      className="h-12 rounded-xl text-base"
+                    />
+                  </div>
+                  <Button onClick={applyPriceFilters} className="w-full h-12 rounded-xl text-base font-medium bg-gray-900 hover:bg-gray-800">
+                    {isEnglish ? "Apply Filters" : "Приложи филтри"}
+                  </Button>
+                  {hasActiveFilters && (
+                    <Button variant="ghost" onClick={clearFilters} className="w-full h-12 rounded-xl text-base text-red-600 hover:text-red-700 hover:bg-red-50">
+                      {isEnglish ? "Clear All" : "Изчисти всички"}
+                    </Button>
+                  )}
+                </div>
+              </SheetContent>
+            </Sheet>
 
-            {/* Subcategory dropdown */}
+            {/* Subcategory dropdown - Apple style */}
             {subcategories.length > 0 && (
               <Select
                 value={currentSubcategoryId || "all"}
@@ -125,16 +164,25 @@ export function CategoryFilterPanel({
                   })
                 }
               >
-                <SelectTrigger className="flex-1 h-9 rounded-xl bg-gray-100/80 border-0 text-sm font-medium">
-                  <SelectValue placeholder={isEnglish ? "All" : "Всички"} />
+                <SelectTrigger className="flex-1 h-10 px-4 rounded-[14px] bg-gray-100/90 border-0 text-[13px] font-medium text-gray-800 focus:ring-0 focus:ring-offset-0">
+                  <span className="truncate">{currentSubcategoryId ? subcategories.find(s => s.id === currentSubcategoryId)?.title?.slice(0, 12) + (subcategories.find(s => s.id === currentSubcategoryId)?.title && subcategories.find(s => s.id === currentSubcategoryId)!.title.length > 12 ? "..." : "") : (isEnglish ? "All" : "Всички")}</span>
+                  <ChevronDown className="h-4 w-4 ml-1 opacity-50" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{isEnglish ? "All subcategories" : "Всички подкатегории"}</SelectItem>
+                <SelectContent className="rounded-2xl border-0 shadow-[0_10px_40px_rgb(0,0,0,0.15)] bg-white/95 backdrop-blur-xl p-1" align="center">
+                  <SelectItem value="all" className="rounded-xl py-3 px-4 text-sm cursor-pointer focus:bg-gray-100">
+                    <div className="flex items-center gap-2">
+                      {!currentSubcategoryId && <Check className="h-4 w-4 text-blue-500" />}
+                      <span>{isEnglish ? "All subcategories" : "Всички подкатегории"}</span>
+                    </div>
+                  </SelectItem>
                   {subcategories.map((subcategory) => {
                     const displayTitle = isEnglish ? getEnglishTitle(subcategory) : subcategory.title
                     return (
-                      <SelectItem key={subcategory.id} value={subcategory.id}>
-                        {displayTitle}
+                      <SelectItem key={subcategory.id} value={subcategory.id} className="rounded-xl py-3 px-4 text-sm cursor-pointer focus:bg-gray-100">
+                        <div className="flex items-center gap-2">
+                          {currentSubcategoryId === subcategory.id && <Check className="h-4 w-4 text-blue-500" />}
+                          <span>{displayTitle}</span>
+                        </div>
                       </SelectItem>
                     )
                   })}
@@ -142,7 +190,7 @@ export function CategoryFilterPanel({
               </Select>
             )}
 
-            {/* Sort dropdown */}
+            {/* Sort dropdown - Apple style */}
             <Select
               value={sortOption}
               onValueChange={(value) =>
@@ -154,14 +202,35 @@ export function CategoryFilterPanel({
                 })
               }
             >
-              <SelectTrigger className="w-[100px] h-9 rounded-xl bg-gray-100/80 border-0 text-sm font-medium">
-                <SelectValue />
+              <SelectTrigger className="w-auto min-w-[70px] h-10 px-4 rounded-[14px] bg-gray-100/90 border-0 text-[13px] font-medium text-gray-800 focus:ring-0 focus:ring-offset-0">
+                <span>{sortOption === "title-asc" ? (isEnglish ? "A-Z" : "А-Я") : sortOption === "title-desc" ? (isEnglish ? "Z-A" : "Я-А") : sortOption === "price-asc" ? "↑" : "↓"}</span>
+                <ChevronDown className="h-4 w-4 ml-1 opacity-50" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="title-asc">{isEnglish ? "A-Z" : "А-Я"}</SelectItem>
-                <SelectItem value="title-desc">{isEnglish ? "Z-A" : "Я-А"}</SelectItem>
-                <SelectItem value="price-asc">{isEnglish ? "Price ↑" : "Цена ↑"}</SelectItem>
-                <SelectItem value="price-desc">{isEnglish ? "Price ↓" : "Цена ↓"}</SelectItem>
+              <SelectContent className="rounded-2xl border-0 shadow-[0_10px_40px_rgb(0,0,0,0.15)] bg-white/95 backdrop-blur-xl p-1 min-w-[180px]" align="end">
+                <SelectItem value="title-asc" className="rounded-xl py-3 px-4 text-sm cursor-pointer focus:bg-gray-100">
+                  <div className="flex items-center gap-2">
+                    {sortOption === "title-asc" && <Check className="h-4 w-4 text-blue-500" />}
+                    <span>{isEnglish ? "Name A-Z" : "Име А-Я"}</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="title-desc" className="rounded-xl py-3 px-4 text-sm cursor-pointer focus:bg-gray-100">
+                  <div className="flex items-center gap-2">
+                    {sortOption === "title-desc" && <Check className="h-4 w-4 text-blue-500" />}
+                    <span>{isEnglish ? "Name Z-A" : "Име Я-А"}</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="price-asc" className="rounded-xl py-3 px-4 text-sm cursor-pointer focus:bg-gray-100">
+                  <div className="flex items-center gap-2">
+                    {sortOption === "price-asc" && <Check className="h-4 w-4 text-blue-500" />}
+                    <span>{isEnglish ? "Price: Low to High" : "Цена ↑"}</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="price-desc" className="rounded-xl py-3 px-4 text-sm cursor-pointer focus:bg-gray-100">
+                  <div className="flex items-center gap-2">
+                    {sortOption === "price-desc" && <Check className="h-4 w-4 text-blue-500" />}
+                    <span>{isEnglish ? "Price: High to Low" : "Цена ↓"}</span>
+                  </div>
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>

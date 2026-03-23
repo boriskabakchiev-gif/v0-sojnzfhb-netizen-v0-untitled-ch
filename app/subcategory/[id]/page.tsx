@@ -163,42 +163,53 @@ export default async function SubcategoryPage({
       <div className="bg-gray-900">
         <CategoriesNavbar categories={categories} subcategories={allSubcategories} currentCategoryId={parentCategoryId} isEnglish={false} />
       </div>
-      <section className="relative py-12 bg-white border-b border-gray-200">
+      {/* Apple-style Header Section */}
+      <section className="relative py-8 md:py-12 bg-gradient-to-b from-gray-50 to-white">
         <div className="container mx-auto px-4">
-          <div className="flex items-center space-x-2 text-sm text-gray-600 mb-4">
-            <Link href="/" className="hover:text-red-600">
+          {/* Breadcrumb */}
+          <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
+            <Link href="/" className="hover:text-gray-900 transition-colors">
               Начало
             </Link>
-            <ChevronRightIcon className="h-4 w-4" />
+            <ChevronRightIcon className="h-3.5 w-3.5" />
             {parentCategory && (
               <>
-                <Link href={`/category/${parentCategory.id}`} className="hover:text-red-600">
+                <Link href={`/category/${parentCategory.id}`} className="hover:text-gray-900 transition-colors">
                   {parentCategory.title}
                 </Link>
-                <ChevronRightIcon className="h-4 w-4" />
+                <ChevronRightIcon className="h-3.5 w-3.5" />
               </>
             )}
-            <span className="text-red-600">{currentSubcategory.title}</span>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
-            <div className="md:col-span-2">
-              <h1 className="text-3xl md:text-4xl font-bold mb-3 text-gray-800">{currentSubcategory.title}</h1>
-              {currentSubcategory.description && <p className="text-gray-600 mb-4">{currentSubcategory.description}</p>}
-              <div className="flex items-center space-x-4 mt-6">
+            <span className="text-gray-900 font-medium">{currentSubcategory.title}</span>
+          </nav>
+          
+          {/* Title and Stats */}
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+            <div className="space-y-3">
+              <h1 className="text-3xl md:text-5xl font-semibold tracking-tight text-gray-900">
+                {currentSubcategory.title}
+              </h1>
+              {currentSubcategory.description && (
+                <p className="text-lg text-gray-500 max-w-2xl leading-relaxed">{currentSubcategory.description}</p>
+              )}
+              <div className="flex items-center gap-4 text-sm">
+                <span className="text-gray-400">
+                  {filteredProducts.length} {filteredProducts.length === 1 ? "продукт" : "продукта"}
+                </span>
                 {parentCategory && (
-                  <Button asChild variant="outline" className="border-gray-300 hover:border-red-600 text-gray-700">
-                    <Link href={`/category/${parentCategory.id}`} className="flex items-center">
-                      <ArrowLeft className="mr-2 h-4 w-4" />
-                      Обратно към {parentCategory.title}
-                    </Link>
-                  </Button>
+                  <Link 
+                    href={`/category/${parentCategory.id}`} 
+                    className="text-gray-500 hover:text-gray-900 transition-colors flex items-center gap-1.5"
+                  >
+                    <ArrowLeft className="h-3.5 w-3.5" />
+                    <span>Към {parentCategory.title}</span>
+                  </Link>
                 )}
-                <p className="text-red-600 font-medium">
-                  {filteredProducts.length} {filteredProducts.length === 1 ? "продукт" : "продукта"} намерени
-                </p>
               </div>
             </div>
-            <div className="hidden md:block relative h-48 rounded-lg overflow-hidden">
+            
+            {/* Optional: Category image on desktop */}
+            <div className="hidden md:block relative h-32 w-48 rounded-2xl overflow-hidden bg-gray-100 flex-shrink-0">
               <Image
                 src={
                   currentSubcategory.photourl ||
@@ -209,7 +220,6 @@ export default async function SubcategoryPage({
                 fill
                 className="object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-white/60 to-transparent"></div>
             </div>
           </div>
         </div>

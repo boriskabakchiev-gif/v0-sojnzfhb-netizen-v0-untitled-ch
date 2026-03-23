@@ -95,8 +95,8 @@ export function SubcategoryFilterPanel({
       <div
         className={`md:hidden fixed left-4 right-4 z-40 transition-all duration-300 ease-out ${
           isScrolled 
-            ? "top-20 opacity-100 translate-y-0" 
-            : "top-20 opacity-0 -translate-y-4 pointer-events-none"
+            ? "top-28 opacity-100 translate-y-0" 
+            : "top-28 opacity-0 -translate-y-4 pointer-events-none"
         }`}
       >
         <div className="bg-white/90 backdrop-blur-2xl rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-white/20 p-2">

@@ -111,7 +111,7 @@ export function SubcategoryFilterPanel({
                   {isEnglish ? "Filters" : "Филтри"}
                 </button>
               </SheetTrigger>
-              <SheetContent side="top" className="rounded-b-[20px] max-h-[70vh] pt-20">
+              <SheetContent side="bottom" className="rounded-t-[20px] max-h-[70vh]">
                 <SheetHeader className="text-left pb-4 border-b">
                   <SheetTitle className="text-lg font-semibold">{isEnglish ? "Price Range" : "Ценови диапазон"}</SheetTitle>
                 </SheetHeader>

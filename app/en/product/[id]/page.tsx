@@ -1,6 +1,7 @@
 import { Suspense } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import type { Metadata } from "next"
 import { ChevronRight, Tag, Package, Layers, Hash, CheckCircle2, Phone } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { SiteHeader } from "@/components/site-header"
@@ -24,6 +25,63 @@ import {
 } from "@/lib/db"
 
 export const dynamic = "force-dynamic"
+
+// Dynamic SEO metadata from database (English version)
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id: productId } = await params
+  
+  if (!productId || productId === "null" || productId === "undefined") {
+    return { title: "Product not found | Madix Groundbaits" }
+  }
+
+  const product = await getProductById(productId)
+  
+  if (!product) {
+    return { title: "Product not found | Madix Groundbaits" }
+  }
+
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://madix-groundbaits.bg"
+  const productUrl = `${baseUrl}/en/product/${productId}`
+  const productImage = product.photourl || `${baseUrl}/og-image.jpg`
+  const displayTitle = product.title_en || product.title
+  const displayDescription = product.description_en || product.description
+
+  return {
+    title: product.seo_meta_title || `${displayTitle} | Madix Groundbaits`,
+    description: product.seo_meta_description || displayDescription?.slice(0, 160) || `Buy ${displayTitle} from Madix Groundbaits - professional fishing equipment`,
+    keywords: product.seo_meta_keywords?.split(",").map((k: string) => k.trim()),
+    robots: product.seo_robots || "index, follow",
+    alternates: {
+      canonical: product.seo_canonical_url || productUrl,
+      languages: {
+        "bg": `${baseUrl}/product/${productId}`,
+        "en": productUrl,
+      },
+    },
+    openGraph: {
+      title: product.seo_og_title || product.seo_meta_title || displayTitle,
+      description: product.seo_og_description || product.seo_meta_description || displayDescription?.slice(0, 200),
+      url: productUrl,
+      siteName: "Madix Groundbaits",
+      locale: "en_US",
+      type: "website",
+      images: [
+        {
+          url: product.seo_og_image || productImage,
+          width: 1200,
+          height: 630,
+          alt: product.seo_alt_text || displayTitle,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: product.seo_twitter_title || product.seo_og_title || displayTitle,
+      description: product.seo_twitter_description || product.seo_og_description || displayDescription?.slice(0, 200),
+      images: [product.seo_twitter_image || product.seo_og_image || productImage],
+    },
+  }
+}
 
 interface ProductPageProps {
   params: Promise<{
@@ -187,17 +245,57 @@ async function ProductContent({ productId }: { productId: string }) {
     const categoryTitle = category?.title_en || category?.title
     const subcategoryTitle = subcategory?.title_en || subcategory?.title
 
+    // Generate JSON-LD structured data for product (English)
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://madix-groundbaits.bg"
+    const productJsonLd = {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": displayTitle,
+      "description": product.seo_meta_description || displayDescription,
+      "image": product.photourl,
+      "sku": product.seo_schema_sku || product.objectid,
+      "brand": {
+        "@type": "Brand",
+        "name": product.seo_schema_brand || "Madix Groundbaits"
+      },
+      "offers": {
+        "@type": "Offer",
+        "url": `${baseUrl}/en/product/${product.objectid}`,
+        "priceCurrency": "EUR",
+        "price": eurPrice || (priceToDisplay ? priceToDisplay / 1.96 : null),
+        "availability": `https://schema.org/${product.seo_schema_availability || "InStock"}`,
+        "seller": {
+          "@type": "Organization",
+          "name": "Madix Groundbaits"
+        }
+      },
+      ...(ratingSummary && ratingSummary.review_count > 0 ? {
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": ratingSummary.average_rating,
+          "reviewCount": ratingSummary.review_count
+        }
+      } : {})
+    }
+
     return (
-      <div className="min-h-screen bg-neutral-50 text-neutral-900 pb-24 md:pb-0">
-        {/* Header */}
-        <SiteHeader
-          categories={englishCategories}
-          subcategories={allSubcategories}
-          currentCategoryId={product?.cateid}
-          isLoggedIn={isUserLoggedIn}
-          userName={user?.name || user?.storeName || ""}
-          isEnglish={true}
+      <>
+        {/* JSON-LD Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
         />
+        
+        <div className="min-h-screen bg-neutral-50 text-neutral-900 pb-24 md:pb-0">
+          {/* Header */}
+          <SiteHeader
+            categories={englishCategories}
+            subcategories={allSubcategories}
+            currentCategoryId={product?.cateid}
+            isLoggedIn={isUserLoggedIn}
+            userName={user?.name || user?.storeName || ""}
+            isEnglish={true}
+          />
         <CategoriesNavbar currentCategoryId={product?.cateid} isEnglish={true} />
 
         {/* Breadcrumb */}
@@ -446,18 +544,19 @@ async function ProductContent({ productId }: { productId: string }) {
 
         <SiteFooter categories={englishCategories} isEnglish={true} />
 
-        {/* Sticky Buy Button - Mobile only */}
-        <StickyBuyButton
-          productId={product["Document ID"] || product.objectid}
-          productTitle={displayTitle}
-          productPrice={priceToDisplay !== null ? priceToDisplay : 0}
-          photoUrl={product.photourl}
-          promo_buy_qty={finalPromoBuyQty}
-          promo_free_qty={finalPromoFreeQty}
-          disabled={priceToDisplay === null}
-          isEnglish={true}
-        />
-      </div>
+          {/* Sticky Buy Button - Mobile only */}
+          <StickyBuyButton
+            productId={product["Document ID"] || product.objectid}
+            productTitle={displayTitle}
+            productPrice={priceToDisplay !== null ? priceToDisplay : 0}
+            photoUrl={product.photourl}
+            promo_buy_qty={finalPromoBuyQty}
+            promo_free_qty={finalPromoFreeQty}
+            disabled={priceToDisplay === null}
+            isEnglish={true}
+          />
+        </div>
+      </>
     )
   } catch (error) {
     console.error("Error loading product page:", error)

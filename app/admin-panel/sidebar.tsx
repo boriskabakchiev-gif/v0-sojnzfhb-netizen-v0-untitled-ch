@@ -19,6 +19,7 @@ import {
   Rss,
   Star,
   Newspaper,
+  Search,
 } from "lucide-react"
 
 export function Sidebar({ items }: { items: any[] }) {
@@ -112,6 +113,12 @@ export function Sidebar({ items }: { items: any[] }) {
       href: "/admin-panel/meta-feed",
       icon: Rss,
       active: isActive("/admin-panel/meta-feed"),
+    },
+    {
+      title: "SEO Настройки",
+      href: "/admin-panel/seo-settings",
+      icon: Search,
+      active: isActive("/admin-panel/seo-settings"),
     },
     {
       title: "Към сайта",

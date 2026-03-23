@@ -1944,3 +1944,143 @@ export async function deleteNews(id: number) {
     return false
   }
 }
+
+// SEO Settings
+export interface SeoSettings {
+  id?: number
+  page_key: string
+  meta_title?: string
+  meta_description?: string
+  meta_keywords?: string
+  og_title?: string
+  og_description?: string
+  og_image?: string
+  og_image_width?: number
+  og_image_height?: number
+  og_type?: string
+  og_site_name?: string
+  og_locale?: string
+  og_url?: string
+  twitter_card?: string
+  twitter_title?: string
+  twitter_description?: string
+  twitter_image?: string
+  twitter_site?: string
+  twitter_creator?: string
+  canonical_url?: string
+  robots?: string
+  author?: string
+  schema_type?: string
+  schema_name?: string
+  schema_description?: string
+  schema_logo?: string
+  schema_same_as?: string[]
+  schema_address_locality?: string
+  schema_address_region?: string
+  schema_address_country?: string
+  schema_postal_code?: string
+  schema_street_address?: string
+  schema_telephone?: string
+  schema_email?: string
+  hreflang_en?: string
+  hreflang_bg?: string
+  google_site_verification?: string
+  bing_site_verification?: string
+  yandex_verification?: string
+  theme_color?: string
+  background_color?: string
+  ga_tracking_id?: string
+  gtm_id?: string
+  fb_pixel_id?: string
+  created_at?: string
+  updated_at?: string
+}
+
+export async function getSeoSettings(pageKey: string = 'homepage'): Promise<SeoSettings | null> {
+  console.log(`LIB/DB.TS: getSeoSettings called. pageKey: ${pageKey}, dbInitialized: ${dbInitialized}`)
+  if (!dbInitialized) {
+    console.error("LIB/DB.TS: getSeoSettings - Database not initialized.")
+    return null
+  }
+  try {
+    const result = await executeQueryWithRetry(
+      `SELECT * FROM seo_settings WHERE page_key = $1`,
+      [pageKey]
+    )
+    return result[0] || null
+  } catch (error) {
+    console.error(`LIB/DB.TS: Error fetching SEO settings for ${pageKey}:`, error)
+    return null
+  }
+}
+
+export async function updateSeoSettings(pageKey: string, data: Partial<SeoSettings>): Promise<{ success: boolean; data?: SeoSettings; error?: string }> {
+  console.log(`LIB/DB.TS: updateSeoSettings called. pageKey: ${pageKey}, dbInitialized: ${dbInitialized}`)
+  if (!dbInitialized) {
+    console.error("LIB/DB.TS: updateSeoSettings - Database not initialized.")
+    return { success: false, error: "Database not initialized" }
+  }
+  try {
+    const fields: string[] = []
+    const values: any[] = []
+    let paramIndex = 1
+
+    // Build dynamic update query
+    const updateableFields = [
+      'meta_title', 'meta_description', 'meta_keywords',
+      'og_title', 'og_description', 'og_image', 'og_image_width', 'og_image_height',
+      'og_type', 'og_site_name', 'og_locale', 'og_url',
+      'twitter_card', 'twitter_title', 'twitter_description', 'twitter_image',
+      'twitter_site', 'twitter_creator',
+      'canonical_url', 'robots', 'author',
+      'schema_type', 'schema_name', 'schema_description', 'schema_logo',
+      'schema_same_as', 'schema_address_locality', 'schema_address_region',
+      'schema_address_country', 'schema_postal_code', 'schema_street_address',
+      'schema_telephone', 'schema_email',
+      'hreflang_en', 'hreflang_bg',
+      'google_site_verification', 'bing_site_verification', 'yandex_verification',
+      'theme_color', 'background_color',
+      'ga_tracking_id', 'gtm_id', 'fb_pixel_id'
+    ]
+
+    for (const field of updateableFields) {
+      if (data[field as keyof SeoSettings] !== undefined) {
+        fields.push(`${field} = $${paramIndex++}`)
+        const value = data[field as keyof SeoSettings]
+        // Handle array fields
+        if (Array.isArray(value)) {
+          values.push(value)
+        } else {
+          values.push(value)
+        }
+      }
+    }
+
+    if (fields.length === 0) {
+      return { success: false, error: "No fields to update" }
+    }
+
+    fields.push(`updated_at = NOW()`)
+    values.push(pageKey)
+
+    const result = await executeQueryWithRetry(
+      `UPDATE seo_settings SET ${fields.join(", ")} WHERE page_key = $${paramIndex} RETURNING *`,
+      values
+    )
+
+    if (result.length === 0) {
+      // Insert if doesn't exist
+      const insertResult = await executeQueryWithRetry(
+        `INSERT INTO seo_settings (page_key) VALUES ($1) RETURNING *`,
+        [pageKey]
+      )
+      // Then update
+      return updateSeoSettings(pageKey, data)
+    }
+
+    return { success: true, data: result[0] }
+  } catch (error) {
+    console.error(`LIB/DB.TS: Error updating SEO settings for ${pageKey}:`, error)
+    return { success: false, error: String(error) }
+  }
+}

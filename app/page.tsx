@@ -1,9 +1,10 @@
 import Link from "next/link"
 import Image from "next/image"
+import type { Metadata } from "next"
 import { TrendingUp, Award, Gift, Globe, ArrowRight } from "lucide-react"
 import { CategoriesNavbar } from "@/components/categories-navbar"
 import { Button } from "@/components/ui/button"
-import { getCategories, getSubcategories, getHeroBanners, getBatchProductRatings, getNews } from "@/lib/db"
+import { getCategories, getSubcategories, getHeroBanners, getBatchProductRatings, getNews, getSeoSettings } from "@/lib/db"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { getUser } from "@/lib/auth"
@@ -17,6 +18,64 @@ import { NewsSection } from "@/components/news-section"
 // Маркираме страницата като динамична
 export const dynamic = "force-dynamic"
 
+// Dynamic SEO metadata from database
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await getSeoSettings("homepage")
+  
+  const defaultMetadata: Metadata = {
+    title: "Мадикс Граундбейтс - Професионални риболовни принадлежности",
+    description: "Най-голямата фабрика за захранки в България. Висококачествени риболовни продукти от 1995 година.",
+  }
+
+  if (!seo) return defaultMetadata
+
+  return {
+    title: seo.meta_title || defaultMetadata.title,
+    description: seo.meta_description || defaultMetadata.description,
+    keywords: seo.meta_keywords?.split(",").map((k: string) => k.trim()),
+    authors: seo.author ? [{ name: seo.author }] : undefined,
+    robots: seo.robots || "index, follow",
+    alternates: {
+      canonical: seo.canonical_url || undefined,
+      languages: {
+        "bg": seo.hreflang_bg || undefined,
+        "en": seo.hreflang_en || undefined,
+      },
+    },
+    openGraph: {
+      title: seo.og_title || seo.meta_title || undefined,
+      description: seo.og_description || seo.meta_description || undefined,
+      url: seo.og_url || undefined,
+      siteName: seo.og_site_name || undefined,
+      locale: seo.og_locale || "bg_BG",
+      type: (seo.og_type as "website" | "article") || "website",
+      images: seo.og_image ? [
+        {
+          url: seo.og_image,
+          width: seo.og_image_width || 1200,
+          height: seo.og_image_height || 630,
+        },
+      ] : undefined,
+    },
+    twitter: {
+      card: (seo.twitter_card as "summary_large_image" | "summary") || "summary_large_image",
+      title: seo.twitter_title || seo.og_title || seo.meta_title || undefined,
+      description: seo.twitter_description || seo.og_description || seo.meta_description || undefined,
+      images: seo.twitter_image ? [seo.twitter_image] : seo.og_image ? [seo.og_image] : undefined,
+      site: seo.twitter_site || undefined,
+      creator: seo.twitter_creator || undefined,
+    },
+    verification: {
+      google: seo.google_site_verification || undefined,
+      yandex: seo.yandex_verification || undefined,
+      other: seo.bing_site_verification ? { "msvalidate.01": seo.bing_site_verification } : undefined,
+    },
+    other: {
+      "theme-color": seo.theme_color || "#f59e0b",
+    },
+  }
+}
+
 export default async function Home() {
   const locale = "bg" // Bulgarian locale
 
@@ -25,6 +84,32 @@ export default async function Home() {
   const allSubcategories = await getSubcategories()
   const heroBanners = await getHeroBanners()
   const newsItems = await getNews(true) // Get only active news
+  const seoSettings = await getSeoSettings("homepage")
+
+  // Generate JSON-LD structured data
+  const jsonLd = seoSettings ? {
+    "@context": "https://schema.org",
+    "@type": seoSettings.schema_type || "Organization",
+    "name": seoSettings.schema_name || "Мадикс Граундбейтс",
+    "description": seoSettings.schema_description || seoSettings.meta_description,
+    "url": seoSettings.og_url || seoSettings.canonical_url,
+    "logo": seoSettings.schema_logo,
+    "telephone": seoSettings.schema_telephone,
+    "email": seoSettings.schema_email,
+    ...(seoSettings.schema_street_address || seoSettings.schema_address_locality ? {
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": seoSettings.schema_street_address,
+        "addressLocality": seoSettings.schema_address_locality,
+        "addressRegion": seoSettings.schema_address_region,
+        "postalCode": seoSettings.schema_postal_code,
+        "addressCountry": seoSettings.schema_address_country || "Bulgaria",
+      }
+    } : {}),
+    ...(seoSettings.schema_same_as && seoSettings.schema_same_as.length > 0 ? {
+      "sameAs": seoSettings.schema_same_as
+    } : {}),
+  } : null
 
   // Извличане на информация за потребителя
   const user = await getUser()
@@ -129,7 +214,16 @@ LIMIT 1
     return 0
   }
 
-  return (
+return (
+  <>
+    {/* JSON-LD Structured Data */}
+    {jsonLd && (
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+    )}
+    
     <div className="min-h-screen bg-gray-100 text-gray-800 flex flex-col pb-20 md:pb-0">
       <HolidayBanner />
 
@@ -419,7 +513,8 @@ LIMIT 1
       <SiteFooter categories={categories || []} isEnglish={false} />
 
       {/* Sticky Bottom Navigation - Mobile only */}
-      <StickyBottomNav isEnglish={false} />
+<StickyBottomNav isEnglish={false} />
     </div>
+  </>
   )
 }

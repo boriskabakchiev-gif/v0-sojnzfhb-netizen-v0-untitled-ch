@@ -73,10 +73,10 @@ export function CategoriesNavbar({
 
   if (activeCategories.length === 0) {
     return (
-      <div className="bg-neutral-950 fixed top-[56px] sm:top-[64px] left-0 right-0 w-full z-[9998] border-b border-white/[0.06]">
-        <div className="container mx-auto px-4 sm:px-6">
-          <div className="flex items-center h-11">
-            <span className="text-neutral-500 text-sm">
+      <div className="bg-neutral-950/80 backdrop-blur-2xl fixed top-[56px] sm:top-[64px] left-0 right-0 w-full z-[9998] border-b border-white/[0.08]">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center h-12">
+            <span className="text-neutral-500 text-sm font-medium">
               {isEnglish ? "Loading categories..." : "Зареждане на категории..."}
             </span>
           </div>
@@ -89,10 +89,11 @@ export function CategoriesNavbar({
     <>
       <div 
         ref={navRef}
-        className="bg-neutral-950/95 backdrop-blur-xl fixed top-[56px] sm:top-[64px] left-0 right-0 w-full z-[9998] border-b border-white/[0.06]"
+        className="bg-neutral-950/80 backdrop-blur-2xl fixed top-[56px] sm:top-[64px] left-0 right-0 w-full z-[9998] border-b border-white/[0.08]"
       >
-        <div className="container mx-auto px-4 sm:px-6">
-          <div className="hidden md:flex items-center gap-1 h-11 overflow-visible">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Desktop - Full width with flex wrap */}
+          <div className="hidden md:flex items-center justify-center flex-wrap gap-x-1 gap-y-1 py-2.5">
             {activeCategories.map((category) => {
               const categoryTitle = isEnglish
                 ? category.title_en || category.title
@@ -111,33 +112,38 @@ export function CategoriesNavbar({
                   <Link
                     href={isEnglish ? `/en/category/${category.id}` : `/category/${category.id}`}
                     className={`
-                      relative flex items-center gap-1 flex-shrink-0 px-3 py-1.5 rounded-full text-[13px] font-medium
-                      transition-all duration-200 whitespace-nowrap
+                      relative flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-medium
+                      transition-all duration-300 ease-out whitespace-nowrap
                       ${
                         isActive
-                          ? "bg-white text-neutral-900"
-                          : "text-neutral-400 hover:text-white hover:bg-white/[0.08]"
+                          ? "bg-white text-neutral-900 shadow-sm"
+                          : isHovered
+                            ? "bg-white/[0.12] text-white"
+                            : "text-neutral-300 hover:text-white hover:bg-white/[0.08]"
                       }
                     `}
                   >
-                    {categoryTitle}
+                    <span className="tracking-[-0.01em]">{categoryTitle}</span>
                     {hasSubs && (
                       <ChevronDown 
-                        className={`h-3 w-3 transition-transform duration-200 ${isHovered ? "rotate-180" : ""}`} 
+                        className={`h-3.5 w-3.5 opacity-60 transition-transform duration-300 ease-out ${isHovered ? "rotate-180" : ""}`} 
                       />
                     )}
                   </Link>
 
-                  {/* Subcategory Dropdown */}
+                  {/* Apple-style Subcategory Dropdown */}
                   {hasSubs && isHovered && (
                     <div 
-                      className="absolute top-full left-0 pt-1 z-[10000]"
+                      className="absolute top-full left-1/2 -translate-x-1/2 pt-3 z-[10000]"
                       onMouseEnter={() => handleMouseEnter(category.id)}
                       onMouseLeave={handleMouseLeave}
                     >
-                      <div className="bg-white rounded-xl shadow-2xl border border-neutral-200/60 overflow-hidden min-w-[220px] max-h-[70vh] overflow-y-auto animate-in fade-in-0 zoom-in-95 duration-150">
+                      {/* Dropdown arrow */}
+                      <div className="absolute top-[7px] left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 bg-white/95 backdrop-blur-2xl border-l border-t border-neutral-200/50" />
+                      
+                      <div className="relative bg-white/95 backdrop-blur-2xl rounded-2xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25),0_0_0_1px_rgba(0,0,0,0.05)] overflow-hidden min-w-[240px] max-h-[65vh] overflow-y-auto">
                         <div className="py-2">
-                          {subcategoriesByCategory[category.id].map((sub) => {
+                          {subcategoriesByCategory[category.id].map((sub, index) => {
                             const subTitle = isEnglish
                               ? sub.title_en || sub.title
                               : sub.title
@@ -145,9 +151,11 @@ export function CategoriesNavbar({
                               <Link
                                 key={sub.id}
                                 href={isEnglish ? `/en/subcategory/${sub.id}` : `/subcategory/${sub.id}`}
-                                className="block px-4 py-2.5 text-sm text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 transition-colors"
+                                className="group flex items-center gap-3 mx-2 px-3 py-2.5 rounded-xl text-[13px] font-medium text-neutral-700 hover:bg-neutral-100/80 active:bg-neutral-200/60 transition-all duration-200"
+                                style={{ animationDelay: `${index * 20}ms` }}
                               >
-                                {subTitle}
+                                <span className="flex-1 tracking-[-0.01em]">{subTitle}</span>
+                                <ChevronDown className="h-3 w-3 -rotate-90 opacity-0 group-hover:opacity-40 transition-opacity duration-200" />
                               </Link>
                             )
                           })}
@@ -160,8 +168,8 @@ export function CategoriesNavbar({
             })}
           </div>
 
-          {/* Mobile - Simple horizontal scroll without dropdowns */}
-          <div className="flex md:hidden items-center gap-1 h-11 overflow-x-auto scrollbar-none">
+          {/* Mobile - Horizontal scroll */}
+          <div className="flex md:hidden items-center gap-1.5 py-2.5 overflow-x-auto scrollbar-none -mx-4 px-4">
             {activeCategories.map((category) => {
               const categoryTitle = isEnglish
                 ? category.title_en || category.title
@@ -173,16 +181,16 @@ export function CategoriesNavbar({
                   key={category.id}
                   href={isEnglish ? `/en/category/${category.id}` : `/category/${category.id}`}
                   className={`
-                    relative flex-shrink-0 px-3 py-1.5 rounded-full text-[13px] font-medium
-                    transition-all duration-200 whitespace-nowrap
+                    relative flex-shrink-0 px-4 py-2 rounded-full text-[13px] font-medium
+                    transition-all duration-300 whitespace-nowrap
                     ${
                       isActive
-                        ? "bg-white text-neutral-900"
-                        : "text-neutral-400 hover:text-white hover:bg-white/[0.08]"
+                        ? "bg-white text-neutral-900 shadow-sm"
+                        : "text-neutral-300 hover:text-white hover:bg-white/[0.08]"
                     }
                   `}
                 >
-                  {categoryTitle}
+                  <span className="tracking-[-0.01em]">{categoryTitle}</span>
                 </Link>
               )
             })}
@@ -191,7 +199,7 @@ export function CategoriesNavbar({
       </div>
 
       {/* Spacer for fixed navbar */}
-      <div className="h-11" />
+      <div className="h-[52px]" />
     </>
   )
 }

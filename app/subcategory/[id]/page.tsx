@@ -159,7 +159,7 @@ export default async function SubcategoryPage({
         />
       </div>
       <div className="bg-gray-900">
-        <CategoriesNavbar currentCategoryId={parentCategoryId} />
+        <CategoriesNavbar categories={categories} subcategories={allSubcategories} currentCategoryId={parentCategoryId} isEnglish={false} />
       </div>
       <section className="relative py-12 bg-white border-b border-gray-200">
         <div className="container mx-auto px-4">

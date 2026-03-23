@@ -184,7 +184,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
           userName={user?.name || user?.storeName || ""}
         />
 
-        <CategoriesNavbar currentCategoryId={product?.cateid} isEnglish={false} />
+        <CategoriesNavbar categories={categories} subcategories={allSubcategories} currentCategoryId={product?.cateid} isEnglish={false} />
 
         {/* Breadcrumb */}
         <div className="border-b border-neutral-200/60 py-3.5">

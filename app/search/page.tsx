@@ -48,7 +48,7 @@ export default async function SearchPage({ searchParams }: { searchParams: { q: 
     <div className="min-h-screen bg-gray-50">
       {/* Header - Using the same components as home page */}
       <SiteHeader categories={categories} subcategories={allSubcategories} />
-      <CategoriesNavbar />
+      <CategoriesNavbar categories={categories} subcategories={allSubcategories} isEnglish={false} />
 
       {/* Search Header with improved design */}
       <section className="bg-gradient-to-b from-gray-900 to-gray-800 py-12">

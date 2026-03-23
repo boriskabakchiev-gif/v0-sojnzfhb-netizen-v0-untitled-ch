@@ -253,8 +253,8 @@ export default async function CategoryPage({
 
     return (
       <div className="min-h-screen bg-gray-100 text-gray-800 pb-20 md:pb-0">
-        <SiteHeader categories={[]} subcategories={allSubcategories} currentCategoryId={categoryId} />
-        <CategoriesNavbar currentCategoryId={categoryId} />
+        <SiteHeader categories={categories} subcategories={allSubcategories} currentCategoryId={categoryId} />
+        <CategoriesNavbar categories={categories} subcategories={allSubcategories} currentCategoryId={categoryId} isEnglish={false} />
 
         <section className="relative py-6 bg-white border-b border-gray-200">
           <div className="container mx-auto px-4">

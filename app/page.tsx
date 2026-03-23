@@ -390,64 +390,7 @@ LIMIT 1
 
 
 
-        {/* Benefits Section - New Section - по-светъл фон */}
-        <section className="py-12 sm:py-16 bg-white">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-8 sm:mb-16">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-4 text-gray-800">
-                Защо да изберете нас?
-              </h2>
-              <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto">
-                Ние сме повече от производители - ние сме вашият партньор в риболовните приключения
-              </p>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-              <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-200 shadow-md hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-amber-100 flex items-center justify-center mb-4 sm:mb-6">
-                  <Truck className="h-6 w-6 sm:h-8 sm:w-8 text-amber-600" />
-                </div>
-                <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-4 text-gray-800">Безплатен транспорт</h3>
-                <p className="text-sm sm:text-base text-gray-600">
-                  Осигуряваме безплатен транспорт до всеки търговски обект в страната.
-                </p>
-              </div>
-
-              <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-200 shadow-md hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-amber-100 flex items-center justify-center mb-4 sm:mb-6">
-                  <BadgePercent className="h-6 w-6 sm:h-8 sm:w-8 text-amber-600" />
-                </div>
-                <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-4 text-gray-800">Конкурентни цени</h3>
-                <p className="text-sm sm:text-base text-gray-600">
-                  Предлагаме цени, които са адаптирани към икономическата обстановка и жизнения стандарт, без да се
-                  засяга качеството на крайните продукти.
-                </p>
-              </div>
-
-              <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-200 shadow-md hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-amber-100 flex items-center justify-center mb-4 sm:mb-6">
-                  <ShieldCheck className="h-6 w-6 sm:h-8 sm:w-8 text-amber-600" />
-                </div>
-                <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-4 text-gray-800">Високо качество</h3>
-                <p className="text-sm sm:text-base text-gray-600">
-                  Поддържаме постоянно високо качество на нашите продукти чрез подбор на доставчици и постоянен
-                  качествен контрол на всеки етап от производството.
-                </p>
-              </div>
-
-              <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-200 shadow-md hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-amber-100 flex items-center justify-center mb-4 sm:mb-6">
-                  <Handshake className="h-6 w-6 sm:h-8 sm:w-8 text-amber-600" />
-                </div>
-                <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-4 text-gray-800">Коректност</h3>
-                <p className="text-sm sm:text-base text-gray-600">
-                  През годините сме изградили имидж на коректен партньор, който работи за изграждане на дългосрочни
-                  бизнес отношения със своите клиенти.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
         {/* Legal Links Section */}
         <section className="py-6 bg-gray-200 border-t border-gray-300">
           <div className="container mx-auto px-4">

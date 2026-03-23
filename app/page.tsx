@@ -1,6 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
-import { TrendingUp, Award, Gift, Globe, Truck, BadgePercent, ShieldCheck, Handshake, ArrowRight } from "lucide-react"
+import { TrendingUp, Award, Gift, Globe, ArrowRight } from "lucide-react"
 import { CategoriesNavbar } from "@/components/categories-navbar"
 import { Button } from "@/components/ui/button"
 import { getCategories, getSubcategories, getHeroBanners, getBatchProductRatings, getNews } from "@/lib/db"
@@ -321,7 +321,7 @@ LIMIT 1
                   <div className="flex-1 text-left">
                     <h2 className="text-2xl sm:text-3xl font-bold mb-3 text-gray-800">Каталог 2025</h2>
                     <p className="text-base sm:text-lg text-gray-600 mb-4">
-                      Разгледайте нашия пълен каталог с всички продукти за 2025 година. Открийте новите артикули и
+                      Разгледайте нашия пълен каталог с всички продукти за 2025 година. Открийте н��вите артикули и
                       специални оферти.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-3">
@@ -388,106 +388,7 @@ LIMIT 1
           </div>
         </section>
 
-        {/* Social Media Section - New Section */}
-        <section className="py-12 sm:py-16 bg-gray-100">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-8 sm:mb-12">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-4 text-gray-800">Следвайте ни</h2>
-              <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto">
-                Бъдете в крак с нашите новини, промоции и риболовни съвети
-              </p>
-            </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 max-w-4xl mx-auto">
-              {/* Facebook */}
-              <a
-                href="https://www.facebook.com/madiksbg"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex flex-col items-center p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 group"
-              >
-                <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mb-4">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-8 w-8 text-blue-600 group-hover:text-blue-700 transition-colors"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-bold text-gray-800 group-hover:text-blue-600 transition-colors">
-                  Facebook
-                </h3>
-                <p className="text-sm text-gray-500 mt-1">@madiksbg</p>
-              </a>
-              {/* YouTube */}
-              <a
-                href="https://www.youtube.com/@madixltd2794"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex flex-col items-center p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 group"
-              >
-                <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mb-4">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-8 w-8 text-red-600 group-hover:text-red-700 transition-colors"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <path d="M21.582,6.186c-0.23-0.86-0.908-1.538-1.768-1.768C18.254,4,12,4,12,4S5.746,4,4.186,4.418 c-0.86,0.23-1.538,0.908-1.768,1.768C2,7.746,2,12,2,12s0,4.254,0.418,5.814c0.23,0.86,0.908,1.538,1.768,1.768 C5.746,20,12,20,12,20s6.254,0,7.814-0.418c0.861-0.23,1.538-0.908,1.768-1.768C22,16.254,22,12,22,12S22,7.746,21.582,6.186z M10,15.464V8.536L16,12L10,15.464z" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-bold text-gray-800 group-hover:text-red-600 transition-colors">YouTube</h3>
-                <p className="text-sm text-gray-500 mt-1">@madixltd2794</p>
-              </a>
-
-              {/* TikTok */}
-              <a
-                href="https://www.tiktok.com/@madixltd"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex flex-col items-center p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 group"
-              >
-                <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-8 w-8 text-black group-hover:text-gray-700 transition-colors"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-bold text-gray-800 group-hover:text-gray-700 transition-colors">TikTok</h3>
-                <p className="text-sm text-gray-500 mt-1">@madixltd</p>
-              </a>
-
-              {/* Instagram */}
-              <a
-                href="https://www.instagram.com/madiks.bg/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex flex-col items-center p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 group"
-              >
-                <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center mb-4">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-8 w-8 text-purple-600 group-hover:text-purple-700 transition-colors"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <path d="M12 2c2.717 0 3.056.01 4.122.06 1.065.05 1.79.217 2.428.465.66.254 1.216.598 1.772 1.153.509.5.902 1.105 1.153 1.772.247.637.415 1.363.465 2.428.047 1.066.06 1.405.06 4.122 0 2.717-.01 3.056-.06 4.122-.05 1.065-.218 1.79-.465 2.428a4.883 4.883 0 0 1-1.153 1.772c-.5.508-1.105.902-1.772 1.153-.637.247-1.363.415-2.428.465-1.066.047-1.405.06-4.122.06-2.717 0-3.056-.01-4.122-.06-1.065-.05-1.79-.218-.465a4.89 4.89 0 0 1-1.772-1.153 4.904 4.904 0 0 1-1.153-1.772c-.247-.637-.415-1.363-.465-2.428C2.013 15.056 2 14.717 2 12c0-2.717.01-3.056.06-4.122.05-1.066.218-1.79.465-2.428.254-.66.598-1.216 1.153-1.772.5-.509 1.105-.902 1.772-1.153.637-.247 1.363-.415 2.428-.465C8.944 2.013 9.283 2 12 2zm0 1.8c-2.67 0-2.986.01-4.04.058-.976.045-1.505.207-1.858.344-.466.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.048 1.055-.058 1.37-.058 4.041 0 2.67.01 2.986.058 4.04.045.977.207 1.505.344 1.858.182.466.398.8.748 1.15.35.35.683.566 1.15.748.137.353.882.344 1.857.344 1.054.048 1.37.058 4.041.058 2.67 0 2.986-.01 4.04-.058.977-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353-.3-.882-.344-1.857.048-1.055.058-1.37.058-4.041 0-2.67-.01-2.986-.058-4.04-.045-.977-.207-1.505-.344-1.858a3.097 3.097 0 0 0-.748-1.15 3.098 3.098 0 0 0-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.055-.048-1.37-.058-4.041-.058zm0 3.08a5.12 5.12 0 1 1 0 10.24 5.12 5.12 0 0 1 0-10.24zm0 8.44a3.32 3.32 0 1 0 0-6.64 3.32 3.32 0 0 0 0 6.64zm6.52-8.66a1.2 1.2 0 1 1-2.4 0 1.2 1.2 0 0 1 2.4 0z" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-bold text-gray-800 group-hover:text-purple-600 transition-colors">
-                  Instagram
-                </h3>
-                <p className="text-sm text-gray-500 mt-1">@madiks.bg</p>
-              </a>
-            </div>
-          </div>
-        </section>
 
         {/* Benefits Section - New Section - по-светъл фон */}
         <section className="py-12 sm:py-16 bg-white">

@@ -1,5 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
+import type { Metadata } from "next"
 import { ChevronRight, Tag, Package, Layers, Hash, CheckCircle2, Phone } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -21,6 +22,57 @@ import { CategoriesNavbar } from "@/components/categories-navbar"
 import { ProductCard } from "@/components/product-card"
 import { ProductQuantityControls } from "@/components/product-quantity-controls"
 import { StickyBuyButton } from "@/components/sticky-buy-button"
+
+// Dynamic SEO metadata from database
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id: productId } = await params
+  
+  if (!productId || productId === "null" || productId === "undefined") {
+    return { title: "Продуктът не е намерен | Мадикс Граундбейтс" }
+  }
+
+  const product = await getProductById(productId)
+  
+  if (!product) {
+    return { title: "Продуктът не е намерен | Мадикс Граундбейтс" }
+  }
+
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://madix-groundbaits.bg"
+  const productUrl = `${baseUrl}/product/${productId}`
+  const productImage = product.photourl || `${baseUrl}/og-image.jpg`
+
+  return {
+    title: product.seo_meta_title_bg || product.seo_meta_title || `${product.title} | Мадикс Граундбейтс`,
+    description: product.seo_meta_description_bg || product.seo_meta_description || product.description?.slice(0, 160) || `Купете ${product.title} от Мадикс Граундбейтс - професионални риболовни принадлежности`,
+    keywords: product.seo_meta_keywords_bg?.split(",").map((k: string) => k.trim()) || product.seo_meta_keywords?.split(",").map((k: string) => k.trim()),
+    robots: product.seo_robots || "index, follow",
+    alternates: {
+      canonical: product.seo_canonical_url || productUrl,
+    },
+    openGraph: {
+      title: product.seo_og_title_bg || product.seo_og_title || product.seo_meta_title_bg || product.title,
+      description: product.seo_og_description_bg || product.seo_og_description || product.seo_meta_description_bg || product.description?.slice(0, 200),
+      url: productUrl,
+      siteName: "Мадикс Граундбейтс",
+      locale: "bg_BG",
+      type: "website",
+      images: [
+        {
+          url: product.seo_og_image || productImage,
+          width: 1200,
+          height: 630,
+          alt: product.seo_alt_text || product.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: product.seo_twitter_title || product.seo_og_title_bg || product.title,
+      description: product.seo_twitter_description || product.seo_og_description_bg || product.description?.slice(0, 200),
+      images: [product.seo_twitter_image || product.seo_og_image || productImage],
+    },
+  }
+}
 
 function formatDisplayPrice(price: number | null | undefined): string {
   if (price === null || price === undefined || isNaN(Number(price))) {
@@ -174,15 +226,55 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
       }
     }
 
+    // Generate JSON-LD structured data for product
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://madix-groundbaits.bg"
+    const productJsonLd = {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": product.title,
+      "description": product.seo_meta_description_bg || product.description,
+      "image": product.photourl,
+      "sku": product.seo_schema_sku || product.objectid,
+      "brand": {
+        "@type": "Brand",
+        "name": product.seo_schema_brand || "Мадикс Граундбейтс"
+      },
+      "offers": {
+        "@type": "Offer",
+        "url": `${baseUrl}/product/${product.objectid}`,
+        "priceCurrency": "BGN",
+        "price": priceToDisplay || product.price,
+        "availability": `https://schema.org/${product.seo_schema_availability || "InStock"}`,
+        "seller": {
+          "@type": "Organization",
+          "name": "Мадикс Граундбейтс"
+        }
+      },
+      ...(ratingSummary && ratingSummary.review_count > 0 ? {
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": ratingSummary.average_rating,
+          "reviewCount": ratingSummary.review_count
+        }
+      } : {})
+    }
+
     return (
-      <div className="min-h-screen bg-neutral-50 text-neutral-900 pb-24 md:pb-0">
-        <SiteHeader
-          categories={categories}
-          subcategories={allSubcategories}
-          currentCategoryId={product?.cateid}
-          isLoggedIn={isUserLoggedIn}
-          userName={user?.name || user?.storeName || ""}
+      <>
+        {/* JSON-LD Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
         />
+        
+        <div className="min-h-screen bg-neutral-50 text-neutral-900 pb-24 md:pb-0">
+          <SiteHeader
+            categories={categories}
+            subcategories={allSubcategories}
+            currentCategoryId={product?.cateid}
+            isLoggedIn={isUserLoggedIn}
+            userName={user?.name || user?.storeName || ""}
+          />
 
         <CategoriesNavbar categories={categories} subcategories={allSubcategories} currentCategoryId={product?.cateid} isEnglish={false} />
 
@@ -449,18 +541,19 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
         <SiteFooter categories={categories || []} isEnglish={false} />
 
-        {/* Sticky Buy Button - Mobile only */}
-        <StickyBuyButton
-          productId={product.objectid}
-          productTitle={product.title}
-          productPrice={priceToDisplay !== null ? priceToDisplay : 0}
-          photoUrl={product.photourl}
-          promo_buy_qty={finalPromoBuyQty}
-          promo_free_qty={finalPromoFreeQty}
-          disabled={priceToDisplay === null}
-          isEnglish={false}
-        />
-      </div>
+          {/* Sticky Buy Button - Mobile only */}
+          <StickyBuyButton
+            productId={product.objectid}
+            productTitle={product.title}
+            productPrice={priceToDisplay !== null ? priceToDisplay : 0}
+            photoUrl={product.photourl}
+            promo_buy_qty={finalPromoBuyQty}
+            promo_free_qty={finalPromoFreeQty}
+            disabled={priceToDisplay === null}
+            isEnglish={false}
+          />
+        </div>
+      </>
     )
   } catch (error) {
     console.error("Error in product page:", error)

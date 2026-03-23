@@ -214,8 +214,9 @@ export default async function SubcategoryPage({
           </div>
         </div>
       </section>
+      {/* Sibling subcategories section - hidden on mobile, shown in floating bar instead */}
       {siblingSubcategories.length > 0 && (
-        <section className="py-6 bg-gray-50 border-b border-gray-200">
+        <section className="hidden md:block py-6 bg-gray-50 border-b border-gray-200">
           <div className="container mx-auto px-4">
             <div className="flex items-center mb-4">
               <Layers className="h-5 w-5 text-red-600 mr-2" />
@@ -243,9 +244,11 @@ export default async function SubcategoryPage({
         <div className="container mx-auto px-4">
           <SubcategoryFilterPanel
             subcategoryId={subcategoryId}
-              minPrice={searchParamsResolved.minPrice}
-              maxPrice={searchParamsResolved.maxPrice}
-              sortOption={searchParamsResolved.sort || "title-asc"}
+            minPrice={searchParamsResolved.minPrice}
+            maxPrice={searchParamsResolved.maxPrice}
+            sortOption={searchParamsResolved.sort || "title-asc"}
+            siblingSubcategories={siblingSubcategories}
+            parentCategoryTitle={parentCategory?.title}
           />
         </div>
       </section>

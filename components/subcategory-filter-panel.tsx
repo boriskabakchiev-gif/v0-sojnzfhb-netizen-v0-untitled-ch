@@ -7,7 +7,14 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Filter, X, SlidersHorizontal } from "lucide-react"
+import { Filter, X, SlidersHorizontal, Layers, ChevronDown } from "lucide-react"
+import Link from "next/link"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 interface SubcategoryFilterPanelProps {
   subcategoryId: string
@@ -15,6 +22,12 @@ interface SubcategoryFilterPanelProps {
   maxPrice?: string
   sortOption: string
   isEnglish?: boolean
+  siblingSubcategories?: Array<{
+    id: string
+    title: string
+    title_en?: string
+  }>
+  parentCategoryTitle?: string
 }
 
 export function SubcategoryFilterPanel({
@@ -23,6 +36,8 @@ export function SubcategoryFilterPanel({
   maxPrice,
   sortOption,
   isEnglish = false,
+  siblingSubcategories = [],
+  parentCategoryTitle = "",
 }: SubcategoryFilterPanelProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -96,6 +111,35 @@ export function SubcategoryFilterPanel({
               {isEnglish ? "Filters" : "Филтри"}
             </Button>
 
+            {/* Sibling subcategories dropdown */}
+            {siblingSubcategories.length > 0 && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    className="flex items-center gap-1.5 px-3 py-2 h-9 rounded-xl bg-gray-100/80 hover:bg-gray-200/80 text-gray-700 font-medium text-sm"
+                  >
+                    <Layers className="h-4 w-4" />
+                    {isEnglish ? "Other" : "Други"}
+                    <ChevronDown className="h-3 w-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="max-h-64 overflow-y-auto">
+                  {siblingSubcategories.map((sibling) => (
+                    <DropdownMenuItem key={sibling.id} asChild>
+                      <Link 
+                        href={isEnglish ? `/en/subcategory/${sibling.id}` : `/subcategory/${sibling.id}`}
+                        className="cursor-pointer"
+                      >
+                        {isEnglish && sibling.title_en ? sibling.title_en : sibling.title}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+
             {/* Sort dropdown */}
             <Select
               value={sortOption}
@@ -132,8 +176,8 @@ export function SubcategoryFilterPanel({
         </div>
       </div>
 
-      {/* Regular filter panel */}
-      <div className="space-y-4">
+      {/* Desktop filter panel - hidden on mobile */}
+      <div className="hidden md:block space-y-4">
         <div className="flex flex-wrap items-center gap-4">
           <Button variant="outline" onClick={() => setShowFilters(!showFilters)} className="flex items-center gap-2">
             <Filter className="h-4 w-4" />

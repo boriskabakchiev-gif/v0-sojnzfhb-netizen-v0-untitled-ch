@@ -168,8 +168,8 @@ export function CategoryFilterPanel({
         </div>
       </div>
 
-      {/* Regular filter panel (visible on all screens) */}
-      <div className="space-y-4">
+      {/* Desktop filter panel - hidden on mobile */}
+      <div className="hidden md:block space-y-4">
         <div className="flex flex-wrap items-center gap-4">
           <Button variant="outline" onClick={() => setShowFilters(!showFilters)} className="flex items-center gap-2">
             <Filter className="h-4 w-4" />

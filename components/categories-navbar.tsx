@@ -92,7 +92,7 @@ export function CategoriesNavbar({
         className="bg-neutral-950/95 backdrop-blur-xl fixed top-[56px] sm:top-[64px] left-0 right-0 w-full z-[9998] border-b border-white/[0.06]"
       >
         <div className="container mx-auto px-4 sm:px-6">
-          <div className="hidden md:flex items-center gap-1 h-11 overflow-x-auto scrollbar-none">
+          <div className="hidden md:flex items-center gap-1 h-11 overflow-visible">
             {activeCategories.map((category) => {
               const categoryTitle = isEnglish
                 ? category.title_en || category.title
@@ -131,7 +131,7 @@ export function CategoriesNavbar({
                   {/* Subcategory Dropdown */}
                   {hasSubs && isHovered && (
                     <div 
-                      className="absolute top-full left-0 pt-2 z-50"
+                      className="absolute top-full left-0 pt-1 z-[10000]"
                       onMouseEnter={() => handleMouseEnter(category.id)}
                       onMouseLeave={handleMouseLeave}
                     >

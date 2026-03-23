@@ -111,7 +111,7 @@ export function SubcategoryFilterPanel({
                   {isEnglish ? "Filters" : "Филтри"}
                 </button>
               </SheetTrigger>
-              <SheetContent side="bottom" className="rounded-t-[20px] max-h-[70vh]">
+              <SheetContent side="top" className="rounded-b-[20px] max-h-[70vh] pt-20">
                 <SheetHeader className="text-left pb-4 border-b">
                   <SheetTitle className="text-lg font-semibold">{isEnglish ? "Price Range" : "Ценови диапазон"}</SheetTitle>
                 </SheetHeader>
@@ -187,9 +187,9 @@ export function SubcategoryFilterPanel({
                 })
               }
             >
-              <SelectTrigger className="flex-1 h-10 px-4 rounded-[14px] bg-gray-100/90 border-0 text-[13px] font-medium text-gray-800 focus:ring-0 focus:ring-offset-0">
+              <SelectTrigger className="flex-1 h-10 px-4 rounded-[14px] bg-gray-100/90 border-0 text-[13px] font-medium text-gray-800 focus:ring-0 focus:ring-offset-0 [&>svg]:hidden">
                 <span>{sortOption === "title-asc" ? (isEnglish ? "A-Z" : "А-Я") : sortOption === "title-desc" ? (isEnglish ? "Z-A" : "Я-А") : sortOption === "price-asc" ? "Цена ↑" : "Цена ↓"}</span>
-                <ChevronDown className="h-4 w-4 ml-1 opacity-50" />
+                <ChevronDown className="h-4 w-4 ml-1 opacity-50 shrink-0" />
               </SelectTrigger>
               <SelectContent className="rounded-2xl border-0 shadow-[0_10px_40px_rgb(0,0,0,0.15)] bg-white/95 backdrop-blur-xl p-1 min-w-[180px]" align="end">
                 <SelectItem value="title-asc" className="rounded-xl py-3 px-4 text-sm cursor-pointer focus:bg-gray-100">

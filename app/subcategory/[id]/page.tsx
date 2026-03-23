@@ -1,6 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
-import { ChevronRightIcon, Fish, Layers, ArrowLeft } from "lucide-react"
+import { ChevronRightIcon, Layers, ArrowLeft } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -13,6 +13,8 @@ import {
 } from "@/lib/db"
 import { SiteHeader } from "@/components/site-header"
 import { CategoriesNavbar } from "@/components/categories-navbar"
+import { SiteFooter } from "@/components/site-footer"
+import { StickyBottomNav } from "@/components/sticky-bottom-nav"
 import { getUser } from "@/lib/auth"
 import { ProductCard } from "@/components/product-card"
 import { SubcategoryFilterPanel } from "@/components/subcategory-filter-panel"
@@ -149,7 +151,7 @@ export default async function SubcategoryPage({
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-800">
+    <div className="min-h-screen bg-gray-100 text-gray-800 pb-20 md:pb-0">
       <div className="bg-gray-950">
         <SiteHeader
           categories={categories}
@@ -302,67 +304,10 @@ export default async function SubcategoryPage({
           )}
         </div>
       </section>
-      <footer className="bg-black border-t border-gray-800 pt-12 pb-8">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
-            <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <Fish className="h-6 w-6 text-red-500" />
-                <span className="text-lg font-bold text-white">FishingPro</span>
-              </div>
-              <p className="text-gray-400 mb-4">Вашият надежден партньор за риболовни приключения от 2005 година.</p>
-            </div>
-            <div>
-              <h3 className="font-bold text-lg mb-4 text-white">Категории</h3>
-              <ul className="space-y-2">
-                {categories.slice(0, 5).map((category) => (
-                  <li key={category.id}>
-                    <Link
-                      href={`/category/${category.id}`}
-                      className={`text-gray-400 hover:text-yellow-400 transition-colors ${
-                        category.id === parentCategoryId ? "text-yellow-400" : ""
-                      }`}
-                    >
-                      {category.title}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-bold text-lg mb-4 text-white">Информация</h3>
-              <ul className="space-y-2">
-                <li>
-                  <Link href="#" className="text-gray-400 hover:text-yellow-400 transition-colors">
-                    За нас
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-gray-400 hover:text-yellow-400 transition-colors">
-                    Доставка
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-gray-400 hover:text-yellow-400 transition-colors">
-                    Условия ��а ползване
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-bold text-lg mb-4 text-white">Контакти</h3>
-              <ul className="space-y-2">
-                <li className="text-gray-400">Телефон: +359 88 123 4567</li>
-                <li className="text-gray-400">Имейл: info@fishingpro.bg</li>
-                <li className="text-gray-400">Работно време: 9:00 - 18:00</li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 pt-8">
-            <p className="text-center text-gray-500">© {new Date().getFullYear()} FishingPro. Всички права запазени.</p>
-          </div>
-        </div>
-      </footer>
+<SiteFooter categories={categories || []} isEnglish={false} />
+
+        {/* Sticky Bottom Navigation - Mobile only */}
+        <StickyBottomNav isEnglish={false} />
     </div>
   )
 }

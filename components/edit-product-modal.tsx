@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,7 +10,7 @@ import { toast } from "@/components/ui/use-toast"
 import { ProductImageUpload } from "@/components/product-image-upload"
 import { StarRating } from "@/components/star-rating"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ProductFAQEditor } from "@/components/product-faq-editor"
+import { ProductFAQEditor, type ProductFAQEditorRef } from "@/components/product-faq-editor"
 import { HelpCircle } from "lucide-react"
 
 interface Category {
@@ -89,6 +89,7 @@ export function EditProductModal({ isOpen, onClose, product, categories, onProdu
   const [newReviewName, setNewReviewName] = useState("")
   const [newReviewText, setNewReviewText] = useState("")
   const [addingReview, setAddingReview] = useState(false)
+  const faqEditorRef = useRef<ProductFAQEditorRef>(null)
 
   useEffect(() => {
     if (product) {
@@ -257,9 +258,17 @@ export function EditProductModal({ isOpen, onClose, product, categories, onProdu
       const result = await response.json()
 
       if (result.success) {
+        // Also save any unsaved FAQs
+        let faqSaveSuccess = true
+        if (faqEditorRef.current) {
+          faqSaveSuccess = await faqEditorRef.current.saveAllUnsavedFAQs()
+        }
+
         toast({
           title: "Успех",
-          description: result.message || "Продуктът е обновен успешно.",
+          description: faqSaveSuccess 
+            ? (result.message || "Продуктът е обновен успешно.")
+            : "Продуктът е обновен, но някои FAQ не бяха запазени.",
         })
         onProductUpdate()
         onClose() // Close the modal after successful save
@@ -1071,7 +1080,7 @@ export function EditProductModal({ isOpen, onClose, product, categories, onProdu
               <HelpCircle className="h-5 w-5" />
               Често задавани въпроси (FAQ)
             </h3>
-            <ProductFAQEditor productId={formData.objectid} />
+            <ProductFAQEditor ref={faqEditorRef} productId={formData.objectid} />
           </div>
         </div>
       </div>

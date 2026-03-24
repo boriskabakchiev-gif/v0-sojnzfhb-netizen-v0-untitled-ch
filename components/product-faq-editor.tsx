@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, forwardRef, useImperativeHandle } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -26,7 +26,12 @@ interface ProductFAQEditorProps {
   productId: string
 }
 
-export function ProductFAQEditor({ productId }: ProductFAQEditorProps) {
+export interface ProductFAQEditorRef {
+  saveAllUnsavedFAQs: () => Promise<boolean>
+  hasUnsavedChanges: () => boolean
+}
+
+export const ProductFAQEditor = forwardRef<ProductFAQEditorRef, ProductFAQEditorProps>(function ProductFAQEditor({ productId }, ref) {
   const [faqs, setFaqs] = useState<FAQ[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -35,6 +40,83 @@ export function ProductFAQEditor({ productId }: ProductFAQEditorProps) {
   useEffect(() => {
     fetchFAQs()
   }, [productId])
+
+  // Expose methods to parent component
+  useImperativeHandle(ref, () => ({
+    saveAllUnsavedFAQs: async () => {
+      const unsavedFAQs = faqs.filter(faq => faq.isNew || faq.isEdited)
+      if (unsavedFAQs.length === 0) return true
+
+      let allSuccess = true
+      for (let i = 0; i < faqs.length; i++) {
+        const faq = faqs[i]
+        if (faq.isNew || faq.isEdited) {
+          if (!faq.question.trim() || !faq.answer.trim()) {
+            toast({
+              title: "Грешка",
+              description: `FAQ #${i + 1}: Въпросът и отговорът са задължителни.`,
+              variant: "destructive",
+            })
+            allSuccess = false
+            continue
+          }
+
+          try {
+            const method = faq.isNew ? "POST" : "PUT"
+            const body = faq.isNew
+              ? {
+                  productId: faq.product_id,
+                  question: faq.question,
+                  answer: faq.answer,
+                  question_en: faq.question_en || null,
+                  answer_en: faq.answer_en || null,
+                  display_order: faq.display_order,
+                }
+              : {
+                  id: faq.id,
+                  question: faq.question,
+                  answer: faq.answer,
+                  question_en: faq.question_en || null,
+                  answer_en: faq.answer_en || null,
+                  display_order: faq.display_order,
+                  is_active: faq.is_active,
+                }
+
+            const response = await fetch("/api/product-faqs", {
+              method,
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(body),
+            })
+
+            const data = await response.json()
+
+            if (data.success) {
+              faqs[i] = {
+                ...data.faq,
+                question_en: data.faq.question_en || "",
+                answer_en: data.faq.answer_en || "",
+                isNew: false,
+                isEdited: false,
+              }
+            } else {
+              allSuccess = false
+            }
+          } catch (error) {
+            console.error("Error saving FAQ:", error)
+            allSuccess = false
+          }
+        }
+      }
+
+      if (allSuccess) {
+        setFaqs([...faqs])
+      }
+      return allSuccess
+    },
+    hasUnsavedChanges: () => {
+      return faqs.some(faq => faq.isNew || faq.isEdited)
+    }
+  }), [faqs])
 
   const fetchFAQs = async () => {
     try {
@@ -421,4 +503,4 @@ export function ProductFAQEditor({ productId }: ProductFAQEditorProps) {
       )}
     </div>
   )
-}
+})

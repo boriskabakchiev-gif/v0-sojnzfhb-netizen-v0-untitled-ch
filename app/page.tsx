@@ -406,77 +406,61 @@ return (
         {/* News Section - Новини */}
         <NewsSection news={newsItems} isEnglish={false} />
 
-        {/* Catalog Section - Каталог 2025 */}
-        <section className="py-12 sm:py-16 bg-amber-50">
+        {/* Catalog Section - Каталог 2025 - Apple-inspired design */}
+        <section className="py-20 sm:py-28 md:py-36 bg-black overflow-hidden">
           <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto text-center">
-              <div className="bg-white rounded-2xl shadow-lg border border-amber-200 p-8 sm:p-12">
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-                  <div className="flex-1 text-left">
-                    <h2 className="text-2xl sm:text-3xl font-bold mb-3 text-gray-800">Каталог 2025</h2>
-                    <p className="text-base sm:text-lg text-gray-600 mb-4">
-                      Разгледайте нашия пълен каталог с всички продукти за 2025 година. Открийте н��вите артикули и
-                      специални оферти.
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-3">
-                      <a
-                        href="https://96ghfafarqg1wwmp.public.blob.vercel-storage.com/Catalog%202025%20Web.pdf"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-lg transition-colors duration-300"
-                      >
-                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                          />
-                        </svg>
-                        Изтегли каталога
-                      </a>
-                      <a
-                        href="https://96ghfafarqg1wwmp.public.blob.vercel-storage.com/Catalog%202025%20Web.pdf"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold rounded-lg transition-colors duration-300"
-                      >
-                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                          />
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                          />
-                        </svg>
-                        Прегледай онлайн
-                      </a>
-                    </div>
-                  </div>
-                  <div className="flex-shrink-0">
-                    <div className="w-24 h-24 sm:w-32 sm:h-32 bg-amber-100 rounded-full flex items-center justify-center">
-                      <svg
-                        className="w-12 h-12 sm:w-16 sm:h-16 text-amber-600"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
+            <div className="max-w-5xl mx-auto text-center">
+              {/* Headline */}
+              <p className="text-amber-400 text-sm sm:text-base font-medium tracking-widest uppercase mb-4">
+                Нова колекция
+              </p>
+              <h2 className="text-4xl sm:text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight text-balance">
+                Каталог 2025
+              </h2>
+              <p className="text-lg sm:text-xl md:text-2xl text-gray-400 max-w-2xl mx-auto mb-12 leading-relaxed text-pretty">
+                Разгледайте нашия пълен каталог с всички продукти за 2025 година. Открийте новите артикули и специални оферти.
+              </p>
+              
+              {/* CTA Buttons - Apple style */}
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
+                <a
+                  href="https://96ghfafarqg1wwmp.public.blob.vercel-storage.com/Catalog%202025%20Web.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex items-center justify-center px-8 py-4 bg-white hover:bg-gray-100 text-gray-900 font-semibold rounded-full text-base sm:text-lg transition-all duration-300 hover:scale-105"
+                >
+                  <svg className="w-5 h-5 mr-2.5 transition-transform group-hover:-translate-y-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                    />
+                  </svg>
+                  Изтегли каталога
+                </a>
+                <a
+                  href="https://96ghfafarqg1wwmp.public.blob.vercel-storage.com/Catalog%202025%20Web.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex items-center justify-center text-amber-400 hover:text-amber-300 font-semibold text-base sm:text-lg transition-colors duration-300"
+                >
+                  Прегледай онлайн
+                  <svg className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17 8l4 4m0 0l-4 4m4-4H3"
+                    />
+                  </svg>
+                </a>
+              </div>
+              
+              {/* Decorative gradient orbs */}
+              <div className="relative mt-16 sm:mt-20">
+                <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute -top-10 left-1/3 w-[300px] h-[300px] bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
               </div>
             </div>
           </div>

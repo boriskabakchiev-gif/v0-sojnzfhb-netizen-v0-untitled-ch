@@ -178,6 +178,68 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
             await sql`UPDATE subcategories SET cateid = ${updateData.cateid} WHERE "Document ID" = ${subcategoryId}`
           }
           
+          // SEO fields direct update
+          if (updateData.seo_meta_title !== undefined) {
+            await sql`UPDATE subcategories SET seo_meta_title = ${updateData.seo_meta_title} WHERE "Document ID" = ${subcategoryId}`
+          }
+          if (updateData.seo_meta_description !== undefined) {
+            await sql`UPDATE subcategories SET seo_meta_description = ${updateData.seo_meta_description} WHERE "Document ID" = ${subcategoryId}`
+          }
+          if (updateData.seo_meta_keywords !== undefined) {
+            await sql`UPDATE subcategories SET seo_meta_keywords = ${updateData.seo_meta_keywords} WHERE "Document ID" = ${subcategoryId}`
+          }
+          if (updateData.seo_meta_title_bg !== undefined) {
+            await sql`UPDATE subcategories SET seo_meta_title_bg = ${updateData.seo_meta_title_bg} WHERE "Document ID" = ${subcategoryId}`
+          }
+          if (updateData.seo_meta_description_bg !== undefined) {
+            await sql`UPDATE subcategories SET seo_meta_description_bg = ${updateData.seo_meta_description_bg} WHERE "Document ID" = ${subcategoryId}`
+          }
+          if (updateData.seo_meta_keywords_bg !== undefined) {
+            await sql`UPDATE subcategories SET seo_meta_keywords_bg = ${updateData.seo_meta_keywords_bg} WHERE "Document ID" = ${subcategoryId}`
+          }
+          if (updateData.seo_og_title !== undefined) {
+            await sql`UPDATE subcategories SET seo_og_title = ${updateData.seo_og_title} WHERE "Document ID" = ${subcategoryId}`
+          }
+          if (updateData.seo_og_description !== undefined) {
+            await sql`UPDATE subcategories SET seo_og_description = ${updateData.seo_og_description} WHERE "Document ID" = ${subcategoryId}`
+          }
+          if (updateData.seo_og_image !== undefined) {
+            await sql`UPDATE subcategories SET seo_og_image = ${updateData.seo_og_image} WHERE "Document ID" = ${subcategoryId}`
+          }
+          if (updateData.seo_og_title_bg !== undefined) {
+            await sql`UPDATE subcategories SET seo_og_title_bg = ${updateData.seo_og_title_bg} WHERE "Document ID" = ${subcategoryId}`
+          }
+          if (updateData.seo_og_description_bg !== undefined) {
+            await sql`UPDATE subcategories SET seo_og_description_bg = ${updateData.seo_og_description_bg} WHERE "Document ID" = ${subcategoryId}`
+          }
+          if (updateData.seo_twitter_card !== undefined) {
+            await sql`UPDATE subcategories SET seo_twitter_card = ${updateData.seo_twitter_card} WHERE "Document ID" = ${subcategoryId}`
+          }
+          if (updateData.seo_twitter_title !== undefined) {
+            await sql`UPDATE subcategories SET seo_twitter_title = ${updateData.seo_twitter_title} WHERE "Document ID" = ${subcategoryId}`
+          }
+          if (updateData.seo_twitter_description !== undefined) {
+            await sql`UPDATE subcategories SET seo_twitter_description = ${updateData.seo_twitter_description} WHERE "Document ID" = ${subcategoryId}`
+          }
+          if (updateData.seo_twitter_image !== undefined) {
+            await sql`UPDATE subcategories SET seo_twitter_image = ${updateData.seo_twitter_image} WHERE "Document ID" = ${subcategoryId}`
+          }
+          if (updateData.seo_canonical_url !== undefined) {
+            await sql`UPDATE subcategories SET seo_canonical_url = ${updateData.seo_canonical_url} WHERE "Document ID" = ${subcategoryId}`
+          }
+          if (updateData.seo_robots !== undefined) {
+            await sql`UPDATE subcategories SET seo_robots = ${updateData.seo_robots} WHERE "Document ID" = ${subcategoryId}`
+          }
+          if (updateData.seo_schema_type !== undefined) {
+            await sql`UPDATE subcategories SET seo_schema_type = ${updateData.seo_schema_type} WHERE "Document ID" = ${subcategoryId}`
+          }
+          if (updateData.seo_focus_keyword !== undefined) {
+            await sql`UPDATE subcategories SET seo_focus_keyword = ${updateData.seo_focus_keyword} WHERE "Document ID" = ${subcategoryId}`
+          }
+          if (updateData.seo_secondary_keywords !== undefined) {
+            await sql`UPDATE subcategories SET seo_secondary_keywords = ${updateData.seo_secondary_keywords} WHERE "Document ID" = ${subcategoryId}`
+          }
+          
           // Fetch again after direct update
           const finalRecord = await sql`SELECT * FROM subcategories WHERE "Document ID" = ${subcategoryId}`
           console.log("[v0] After direct update - title:", finalRecord?.[0]?.title)

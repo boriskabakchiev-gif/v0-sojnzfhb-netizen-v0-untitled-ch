@@ -22,6 +22,7 @@ import { CategoriesNavbar } from "@/components/categories-navbar"
 import { ProductCard } from "@/components/product-card"
 import { ProductQuantityControls } from "@/components/product-quantity-controls"
 import { StickyBuyButton } from "@/components/sticky-buy-button"
+import { CompareFloatingButton } from "@/components/compare-floating-button"
 
 // Dynamic SEO metadata from database
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -540,6 +541,20 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         )}
 
         <SiteFooter categories={categories || []} isEnglish={false} />
+
+          {/* Compare Floating Button - Mobile only */}
+          <CompareFloatingButton
+            product={{
+              id: product.objectid,
+              title: product.title,
+              price: priceToDisplay !== null ? priceToDisplay : 0,
+              photourl: product.photourl,
+              description: product.description,
+              categoryTitle: category?.title,
+              subcategoryTitle: subcategory?.title,
+            }}
+            isEnglish={false}
+          />
 
           {/* Sticky Buy Button - Mobile only */}
           <StickyBuyButton

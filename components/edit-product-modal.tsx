@@ -203,7 +203,7 @@ export function EditProductModal({ isOpen, onClose, product, categories, onProdu
   }
 
   const handleFullSave = async () => {
-    if (!formData) return
+    if (!formData) return;
     setSaving(true)
     try {
       const payload: any = {
@@ -291,7 +291,7 @@ export function EditProductModal({ isOpen, onClose, product, categories, onProdu
     }
   }
 
-  if (!isOpen || !formData) return null
+  if (!isOpen || !formData) return null;
 
   return (
     <Dialog
@@ -740,7 +740,7 @@ export function EditProductModal({ isOpen, onClose, product, categories, onProdu
                     <h4 className="text-sm font-medium text-gray-400 mb-2">Google Preview</h4>
                     <div className="space-y-1">
                       <p className="text-blue-400 text-lg hover:underline cursor-pointer">
-                        {formData.seo_meta_title || formData.title || "Заглавие на продукта"}
+                        {formData.seo_meta_title || formData.title || "Заглавие на проду��та"}
                       </p>
                       <p className="text-green-500 text-sm">
                         example.com/product/{formData.objectid}

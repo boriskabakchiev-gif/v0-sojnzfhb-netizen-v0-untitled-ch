@@ -10,6 +10,7 @@ import { CategoriesNavbar } from "@/components/categories-navbar"
 import { ProductCard } from "@/components/product-card"
 import { ProductQuantityControls } from "@/components/product-quantity-controls"
 import { StickyBuyButton } from "@/components/sticky-buy-button"
+import { CompareFloatingButton } from "@/components/compare-floating-button"
 import { StarRating } from "@/components/star-rating"
 import { ProductReviewsSection } from "@/components/product-reviews-section"
 import { getUser } from "@/lib/auth"
@@ -543,6 +544,20 @@ async function ProductContent({ productId }: { productId: string }) {
         )}
 
         <SiteFooter categories={englishCategories} isEnglish={true} />
+
+          {/* Compare Floating Button - Mobile only */}
+          <CompareFloatingButton
+            product={{
+              id: product["Document ID"] || product.objectid,
+              title: displayTitle,
+              price: priceToDisplay !== null ? priceToDisplay : 0,
+              photourl: product.photourl,
+              description: displayDescription,
+              categoryTitle: categoryTitle,
+              subcategoryTitle: subcategoryTitle,
+            }}
+            isEnglish={true}
+          />
 
           {/* Sticky Buy Button - Mobile only */}
           <StickyBuyButton

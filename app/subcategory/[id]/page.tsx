@@ -1,6 +1,8 @@
+import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
 import { ChevronRightIcon, Layers, ArrowLeft } from "lucide-react"
+import { getSubcategoryById } from "@/lib/data"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -18,6 +20,56 @@ import { StickyBottomNav } from "@/components/sticky-bottom-nav"
 import { getUser } from "@/lib/auth"
 import { ProductCard } from "@/components/product-card"
 import { SubcategoryFilterPanel } from "@/components/subcategory-filter-panel"
+
+// Generate dynamic metadata from SEO fields
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
+  const { id } = await params
+  const subcategory = await getSubcategoryById(id)
+
+  if (!subcategory) {
+    return {
+      title: "Подкатегория не е намерена | MADIX",
+      description: "Търсената подкатегория не съществува.",
+    }
+  }
+
+  // Use SEO fields if available, fallback to title/description
+  const metaTitle = subcategory.seo_meta_title_bg || subcategory.seo_meta_title || subcategory.title
+  const metaDescription = subcategory.seo_meta_description_bg || subcategory.seo_meta_description || subcategory.description || `Разгледайте продуктите в подкатегория ${subcategory.title}`
+  const ogTitle = subcategory.seo_og_title_bg || subcategory.seo_og_title || metaTitle
+  const ogDescription = subcategory.seo_og_description_bg || subcategory.seo_og_description || metaDescription
+  const ogImage = subcategory.seo_og_image || subcategory.photourl
+  const twitterTitle = subcategory.seo_twitter_title || ogTitle
+  const twitterDescription = subcategory.seo_twitter_description || ogDescription
+  const twitterImage = subcategory.seo_twitter_image || ogImage
+  const keywords = subcategory.seo_meta_keywords_bg || subcategory.seo_meta_keywords
+
+  return {
+    title: `${metaTitle} | MADIX Groundbaits`,
+    description: metaDescription,
+    keywords: keywords ? keywords.split(",").map(k => k.trim()) : undefined,
+    robots: subcategory.seo_robots || "index, follow",
+    openGraph: {
+      title: ogTitle,
+      description: ogDescription || undefined,
+      type: "website",
+      images: ogImage ? [{ url: ogImage }] : undefined,
+    },
+    twitter: {
+      card: (subcategory.seo_twitter_card as "summary" | "summary_large_image") || "summary_large_image",
+      title: twitterTitle,
+      description: twitterDescription || undefined,
+      images: twitterImage ? [twitterImage] : undefined,
+    },
+    alternates: subcategory.seo_canonical_url ? {
+      canonical: subcategory.seo_canonical_url,
+    } : undefined,
+  }
+}
 
 export default async function SubcategoryPage({
   params,

@@ -13,6 +13,7 @@ import { StickyBuyButton } from "@/components/sticky-buy-button"
 import { CompareFloatingButton } from "@/components/compare-floating-button"
 import { StarRating } from "@/components/star-rating"
 import { ProductReviewsSection } from "@/components/product-reviews-section"
+import { ProductFAQsSection } from "@/components/product-faqs-section"
 import { getUser } from "@/lib/auth"
 import {
   getCategories,
@@ -492,6 +493,9 @@ async function ProductContent({ productId }: { productId: string }) {
             </div>
           </div>
         </section>
+
+        {/* FAQs Section */}
+        <ProductFAQsSection productId={product["Document ID"] || product.objectid} isEnglish={true} />
 
         {/* Reviews Section */}
         <ProductReviewsSection productId={product["Document ID"] || product.objectid} isEnglish={true} />

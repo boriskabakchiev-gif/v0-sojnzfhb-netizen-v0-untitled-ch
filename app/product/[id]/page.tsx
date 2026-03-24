@@ -23,6 +23,7 @@ import { ProductCard } from "@/components/product-card"
 import { ProductQuantityControls } from "@/components/product-quantity-controls"
 import { StickyBuyButton } from "@/components/sticky-buy-button"
 import { CompareFloatingButton } from "@/components/compare-floating-button"
+import { ProductFAQsSection } from "@/components/product-faqs-section"
 
 // Dynamic SEO metadata from database
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -462,6 +463,9 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             </div>
           </div>
         </section>
+
+        {/* FAQs Section */}
+        <ProductFAQsSection productId={product.objectid} isEnglish={false} />
 
         {/* Reviews Section */}
         <ProductReviewsSection productId={product.objectid} isEnglish={false} />

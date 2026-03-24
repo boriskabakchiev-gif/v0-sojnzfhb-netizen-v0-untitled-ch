@@ -2084,3 +2084,154 @@ export async function updateSeoSettings(pageKey: string, data: Partial<SeoSettin
     return { success: false, error: String(error) }
   }
 }
+
+// Product FAQs
+export interface ProductFAQ {
+  id: string
+  product_id: string
+  question: string
+  question_en?: string
+  answer: string
+  answer_en?: string
+  display_order: number
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export async function getProductFAQs(productId: string): Promise<ProductFAQ[]> {
+  console.log(`LIB/DB.TS: getProductFAQs called. productId: ${productId}, dbInitialized: ${dbInitialized}`)
+  if (!dbInitialized) {
+    console.error("LIB/DB.TS: getProductFAQs - Database not initialized.")
+    return []
+  }
+  try {
+    const result = await executeQueryWithRetry(
+      `SELECT * FROM product_faqs 
+       WHERE product_id = $1 AND is_active = true 
+       ORDER BY display_order ASC, created_at ASC`,
+      [productId]
+    )
+    return result || []
+  } catch (error) {
+    console.error(`LIB/DB.TS: Error fetching FAQs for product ${productId}:`, error)
+    return []
+  }
+}
+
+export async function getAllProductFAQs(productId: string): Promise<ProductFAQ[]> {
+  console.log(`LIB/DB.TS: getAllProductFAQs called. productId: ${productId}, dbInitialized: ${dbInitialized}`)
+  if (!dbInitialized) {
+    console.error("LIB/DB.TS: getAllProductFAQs - Database not initialized.")
+    return []
+  }
+  try {
+    const result = await executeQueryWithRetry(
+      `SELECT * FROM product_faqs 
+       WHERE product_id = $1 
+       ORDER BY display_order ASC, created_at ASC`,
+      [productId]
+    )
+    return result || []
+  } catch (error) {
+    console.error(`LIB/DB.TS: Error fetching all FAQs for product ${productId}:`, error)
+    return []
+  }
+}
+
+export async function addProductFAQ(
+  productId: string,
+  question: string,
+  answer: string,
+  questionEn?: string,
+  answerEn?: string,
+  displayOrder: number = 0
+): Promise<ProductFAQ | null> {
+  console.log(`LIB/DB.TS: addProductFAQ called. productId: ${productId}, dbInitialized: ${dbInitialized}`)
+  if (!dbInitialized) {
+    console.error("LIB/DB.TS: addProductFAQ - Database not initialized.")
+    return null
+  }
+  try {
+    const result = await executeQueryWithRetry(
+      `INSERT INTO product_faqs (product_id, question, question_en, answer, answer_en, display_order, is_active)
+       VALUES ($1, $2, $3, $4, $5, $6, true)
+       RETURNING *`,
+      [productId, question, questionEn || null, answer, answerEn || null, displayOrder]
+    )
+    return result[0] || null
+  } catch (error) {
+    console.error(`LIB/DB.TS: Error adding FAQ for product ${productId}:`, error)
+    return null
+  }
+}
+
+export async function updateProductFAQ(
+  faqId: string,
+  question: string,
+  answer: string,
+  questionEn?: string,
+  answerEn?: string,
+  displayOrder?: number,
+  isActive?: boolean
+): Promise<ProductFAQ | null> {
+  console.log(`LIB/DB.TS: updateProductFAQ called. faqId: ${faqId}, dbInitialized: ${dbInitialized}`)
+  if (!dbInitialized) {
+    console.error("LIB/DB.TS: updateProductFAQ - Database not initialized.")
+    return null
+  }
+  try {
+    const fields: string[] = []
+    const values: any[] = []
+    let paramIndex = 1
+
+    fields.push(`question = $${paramIndex++}`)
+    values.push(question)
+    
+    fields.push(`answer = $${paramIndex++}`)
+    values.push(answer)
+    
+    fields.push(`question_en = $${paramIndex++}`)
+    values.push(questionEn || null)
+    
+    fields.push(`answer_en = $${paramIndex++}`)
+    values.push(answerEn || null)
+    
+    if (displayOrder !== undefined) {
+      fields.push(`display_order = $${paramIndex++}`)
+      values.push(displayOrder)
+    }
+    
+    if (isActive !== undefined) {
+      fields.push(`is_active = $${paramIndex++}`)
+      values.push(isActive)
+    }
+
+    fields.push(`updated_at = NOW()`)
+    values.push(faqId)
+
+    const result = await executeQueryWithRetry(
+      `UPDATE product_faqs SET ${fields.join(", ")} WHERE id = $${paramIndex} RETURNING *`,
+      values
+    )
+    return result[0] || null
+  } catch (error) {
+    console.error(`LIB/DB.TS: Error updating FAQ ${faqId}:`, error)
+    return null
+  }
+}
+
+export async function deleteProductFAQ(faqId: string): Promise<boolean> {
+  console.log(`LIB/DB.TS: deleteProductFAQ called. faqId: ${faqId}, dbInitialized: ${dbInitialized}`)
+  if (!dbInitialized) {
+    console.error("LIB/DB.TS: deleteProductFAQ - Database not initialized.")
+    return false
+  }
+  try {
+    await executeQueryWithRetry(`DELETE FROM product_faqs WHERE id = $1`, [faqId])
+    return true
+  } catch (error) {
+    console.error(`LIB/DB.TS: Error deleting FAQ ${faqId}:`, error)
+    return false
+  }
+}

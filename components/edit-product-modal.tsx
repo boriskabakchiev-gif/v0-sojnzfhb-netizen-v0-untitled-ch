@@ -10,6 +10,8 @@ import { toast } from "@/components/ui/use-toast"
 import { ProductImageUpload } from "@/components/product-image-upload"
 import { StarRating } from "@/components/star-rating"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ProductFAQEditor } from "@/components/product-faq-editor"
+import { HelpCircle } from "lucide-react"
 
 interface Category {
   id: string
@@ -998,9 +1000,81 @@ export function EditProductModal({ isOpen, onClose, product, categories, onProdu
                       Отказ
                     </Button>
                   </div>
-                </div>
-              )}
+                  </div>
+                )}
+              </Button>
             </div>
+
+            {showAddReview && (
+              <div className="bg-gray-800 p-4 rounded-lg mt-2 space-y-3">
+                <div>
+                  <Label>Рейтинг</Label>
+                  <StarRating
+                    rating={newReviewRating}
+                    interactive
+                    onRatingChange={setNewReviewRating}
+                    size="lg"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="reviewerName">Име на рецензента</Label>
+                  <Input
+                    id="reviewerName"
+                    value={newReviewName}
+                    onChange={(e) => setNewReviewName(e.target.value)}
+                    placeholder="Въведете име"
+                    className="bg-gray-700 border-gray-600 text-white"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="reviewText">Текст на отзива</Label>
+                  <Textarea
+                    id="reviewText"
+                    value={newReviewText}
+                    onChange={(e) => setNewReviewText(e.target.value)}
+                    placeholder="Въведете текст на отзива"
+                    className="bg-gray-700 border-gray-600 text-white"
+                    rows={3}
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    onClick={handleAddReview}
+                    disabled={addingReview || newReviewRating === 0}
+                    className="bg-amber-600 hover:bg-amber-700 text-white"
+                  >
+                    {addingReview && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Запази отзива
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setShowAddReview(false)
+                      setNewReviewRating(5)
+                      setNewReviewName("")
+                      setNewReviewText("")
+                    }}
+                    className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                  >
+                    Отказ
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* FAQ Section */}
+          <div className="md:col-span-2 lg:col-span-3 space-y-4 border-t border-gray-700 pt-6 mt-4">
+            <h3 className="text-xl font-semibold text-cyan-400 flex items-center gap-2">
+              <HelpCircle className="h-5 w-5" />
+              Често задавани въпроси (FAQ)
+            </h3>
+            <ProductFAQEditor productId={formData.objectid} />
+          </div>
+        </div>
+      </div>
           </div>
         </div>
 

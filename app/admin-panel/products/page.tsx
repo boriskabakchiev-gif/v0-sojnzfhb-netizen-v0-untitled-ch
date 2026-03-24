@@ -58,6 +58,30 @@ interface EditProductForm {
   weight?: number | string | null
   dimensions?: string
   active?: boolean
+  // SEO fields
+  seo_meta_title?: string
+  seo_meta_description?: string
+  seo_meta_keywords?: string
+  seo_og_title?: string
+  seo_og_description?: string
+  seo_og_image?: string
+  seo_twitter_title?: string
+  seo_twitter_description?: string
+  seo_twitter_image?: string
+  seo_canonical_url?: string
+  seo_robots?: string
+  seo_schema_brand?: string
+  seo_schema_sku?: string
+  seo_schema_availability?: string
+  seo_focus_keyword?: string
+  seo_secondary_keywords?: string
+  seo_alt_text?: string
+  seo_meta_title_bg?: string
+  seo_meta_description_bg?: string
+  seo_meta_keywords_bg?: string
+  seo_og_title_bg?: string
+  seo_og_description_bg?: string
+  [key: string]: any
 }
 
 const DEBOUNCE_DELAY = 500 // 500ms debounce delay
@@ -200,7 +224,8 @@ export default function ProductsPage() {
       }
       const data = await response.json()
       if (data.success && data.products && data.products.length > 0) {
-        const fullProduct: Product = data.products[0]
+        const fullProduct: any = data.products[0]
+        // Pass the full product object including all SEO fields
         setEditingProduct({
           objectid: fullProduct.objectid,
           title: fullProduct.title || "",
@@ -243,6 +268,29 @@ export default function ProductsPage() {
           weight: fullProduct.weight !== null && fullProduct.weight !== undefined ? String(fullProduct.weight) : null,
           dimensions: fullProduct.dimensions || "",
           active: typeof fullProduct.active === "boolean" ? fullProduct.active : true,
+          // SEO fields - pass all from database
+          seo_meta_title: fullProduct.seo_meta_title || "",
+          seo_meta_description: fullProduct.seo_meta_description || "",
+          seo_meta_keywords: fullProduct.seo_meta_keywords || "",
+          seo_og_title: fullProduct.seo_og_title || "",
+          seo_og_description: fullProduct.seo_og_description || "",
+          seo_og_image: fullProduct.seo_og_image || "",
+          seo_twitter_title: fullProduct.seo_twitter_title || "",
+          seo_twitter_description: fullProduct.seo_twitter_description || "",
+          seo_twitter_image: fullProduct.seo_twitter_image || "",
+          seo_canonical_url: fullProduct.seo_canonical_url || "",
+          seo_robots: fullProduct.seo_robots || "",
+          seo_schema_brand: fullProduct.seo_schema_brand || "",
+          seo_schema_sku: fullProduct.seo_schema_sku || "",
+          seo_schema_availability: fullProduct.seo_schema_availability || "",
+          seo_focus_keyword: fullProduct.seo_focus_keyword || "",
+          seo_secondary_keywords: fullProduct.seo_secondary_keywords || "",
+          seo_alt_text: fullProduct.seo_alt_text || "",
+          seo_meta_title_bg: fullProduct.seo_meta_title_bg || "",
+          seo_meta_description_bg: fullProduct.seo_meta_description_bg || "",
+          seo_meta_keywords_bg: fullProduct.seo_meta_keywords_bg || "",
+          seo_og_title_bg: fullProduct.seo_og_title_bg || "",
+          seo_og_description_bg: fullProduct.seo_og_description_bg || "",
         })
         setEditModalOpen(true)
       } else {

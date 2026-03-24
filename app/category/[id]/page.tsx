@@ -1,4 +1,5 @@
 import type React from "react"
+import type { Metadata } from "next"
 import Link from "next/link"
 import {
   ChevronRight,
@@ -32,6 +33,56 @@ import { StickyBottomNav } from "@/components/sticky-bottom-nav"
 export const dynamic = "force-dynamic"
 export const fetchCache = "force-no-store"
 export const revalidate = 0
+
+// Generate dynamic metadata from SEO fields
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
+  const { id } = await params
+  const category = await getCategoryById(id)
+
+  if (!category) {
+    return {
+      title: "Категория не е намерена | MADIX",
+      description: "Търсената категория не съществува.",
+    }
+  }
+
+  // Use SEO fields if available, fallback to title/description
+  const metaTitle = category.seo_meta_title_bg || category.seo_meta_title || category.title
+  const metaDescription = category.seo_meta_description_bg || category.seo_meta_description || category.description || `Разгледайте продуктите в категория ${category.title}`
+  const ogTitle = category.seo_og_title_bg || category.seo_og_title || metaTitle
+  const ogDescription = category.seo_og_description_bg || category.seo_og_description || metaDescription
+  const ogImage = category.seo_og_image || category.photourl
+  const twitterTitle = category.seo_twitter_title || ogTitle
+  const twitterDescription = category.seo_twitter_description || ogDescription
+  const twitterImage = category.seo_twitter_image || ogImage
+  const keywords = category.seo_meta_keywords_bg || category.seo_meta_keywords
+
+  return {
+    title: `${metaTitle} | MADIX Groundbaits`,
+    description: metaDescription,
+    keywords: keywords ? keywords.split(",").map(k => k.trim()) : undefined,
+    robots: category.seo_robots || "index, follow",
+    openGraph: {
+      title: ogTitle,
+      description: ogDescription || undefined,
+      type: "website",
+      images: ogImage ? [{ url: ogImage }] : undefined,
+    },
+    twitter: {
+      card: (category.seo_twitter_card as "summary" | "summary_large_image") || "summary_large_image",
+      title: twitterTitle,
+      description: twitterDescription || undefined,
+      images: twitterImage ? [twitterImage] : undefined,
+    },
+    alternates: category.seo_canonical_url ? {
+      canonical: category.seo_canonical_url,
+    } : undefined,
+  }
+}
 
 // Функция за нормализиране на URL адреси на снимки
 function normalizeImageUrl(url: string | null | undefined): string {

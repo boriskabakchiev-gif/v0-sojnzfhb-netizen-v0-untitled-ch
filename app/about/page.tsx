@@ -68,7 +68,7 @@ export default async function AboutPage() {
     },
     {
       year: "1999 г.",
-      title: "Първи екип и по-голяма база",
+      title: "Първи екип и по-голяма база ",
       event: "Разширяване на екипа  с първите служители и преместване в по-голямо помещение.",
       icon: <Users className="w-5 h-5 text-blue-500" />,
     },

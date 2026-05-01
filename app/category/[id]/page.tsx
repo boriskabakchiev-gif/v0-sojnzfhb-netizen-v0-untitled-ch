@@ -339,22 +339,29 @@ export default async function CategoryPage({
         </section>
 
         {subcategories.length > 0 && (
-          <section className="py-6 bg-white border-b border-gray-200">
+          <section className="py-8 md:py-10 bg-white border-b border-gray-100">
             <div className="container mx-auto px-4">
-              <h2 className="text-xl font-bold mb-4 text-gray-800">Подкатегории</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg md:text-xl font-semibold text-gray-900">Подкатегории</h2>
+                <span className="text-sm text-gray-500 hidden md:block">{subcategories.length} подкатегории</span>
+              </div>
+              
+              {/* Mobile: Horizontal scroll */}
+              <div className="flex gap-3 overflow-x-auto pb-4 md:hidden scrollbar-hide">
                 <Link
                   href={`/category/${categoryId}`}
-                  className={`flex flex-col items-center p-3 rounded-lg border ${
-                    !subcategoryId ? "border-red-500 bg-red-50" : "border-gray-200 hover:bg-gray-50"
+                  className={`flex-shrink-0 flex flex-col items-center p-3 rounded-xl min-w-[100px] transition-all duration-200 ${
+                    !subcategoryId 
+                      ? "bg-red-600 shadow-lg shadow-red-600/20" 
+                      : "bg-gray-50 hover:bg-gray-100"
                   }`}
                 >
-                  <div className="w-16 h-16 flex items-center justify-center bg-white rounded-full mb-2">
+                  <div className={`w-14 h-14 flex items-center justify-center rounded-xl mb-2 ${
+                    !subcategoryId ? "bg-white/20" : "bg-white"
+                  }`}>
                     {getCategoryIcon(category.title)}
                   </div>
-                  <span
-                    className={`text-sm text-center ${!subcategoryId ? "font-medium text-red-600" : "text-gray-700"}`}
-                  >
+                  <span className={`text-xs font-medium text-center ${!subcategoryId ? "text-white" : "text-gray-700"}`}>
                     Всички
                   </span>
                 </Link>
@@ -362,24 +369,67 @@ export default async function CategoryPage({
                   <Link
                     key={subcategory.id}
                     href={`/category/${categoryId}?subcategory=${subcategory.id}`}
-                    className={`flex flex-col items-center p-3 rounded-lg border ${
-                      subcategory.id === subcategoryId ? "border-red-500 bg-red-50" : "border-gray-200 hover:bg-gray-50"
+                    className={`flex-shrink-0 flex flex-col items-center p-3 rounded-xl min-w-[100px] transition-all duration-200 ${
+                      subcategory.id === subcategoryId 
+                        ? "bg-red-600 shadow-lg shadow-red-600/20" 
+                        : "bg-gray-50 hover:bg-gray-100"
                     }`}
                   >
-                    <div className="w-16 h-16 flex items-center justify-center bg-white rounded-full mb-2">
+                    <div className={`w-14 h-14 flex items-center justify-center rounded-xl mb-2 overflow-hidden ${
+                      subcategory.id === subcategoryId ? "bg-white/20" : "bg-white"
+                    }`}>
                       <SubcategoryImage
                         src={subcategory.photourl || getCategoryImage(category)}
                         alt={subcategory.title}
                         fallback={getCategoryIcon(category.title)}
                       />
                     </div>
-                    <span
-                      className={`text-sm text-center ${
-                        subcategory.id === subcategoryId ? "font-medium text-red-600" : "text-gray-700"
-                      }`}
-                    >
+                    <span className={`text-xs font-medium text-center line-clamp-2 ${
+                      subcategory.id === subcategoryId ? "text-white" : "text-gray-700"
+                    }`}>
                       {subcategory.title}
                     </span>
+                  </Link>
+                ))}
+              </div>
+
+              {/* Desktop: Clean horizontal list with hover effects */}
+              <div className="hidden md:flex flex-wrap gap-2">
+                <Link
+                  href={`/category/${categoryId}`}
+                  className={`group inline-flex items-center gap-2.5 px-4 py-2.5 rounded-full transition-all duration-200 ${
+                    !subcategoryId 
+                      ? "bg-gray-900 text-white shadow-md" 
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  <div className={`w-8 h-8 flex items-center justify-center rounded-full ${
+                    !subcategoryId ? "bg-white/20" : "bg-white"
+                  }`}>
+                    {getCategoryIcon(category.title)}
+                  </div>
+                  <span className="text-sm font-medium whitespace-nowrap">Всички</span>
+                </Link>
+                {subcategories.map((subcategory) => (
+                  <Link
+                    key={subcategory.id}
+                    href={`/category/${categoryId}?subcategory=${subcategory.id}`}
+                    className={`group inline-flex items-center gap-2.5 px-4 py-2.5 rounded-full transition-all duration-200 ${
+                      subcategory.id === subcategoryId 
+                        ? "bg-gray-900 text-white shadow-md" 
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    <div className={`w-8 h-8 flex items-center justify-center rounded-full overflow-hidden ${
+                      subcategory.id === subcategoryId ? "bg-white/20" : "bg-white"
+                    }`}>
+                      <SubcategoryImage
+                        src={subcategory.photourl || getCategoryImage(category)}
+                        alt={subcategory.title}
+                        fallback={getCategoryIcon(category.title)}
+                      />
+                    </div>
+                    <span className="text-sm font-medium whitespace-nowrap">{subcategory.title}</span>
                   </Link>
                 ))}
               </div>

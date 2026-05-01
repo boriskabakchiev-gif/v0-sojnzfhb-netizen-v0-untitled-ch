@@ -425,7 +425,9 @@ export function CartContent({ isEnglish = false }: CartContentProps) {
     )
   }
 
-  const currencySymbol = isEuropean ? "€" : isEnglish ? "$" : "лв."
+  // For Bulgarian site, always show prices in BGN (лв.)
+  // For English site, show in EUR for European customers, otherwise USD
+  const currencySymbol = isEnglish ? (isEuropean ? "€" : "$") : "лв."
 
   return (
     <>

@@ -60,6 +60,9 @@ export function CartContent({ isEnglish = false }: CartContentProps) {
   // Delivery options
   const [deliveryOption, setDeliveryOption] = useState<"home" | "econt">("home")
   const [selectedEcontOffice, setSelectedEcontOffice] = useState<EcontOffice | null>(null)
+  
+  // Home delivery address fields
+  const [customerCity, setCustomerCity] = useState("")
 
   // State to manage input values locally to avoid removing item on backspace
   const [inputQuantities, setInputQuantities] = useState<{ [key: string]: string }>({})
@@ -127,6 +130,11 @@ export function CartContent({ isEnglish = false }: CartContentProps) {
     homeDelivery: isEnglish ? "Home Delivery" : "Доставка до дома",
     econtOffice: isEnglish ? "Econt Office" : "Офис на Еконт",
     selectOffice: isEnglish ? "Please select an Econt office" : "Моля, изберете офис на Еконт",
+    city: isEnglish ? "City / Town" : "Населено място",
+    cityPlaceholder: isEnglish ? "Enter your city or town" : "Въведете населеното място",
+    requiredFieldsError: isEnglish
+      ? "Please fill in all required fields (Name, Phone, City, Address)"
+      : "Моля, попълнете всички задължителни полета (Име, Телефон, Населено място, Адрес)",
   }
 
   // Effect to sync local state when items are added or removed from the cart
@@ -230,9 +238,24 @@ export function CartContent({ isEnglish = false }: CartContentProps) {
       return
     }
 
+    // Validate required fields for home delivery
+    if (deliveryOption === "home") {
+      const missingFields =
+        !customerName.trim() || !customerPhone.trim() || !customerCity.trim() || !additionalInfo.trim()
+      if (missingFields) {
+        toast({
+          title: t.requiredFieldsError,
+          variant: "destructive",
+        })
+        setIsSubmitting(false)
+        return
+      }
+    }
+
     const orderData = {
       customerName: (customerName || "").trim(),
       customerPhone: (customerPhone || "").trim(),
+      customerCity: deliveryOption === "home" ? (customerCity || "").trim() : "",
       additionalInfo: (additionalInfo || "").trim(),
       totalAmount: Number.parseFloat(currentFinalTotalPrice.toFixed(2)),
       originalTotalPrice: Number.parseFloat(currentOriginalTotalPrice.toFixed(2)),
@@ -366,7 +389,7 @@ export function CartContent({ isEnglish = false }: CartContentProps) {
       <>
         <div>
           <Label htmlFor="customerName" className="text-sm font-medium text-gray-700">
-            {t.nameCompany}
+            {t.nameCompany} <span className="text-red-500">*</span>
           </Label>
           <Input
             id="customerName"
@@ -379,7 +402,7 @@ export function CartContent({ isEnglish = false }: CartContentProps) {
         </div>
         <div>
           <Label htmlFor="customerPhone" className="text-sm font-medium text-gray-700">
-            {t.phone}
+            {t.phone} <span className="text-red-500">*</span>
           </Label>
           <Input
             id="customerPhone"
@@ -609,19 +632,35 @@ export function CartContent({ isEnglish = false }: CartContentProps) {
             <form onSubmit={handleSubmitInquiry} className="space-y-4">
               {deliveryOption === "home" && renderCustomerForm()}
               {deliveryOption === "home" && (
-                <div>
-                  <Label htmlFor="additionalInfo" className="text-sm font-medium text-gray-700">
-                    {t.additionalInfo}
-                  </Label>
-                  <Textarea
-                    id="additionalInfo"
-                    value={additionalInfo}
-                    onChange={(e) => setAdditionalInfo(e.target.value)}
-                    rows={3}
-                    placeholder={t.additionalInfoPlaceholder}
-                    className="mt-1"
-                  />
-                </div>
+                <>
+                  <div>
+                    <Label htmlFor="customerCity" className="text-sm font-medium text-gray-700">
+                      {t.city} <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id="customerCity"
+                      value={customerCity}
+                      onChange={(e) => setCustomerCity(e.target.value)}
+                      required
+                      className="mt-1"
+                      placeholder={t.cityPlaceholder}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="additionalInfo" className="text-sm font-medium text-gray-700">
+                      {t.additionalInfo} <span className="text-red-500">*</span>
+                    </Label>
+                    <Textarea
+                      id="additionalInfo"
+                      value={additionalInfo}
+                      onChange={(e) => setAdditionalInfo(e.target.value)}
+                      required
+                      rows={3}
+                      placeholder={t.additionalInfoPlaceholder}
+                      className="mt-1"
+                    />
+                  </div>
+                </>
               )}
               <Button
                 type="submit"
@@ -632,7 +671,8 @@ export function CartContent({ isEnglish = false }: CartContentProps) {
                   isLoadingUser ||
                   (deliveryOption === "econt" && !selectedEcontOffice) ||
                   (deliveryOption === "econt" && (!customerName.trim() || !customerPhone.trim())) ||
-                  (deliveryOption === "home" && (!customerName.trim() || !customerPhone.trim()))
+                  (deliveryOption === "home" &&
+                    (!customerName.trim() || !customerPhone.trim() || !customerCity.trim() || !additionalInfo.trim()))
                 }
               >
                 {isSubmitting ? <Loader2 className="h-5 w-5 mr-2 animate-spin" /> : <Send className="h-5 w-5 mr-2" />}
@@ -649,6 +689,14 @@ export function CartContent({ isEnglish = false }: CartContentProps) {
                     : "Моля, попълнете данните си в прозореца за офиса по-горе"}
                 </p>
               )}
+              {deliveryOption === "home" &&
+                (!customerName.trim() || !customerPhone.trim() || !customerCity.trim() || !additionalInfo.trim()) && (
+                  <p className="text-sm text-amber-600 text-center mt-2">
+                    {isEnglish
+                      ? "Please fill in all required fields marked with *"
+                      : "Моля, попълнете всички задължителни полета, маркирани с *"}
+                  </p>
+                )}
             </form>
           </div>
         </div>

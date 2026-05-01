@@ -238,13 +238,22 @@ export function CategoryFilterPanel({
       </div>
 
       {/* Desktop filter panel - hidden on mobile */}
-      <div className="hidden md:block space-y-4">
-        <div className="flex flex-wrap items-center gap-4">
-          <Button variant="outline" onClick={() => setShowFilters(!showFilters)} className="flex items-center gap-2">
-            <Filter className="h-4 w-4" />
+      <div className="hidden md:block">
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Filters button */}
+          <button 
+            onClick={() => setShowFilters(!showFilters)} 
+            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border transition-all duration-200 font-medium text-sm ${
+              showFilters 
+                ? "bg-gray-900 text-white border-gray-900" 
+                : "bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:shadow-sm"
+            }`}
+          >
+            <SlidersHorizontal className="h-4 w-4" />
             {isEnglish ? "Filters" : "Филтри"}
-          </Button>
+          </button>
 
+          {/* Subcategory dropdown */}
           {subcategories.length > 0 && (
             <Select
               value={currentSubcategoryId || "all"}
@@ -257,16 +266,24 @@ export function CategoryFilterPanel({
                 })
               }
             >
-              <SelectTrigger className="w-[200px]">
+              <SelectTrigger className="w-auto min-w-[200px] h-11 px-5 rounded-xl bg-white border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all duration-200 text-sm font-medium text-gray-700 focus:ring-0 focus:ring-offset-0">
                 <SelectValue placeholder={isEnglish ? "All subcategories" : "Всички подкатегории"} />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{isEnglish ? "All subcategories" : "Всички подкатегории"}</SelectItem>
+              <SelectContent className="rounded-xl border border-gray-200 shadow-lg bg-white p-1 min-w-[220px]">
+                <SelectItem value="all" className="rounded-lg py-2.5 px-3 text-sm cursor-pointer focus:bg-gray-100">
+                  <div className="flex items-center gap-2">
+                    {!currentSubcategoryId && <Check className="h-4 w-4 text-red-500" />}
+                    <span>{isEnglish ? "All subcategories" : "Всички подкатегории"}</span>
+                  </div>
+                </SelectItem>
                 {subcategories.map((subcategory) => {
                   const displayTitle = isEnglish ? getEnglishTitle(subcategory) : subcategory.title
                   return (
-                    <SelectItem key={subcategory.id} value={subcategory.id}>
-                      {displayTitle}
+                    <SelectItem key={subcategory.id} value={subcategory.id} className="rounded-lg py-2.5 px-3 text-sm cursor-pointer focus:bg-gray-100">
+                      <div className="flex items-center gap-2">
+                        {currentSubcategoryId === subcategory.id && <Check className="h-4 w-4 text-red-500" />}
+                        <span>{displayTitle}</span>
+                      </div>
                     </SelectItem>
                   )
                 })}
@@ -274,6 +291,7 @@ export function CategoryFilterPanel({
             </Select>
           )}
 
+          {/* Sort dropdown */}
           <Select
             value={sortOption}
             onValueChange={(value) =>
@@ -285,56 +303,84 @@ export function CategoryFilterPanel({
               })
             }
           >
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-auto min-w-[160px] h-11 px-5 rounded-xl bg-white border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all duration-200 text-sm font-medium text-gray-700 focus:ring-0 focus:ring-offset-0">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="title-asc">{isEnglish ? "Name A-Z" : "Име А-Я"}</SelectItem>
-              <SelectItem value="title-desc">{isEnglish ? "Name Z-A" : "Име Я-А"}</SelectItem>
-              <SelectItem value="price-asc">{isEnglish ? "Price: Low to High" : "Цена: Ниска към Висока"}</SelectItem>
-              <SelectItem value="price-desc">{isEnglish ? "Price: High to Low" : "Цена: Висока към Ниска"}</SelectItem>
+            <SelectContent className="rounded-xl border border-gray-200 shadow-lg bg-white p-1 min-w-[200px]">
+              <SelectItem value="title-asc" className="rounded-lg py-2.5 px-3 text-sm cursor-pointer focus:bg-gray-100">
+                <div className="flex items-center gap-2">
+                  {sortOption === "title-asc" && <Check className="h-4 w-4 text-red-500" />}
+                  <span>{isEnglish ? "Name A-Z" : "Име А-Я"}</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="title-desc" className="rounded-lg py-2.5 px-3 text-sm cursor-pointer focus:bg-gray-100">
+                <div className="flex items-center gap-2">
+                  {sortOption === "title-desc" && <Check className="h-4 w-4 text-red-500" />}
+                  <span>{isEnglish ? "Name Z-A" : "Име Я-А"}</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="price-asc" className="rounded-lg py-2.5 px-3 text-sm cursor-pointer focus:bg-gray-100">
+                <div className="flex items-center gap-2">
+                  {sortOption === "price-asc" && <Check className="h-4 w-4 text-red-500" />}
+                  <span>{isEnglish ? "Price: Low to High" : "Цена: Ниска към Висока"}</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="price-desc" className="rounded-lg py-2.5 px-3 text-sm cursor-pointer focus:bg-gray-100">
+                <div className="flex items-center gap-2">
+                  {sortOption === "price-desc" && <Check className="h-4 w-4 text-red-500" />}
+                  <span>{isEnglish ? "Price: High to Low" : "Цена: Висока към Ниска"}</span>
+                </div>
+              </SelectItem>
             </SelectContent>
           </Select>
 
+          {/* Clear filters button */}
           {hasActiveFilters && (
-            <Button variant="ghost" onClick={clearFilters} className="flex items-center gap-2">
+            <button 
+              onClick={clearFilters} 
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 transition-all duration-200"
+            >
               <X className="h-4 w-4" />
               {isEnglish ? "Clear filters" : "Изчисти филтри"}
-            </Button>
+            </button>
           )}
         </div>
 
+        {/* Price filter panel */}
         {showFilters && (
-          <Card>
-            <CardHeader>
-              <CardTitle>{isEnglish ? "Price Range" : "Ценови диапазон"}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                <div>
-                  <Label htmlFor="minPrice">{isEnglish ? "Min Price" : "Минимална цена"}</Label>
-                  <Input
-                    id="minPrice"
-                    type="number"
-                    placeholder="0"
-                    value={localMinPrice}
-                    onChange={(e) => setLocalMinPrice(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="maxPrice">{isEnglish ? "Max Price" : "Максимална цена"}</Label>
-                  <Input
-                    id="maxPrice"
-                    type="number"
-                    placeholder="1000"
-                    value={localMaxPrice}
-                    onChange={(e) => setLocalMaxPrice(e.target.value)}
-                  />
-                </div>
-                <Button onClick={applyPriceFilters}>{isEnglish ? "Apply" : "Приложи"}</Button>
+          <div className="mt-4 p-5 bg-white rounded-xl border border-gray-200 shadow-sm">
+            <h3 className="text-sm font-semibold text-gray-900 mb-4">{isEnglish ? "Price Range" : "Ценови диапазон"}</h3>
+            <div className="flex flex-wrap items-end gap-4">
+              <div className="flex-1 min-w-[140px]">
+                <Label htmlFor="minPrice" className="text-xs text-gray-500 mb-1.5 block">{isEnglish ? "Min Price" : "Минимална цена"}</Label>
+                <Input
+                  id="minPrice"
+                  type="number"
+                  placeholder="0"
+                  value={localMinPrice}
+                  onChange={(e) => setLocalMinPrice(e.target.value)}
+                  className="h-10 rounded-lg border-gray-200 focus:border-gray-300 focus:ring-0"
+                />
               </div>
-            </CardContent>
-          </Card>
+              <div className="flex-1 min-w-[140px]">
+                <Label htmlFor="maxPrice" className="text-xs text-gray-500 mb-1.5 block">{isEnglish ? "Max Price" : "Максимална цена"}</Label>
+                <Input
+                  id="maxPrice"
+                  type="number"
+                  placeholder="1000"
+                  value={localMaxPrice}
+                  onChange={(e) => setLocalMaxPrice(e.target.value)}
+                  className="h-10 rounded-lg border-gray-200 focus:border-gray-300 focus:ring-0"
+                />
+              </div>
+              <Button 
+                onClick={applyPriceFilters} 
+                className="h-10 px-6 rounded-lg bg-gray-900 hover:bg-gray-800 text-white font-medium text-sm"
+              >
+                {isEnglish ? "Apply" : "Приложи"}
+              </Button>
+            </div>
+          </div>
         )}
       </div>
     </>

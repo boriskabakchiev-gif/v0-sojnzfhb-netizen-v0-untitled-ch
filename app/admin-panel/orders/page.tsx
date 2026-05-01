@@ -67,6 +67,8 @@ export default function OrdersPage() {
   const [isPolling, setIsPolling] = useState(false)
   const [audioContext, setAudioContext] = useState(null)
   const [initialCheckDone, setInitialCheckDone] = useState(false)
+  const [statusFilter, setStatusFilter] = useState("all")
+  const [searchQuery, setSearchQuery] = useState("")
 
   useEffect(() => {
     const setupAndFetch = async () => {
@@ -116,7 +118,7 @@ export default function OrdersPage() {
         newOrders.forEach((order) => {
           toast({
             title: "🔔 Нова поръчка!",
-            description: `Поръчка #${order.orderId} от ${order.customerName} - ${Number(order.totalAmount).toFixed(2)} €`,
+            description: `Поръчка #${order.orderId} от ${order.customerName} - ${convertBgnToEur(order.totalAmount).toFixed(2)} €`,
             duration: 10000,
           })
         })
@@ -455,6 +457,14 @@ export default function OrdersPage() {
     return isNaN(numQuantity) || numQuantity < 1 ? 1 : numQuantity
   }
 
+  // Convert BGN to EUR (1 EUR = 1.96 BGN, fixed rate for Bulgaria)
+  const BGN_TO_EUR_RATE = 1.96
+  const convertBgnToEur = (bgnPrice) => {
+    const num = typeof bgnPrice === "string" ? Number.parseFloat(bgnPrice) : Number(bgnPrice)
+    if (isNaN(num)) return 0
+    return num / BGN_TO_EUR_RATE
+  }
+
   const getProductPrice = (item) => {
     if (!item) return 0
     const price = item.price_paid !== undefined ? item.price_paid : item.price || item.unitPrice || 0
@@ -468,7 +478,7 @@ export default function OrdersPage() {
   }
 
   const getFreeItemsCount = (order) => {
-    // Това е общият брой безплатни артикули за ЦЯЛАТА поръчка,
+    // Това е общият брой безпл��тни артикули за ЦЯЛАТА поръчка,
     // който се взима от order.free_items_count (записан от submit API)
     if (order.free_items_count !== undefined) return Number(order.free_items_count)
     if (order.freeItemsCount !== undefined) return Number(order.freeItemsCount)
@@ -547,7 +557,7 @@ export default function OrdersPage() {
           customerEmail: order.customerEmail,
           customerPhone: order.customerPhone || customer?.phone,
           orderDate: formatDate(order.createdAt),
-          totalAmount: Number(order.totalAmount) || 0,
+          totalAmount: convertBgnToEur(order.totalAmount),
           items: getOrderItems(order).map((item) => {
             let categoryInfo = item.categoryPath || item.category || "Липсва категория"
             if (typeof categoryInfo === "string") {
@@ -559,9 +569,9 @@ export default function OrdersPage() {
               productId: item.id || item.productId || "",
               name: getProductName(item),
               quantity: getProductQuantity(item),
-              price: getProductPrice(item),
+              price: convertBgnToEur(getProductPrice(item)),
               categoryPath: categoryInfo,
-              freeCount: getProductFreeCount(item), // Използваме getProductFreeCount
+              freeCount: getProductFreeCount(item),
             }
           }),
         }
@@ -593,6 +603,28 @@ export default function OrdersPage() {
     document.addEventListener("click", initAudio, { once: true })
     return () => document.removeEventListener("click", initAudio)
   }, [audioContext])
+
+  // Filter orders based on status and search query
+  const filteredOrders = orders.filter((order) => {
+    // Status filter
+    if (statusFilter !== "all" && order.status !== statusFilter) {
+      return false
+    }
+    
+    // Search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim()
+      const customerName = (order.customerName || "").toLowerCase()
+      const customerEmail = (order.customerEmail || "").toLowerCase()
+      const orderId = (order.orderId || "").toString().toLowerCase()
+      
+      if (!customerName.includes(query) && !customerEmail.includes(query) && !orderId.includes(query)) {
+        return false
+      }
+    }
+    
+    return true
+  })
 
   return (
     <div className="p-6">
@@ -655,7 +687,7 @@ export default function OrdersPage() {
               </TooltipTrigger>
               <TooltipContent>
                 <p>
-                  {notificationsEnabled ? "Изключи известията за нови поръчки" : "Включи известията за нови поръчки"}
+                  {notificationsEnabled ? "Изключи известията за нови поръчки" : "Вклю��и известията за нови поръчки"}
                 </p>
               </TooltipContent>
             </Tooltip>
@@ -690,7 +722,12 @@ export default function OrdersPage() {
 
       <div className="flex flex-col md:flex-row gap-4 mb-6 items-center">
         <div className="relative w-full md:w-auto md:flex-1">
-          <Input placeholder="Търсене по имейл, име или номер на поръчка" className="pl-8" />
+          <Input 
+            placeholder="Търсене по имейл, име или номер на поръчка" 
+            className="pl-8" 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
         <div className="flex items-center gap-2 whitespace-nowrap">
           <Checkbox id="select-all" checked={selectAll} onCheckedChange={handleSelectAll} />
@@ -698,7 +735,7 @@ export default function OrdersPage() {
             {selectAll ? "Премахни всички" : "Избери всички"}
           </label>
         </div>
-        <Select defaultValue="all">
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-full md:w-[180px]">
             <SelectValue placeholder="Всички статуси" />
           </SelectTrigger>
@@ -731,9 +768,28 @@ export default function OrdersPage() {
           <h3 className="text-lg font-medium text-gray-900">Няма намерени поръчки</h3>
           <p className="mt-2 text-sm text-gray-500">Все още няма направени поръчки</p>
         </div>
+      ) : filteredOrders.length === 0 ? (
+        <div className="text-center py-12">
+          <Package className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+          <h3 className="text-lg font-medium text-gray-900">Няма намерени поръчки</h3>
+          <p className="mt-2 text-sm text-gray-500">
+            {searchQuery || statusFilter !== "all" 
+              ? "Няма поръчки, отговарящи на филтрите" 
+              : "Все още няма направени поръчки"}
+          </p>
+          {(searchQuery || statusFilter !== "all") && (
+            <Button 
+              onClick={() => { setSearchQuery(""); setStatusFilter("all"); }} 
+              variant="outline" 
+              className="mt-4 bg-transparent"
+            >
+              Изчисти филтрите
+            </Button>
+          )}
+        </div>
       ) : (
         <div className="space-y-4">
-          {orders.map((order) => {
+          {filteredOrders.map((order) => {
             const orderItems = getOrderItems(order)
             const totalItems = orderItems.reduce((sum, item) => sum + getProductQuantity(item), 0)
             const customer = customers[order.customerEmail]
@@ -814,7 +870,7 @@ export default function OrdersPage() {
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-medium">Обща сума:</p>
-                      <p className="text-lg font-bold">{(Number(order.totalAmount) || 0).toFixed(2)} €</p>
+                      <p className="text-lg font-bold">{convertBgnToEur(order.totalAmount).toFixed(2)} €</p>
                       {freeItemsCountForOrderHeader > 0 && (
                         <div className="mt-1">
                           <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
@@ -877,7 +933,7 @@ export default function OrdersPage() {
                                       </TooltipProvider>
                                     )}
                                   </div>
-                                  <p className="text-xs text-gray-500">{(price || 0).toFixed(2)} € за брой</p>
+                                  <p className="text-xs text-gray-500">{convertBgnToEur(price).toFixed(2)} € за брой</p>
                                   {item.categoryPath && <p className="text-xs text-blue-600">{item.categoryPath}</p>}
                                 </div>
                               </div>
@@ -892,7 +948,7 @@ export default function OrdersPage() {
                                     </Badge>
                                   )}
                                 </div>
-                                <p className="text-sm font-medium mt-1">{(price * quantity).toFixed(2)} €</p>
+                                <p className="text-sm font-medium mt-1">{convertBgnToEur(price * quantity).toFixed(2)} €</p>
                               </div>
                             </div>
                           )
@@ -1109,13 +1165,13 @@ export default function OrdersPage() {
                                   <TableCell className="text-sm">
                                     {item.categoryPath || "Неизвестна категория"}
                                   </TableCell>
-                                  <TableCell className="text-right">{(price || 0).toFixed(2)} €</TableCell>
+                                  <TableCell className="text-right">{convertBgnToEur(price).toFixed(2)} €</TableCell>
                                   <TableCell className="text-center">
                                     <Badge variant="outline" className="px-3 py-1 font-bold">
                                       {quantity}
                                     </Badge>
                                   </TableCell>
-                                  <TableCell className="text-right font-bold">{(total || 0).toFixed(2)} €</TableCell>
+                                  <TableCell className="text-right font-bold">{convertBgnToEur(total).toFixed(2)} €</TableCell>
                                   <TableCell className="text-center">
                                     {hasFreeItemsForThisProduct ? (
                                       <span className="text-green-700 font-medium">{itemFreeCount}</span>
@@ -1131,7 +1187,7 @@ export default function OrdersPage() {
                                 Общо:
                               </TableCell>
                               <TableCell className="text-right font-bold">
-                                {(Number(order.totalAmount) || 0).toFixed(2)} €
+                                {convertBgnToEur(order.totalAmount).toFixed(2)} €
                               </TableCell>
                               <TableCell className="text-center font-bold">
                                 {freeItemsCountForOrderHeader > 0 ? (

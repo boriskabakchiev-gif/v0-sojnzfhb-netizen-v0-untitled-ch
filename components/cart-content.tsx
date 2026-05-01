@@ -425,9 +425,14 @@ export function CartContent({ isEnglish = false }: CartContentProps) {
     )
   }
 
-  // For Bulgarian site, always show prices in BGN (лв.)
-  // For English site, show in EUR for European customers, otherwise USD
-  const currencySymbol = isEnglish ? (isEuropean ? "€" : "$") : "лв."
+  // Conversion rate BGN to EUR
+  const convertBgnToEur = (bgnPrice: number): number => {
+    return bgnPrice / 1.96
+  }
+
+  const formatPrice = (value: number): string => {
+    return value.toFixed(2)
+  }
 
   return (
     <>
@@ -456,9 +461,10 @@ export function CartContent({ isEnglish = false }: CartContentProps) {
                 <h3 className="font-semibold text-xl text-gray-800">
                   <Link href={isEnglish ? `/en/product/${item.id}` : `/product/${item.id}`}>{item.title}</Link>
                 </h3>
-                <p className="text-md text-gray-700 mt-1">
-                  {t.price}: {item.price.toFixed(2)} {currencySymbol}
-                </p>
+                <div className="text-md text-gray-700 mt-1">
+                  <span className="font-semibold text-lg">{formatPrice(convertBgnToEur(item.price))} €</span>
+                  <span className="text-sm text-gray-500 ml-2">({formatPrice(item.price)} лв.)</span>
+                </div>
                 {item.promo_buy_qty && typeof item.promo_free_qty === "number" && (
                   <p className="text-xs text-green-600 font-medium mt-1 bg-green-50 px-2 py-1 rounded-md inline-block">
                     {t.promo} {item.promo_buy_qty}, {t.take} {item.promo_free_qty} {t.free}
@@ -521,30 +527,33 @@ export function CartContent({ isEnglish = false }: CartContentProps) {
                 </div>
               )}
               <hr className="my-1" />
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <span>{t.subtotal}:</span>
-                <span className="font-medium">
-                  {currentOriginalTotalPrice.toFixed(2)} {currencySymbol}
-                </span>
+                <div className="text-right">
+                  <span className="font-semibold">{formatPrice(convertBgnToEur(currentOriginalTotalPrice))} €</span>
+                  <span className="text-sm text-gray-500 ml-2">({formatPrice(currentOriginalTotalPrice)} лв.)</span>
+                </div>
               </div>
               {currentDiscountAmount > 0 && (
                 <>
-                  <div className="flex justify-between text-green-600">
+                  <div className="flex justify-between items-center text-green-600">
                     <span>
                       {t.discount} ({discountPercent}%):
                     </span>
-                    <span className="font-medium">
-                      -{currentDiscountAmount.toFixed(2)} {currencySymbol}
-                    </span>
+                    <div className="text-right">
+                      <span className="font-semibold">-{formatPrice(convertBgnToEur(currentDiscountAmount))} €</span>
+                      <span className="text-sm text-green-500 ml-2">(-{formatPrice(currentDiscountAmount)} лв.)</span>
+                    </div>
                   </div>
                   <hr className="my-1 border-dashed" />
                 </>
               )}
-              <div className="flex justify-between font-bold text-xl text-gray-800">
-                <span>{t.finalTotal}:</span>
-                <span>
-                  {currentFinalTotalPrice.toFixed(2)} {currencySymbol}
-                </span>
+              <div className="flex justify-between items-center font-bold text-gray-800">
+                <span className="text-xl">{t.finalTotal}:</span>
+                <div className="text-right">
+                  <span className="text-2xl">{formatPrice(convertBgnToEur(currentFinalTotalPrice))} €</span>
+                  <span className="text-base font-medium text-gray-500 ml-2">({formatPrice(currentFinalTotalPrice)} лв.)</span>
+                </div>
               </div>
             </div>
             <p className="text-xs text-gray-500 mb-6">{t.pricesIncludeVAT}</p>

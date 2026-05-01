@@ -139,7 +139,7 @@ return (
       <SiteHeader categories={englishCategories} subcategories={allSubcategories || []} />
 
       {/* Динамична лента с категории, която се обновява при всяко зареждане */}
-      <CategoriesNavbar isEnglish={true} />
+      <CategoriesNavbar categories={englishCategories} subcategories={allSubcategories || []} isEnglish={true} />
 
       {/* Hero Banner Carousel - Apple-style, image only */}
       <div className="group">

@@ -1076,7 +1076,7 @@ export function EditProductModal({ isOpen, onClose, product, categories, onProdu
         </div>
       </div>
 
-        <div className="pt-4 border-t border-gray-800 flex justify-end space-x-2">
+      <div className="pt-4 border-t border-gray-800 flex justify-end space-x-2">
           <Button
             type="button"
             onClick={handleFullSave}

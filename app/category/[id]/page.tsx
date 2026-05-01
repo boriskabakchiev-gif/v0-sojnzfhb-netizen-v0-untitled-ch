@@ -393,35 +393,37 @@ export default async function CategoryPage({
                 ))}
               </div>
 
-              {/* Desktop: Clean horizontal list with hover effects */}
-              <div className="hidden md:flex flex-wrap gap-2">
+              {/* Desktop: Grid layout with cards */}
+              <div className="hidden md:grid grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
                 <Link
                   href={`/category/${categoryId}`}
-                  className={`group inline-flex items-center gap-2.5 px-4 py-2.5 rounded-full transition-all duration-200 ${
+                  className={`group flex flex-col items-center p-4 rounded-xl border transition-all duration-200 ${
                     !subcategoryId 
-                      ? "bg-gray-900 text-white shadow-md" 
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      ? "bg-red-50 border-red-500 shadow-sm" 
+                      : "bg-white border-gray-200 hover:border-gray-300 hover:shadow-sm"
                   }`}
                 >
-                  <div className={`w-8 h-8 flex items-center justify-center rounded-full ${
-                    !subcategoryId ? "bg-white/20" : "bg-white"
+                  <div className={`w-12 h-12 flex items-center justify-center rounded-lg mb-3 ${
+                    !subcategoryId ? "bg-red-100" : "bg-gray-50"
                   }`}>
                     {getCategoryIcon(category.title)}
                   </div>
-                  <span className="text-sm font-medium whitespace-nowrap">Всички</span>
+                  <span className={`text-sm font-medium text-center ${!subcategoryId ? "text-red-600" : "text-gray-700"}`}>
+                    Всички
+                  </span>
                 </Link>
                 {subcategories.map((subcategory) => (
                   <Link
                     key={subcategory.id}
                     href={`/category/${categoryId}?subcategory=${subcategory.id}`}
-                    className={`group inline-flex items-center gap-2.5 px-4 py-2.5 rounded-full transition-all duration-200 ${
+                    className={`group flex flex-col items-center p-4 rounded-xl border transition-all duration-200 ${
                       subcategory.id === subcategoryId 
-                        ? "bg-gray-900 text-white shadow-md" 
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        ? "bg-red-50 border-red-500 shadow-sm" 
+                        : "bg-white border-gray-200 hover:border-gray-300 hover:shadow-sm"
                     }`}
                   >
-                    <div className={`w-8 h-8 flex items-center justify-center rounded-full overflow-hidden ${
-                      subcategory.id === subcategoryId ? "bg-white/20" : "bg-white"
+                    <div className={`w-12 h-12 flex items-center justify-center rounded-lg mb-3 overflow-hidden ${
+                      subcategory.id === subcategoryId ? "bg-red-100" : "bg-gray-50"
                     }`}>
                       <SubcategoryImage
                         src={subcategory.photourl || getCategoryImage(category)}
@@ -429,7 +431,11 @@ export default async function CategoryPage({
                         fallback={getCategoryIcon(category.title)}
                       />
                     </div>
-                    <span className="text-sm font-medium whitespace-nowrap">{subcategory.title}</span>
+                    <span className={`text-sm font-medium text-center line-clamp-2 ${
+                      subcategory.id === subcategoryId ? "text-red-600" : "text-gray-700"
+                    }`}>
+                      {subcategory.title}
+                    </span>
                   </Link>
                 ))}
               </div>

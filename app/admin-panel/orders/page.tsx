@@ -67,8 +67,6 @@ export default function OrdersPage() {
   const [isPolling, setIsPolling] = useState(false)
   const [audioContext, setAudioContext] = useState(null)
   const [initialCheckDone, setInitialCheckDone] = useState(false)
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [searchQuery, setSearchQuery] = useState("")
 
   useEffect(() => {
     const setupAndFetch = async () => {
@@ -478,7 +476,7 @@ export default function OrdersPage() {
   }
 
   const getFreeItemsCount = (order) => {
-    // Това е общият брой безпл��тни артикули за ЦЯЛАТА поръчка,
+    // Това е общият брой безплатни артикули за ЦЯЛАТА поръчка,
     // който се взима от order.free_items_count (записан от submit API)
     if (order.free_items_count !== undefined) return Number(order.free_items_count)
     if (order.freeItemsCount !== undefined) return Number(order.freeItemsCount)
@@ -604,28 +602,6 @@ export default function OrdersPage() {
     return () => document.removeEventListener("click", initAudio)
   }, [audioContext])
 
-  // Filter orders based on status and search query
-  const filteredOrders = orders.filter((order) => {
-    // Status filter
-    if (statusFilter !== "all" && order.status !== statusFilter) {
-      return false
-    }
-    
-    // Search filter
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase().trim()
-      const customerName = (order.customerName || "").toLowerCase()
-      const customerEmail = (order.customerEmail || "").toLowerCase()
-      const orderId = (order.orderId || "").toString().toLowerCase()
-      
-      if (!customerName.includes(query) && !customerEmail.includes(query) && !orderId.includes(query)) {
-        return false
-      }
-    }
-    
-    return true
-  })
-
   return (
     <div className="p-6">
       {newOrdersCount > 0 && (
@@ -722,12 +698,7 @@ export default function OrdersPage() {
 
       <div className="flex flex-col md:flex-row gap-4 mb-6 items-center">
         <div className="relative w-full md:w-auto md:flex-1">
-          <Input 
-            placeholder="Търсене по имейл, име или номер на поръчка" 
-            className="pl-8" 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+          <Input placeholder="Търсене по имейл, име или номер на поръчка" className="pl-8" />
         </div>
         <div className="flex items-center gap-2 whitespace-nowrap">
           <Checkbox id="select-all" checked={selectAll} onCheckedChange={handleSelectAll} />
@@ -735,7 +706,7 @@ export default function OrdersPage() {
             {selectAll ? "Премахни всички" : "Избери всички"}
           </label>
         </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
+        <Select defaultValue="all">
           <SelectTrigger className="w-full md:w-[180px]">
             <SelectValue placeholder="Всички статуси" />
           </SelectTrigger>
@@ -768,28 +739,9 @@ export default function OrdersPage() {
           <h3 className="text-lg font-medium text-gray-900">Няма намерени поръчки</h3>
           <p className="mt-2 text-sm text-gray-500">Все още няма направени поръчки</p>
         </div>
-      ) : filteredOrders.length === 0 ? (
-        <div className="text-center py-12">
-          <Package className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-          <h3 className="text-lg font-medium text-gray-900">Няма намерени поръчки</h3>
-          <p className="mt-2 text-sm text-gray-500">
-            {searchQuery || statusFilter !== "all" 
-              ? "Няма поръчки, отговарящи на филтрите" 
-              : "Все още няма направени поръчки"}
-          </p>
-          {(searchQuery || statusFilter !== "all") && (
-            <Button 
-              onClick={() => { setSearchQuery(""); setStatusFilter("all"); }} 
-              variant="outline" 
-              className="mt-4 bg-transparent"
-            >
-              Изчисти филтрите
-            </Button>
-          )}
-        </div>
       ) : (
         <div className="space-y-4">
-          {filteredOrders.map((order) => {
+          {orders.map((order) => {
             const orderItems = getOrderItems(order)
             const totalItems = orderItems.reduce((sum, item) => sum + getProductQuantity(item), 0)
             const customer = customers[order.customerEmail]

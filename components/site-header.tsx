@@ -127,8 +127,8 @@ export function SiteHeader({
           transition-all duration-300 ease-out
           ${
             scrolled
-              ? "bg-[#78350f]/95 backdrop-blur-xl shadow-[0_1px_0_0_rgba(255,255,255,0.06)]"
-              : "bg-[#78350f] backdrop-blur-xl"
+              ? "bg-[#14532d]/95 backdrop-blur-xl shadow-[0_1px_0_0_rgba(255,255,255,0.06)]"
+              : "bg-[#14532d] backdrop-blur-xl"
           }
         `}
       >

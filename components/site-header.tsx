@@ -176,7 +176,7 @@ export function SiteHeader({
               {/* Contact -- Desktop */}
               <Link
                 href={currentLocale === "en" ? "/en/contact" : "/contact"}
-                className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-medium text-neutral-300 hover:text-white rounded-full hover:bg-white/[0.08] transition-colors"
+                className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-medium text-neutral-300 hover:text-red-500 rounded-full hover:bg-red-500/10 transition-colors"
               >
                 <Phone className="h-3.5 w-3.5" />
                 <span>{currentLocale === "en" ? "Contact" : "Контакт"}</span>
@@ -185,7 +185,7 @@ export function SiteHeader({
               {/* Language -- Desktop */}
               <Link
                 href={currentLocale === "en" ? "/" : "/en"}
-                className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-medium text-neutral-300 hover:text-white rounded-full hover:bg-white/[0.08] transition-colors"
+                className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-medium text-neutral-300 hover:text-red-500 rounded-full hover:bg-red-500/10 transition-colors"
               >
                 <Globe className="h-3.5 w-3.5" />
                 <span>{currentLocale === "en" ? "БГ" : "EN"}</span>
@@ -198,7 +198,7 @@ export function SiteHeader({
               <div className="relative lg:hidden" ref={languageRef}>
                 <button
                   onClick={() => setShowLanguageDropdown(!showLanguageDropdown)}
-                  className="flex items-center gap-1 px-2 py-1.5 text-neutral-400 hover:text-white rounded-full hover:bg-white/[0.08] transition-colors"
+                  className="flex items-center gap-1 px-2 py-1.5 text-neutral-400 hover:text-red-500 rounded-full hover:bg-red-500/10 transition-colors"
                 >
                   <Globe className="h-4 w-4" />
                   <span className="text-xs font-medium">{currentLocale === "en" ? "EN" : "БГ"}</span>
@@ -237,7 +237,7 @@ export function SiteHeader({
               {isAuthenticated ? (
                 <>
                   <Link href={currentLocale === "en" ? "/en/account/dashboard" : "/account/dashboard"}>
-                    <button className="flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-full text-neutral-400 hover:text-white hover:bg-white/[0.08] transition-colors">
+                    <button className="flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-full text-neutral-400 hover:text-red-500 hover:bg-red-500/10 transition-colors">
                       <User className="h-[18px] w-[18px]" />
                     </button>
                   </Link>
@@ -247,7 +247,7 @@ export function SiteHeader({
                   {/* Logout icon -- Mobile */}
                   <button
                     onClick={handleLogout}
-                    className="flex lg:hidden items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-full text-neutral-400 hover:text-white hover:bg-white/[0.08] transition-colors"
+                    className="flex lg:hidden items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-full text-neutral-400 hover:text-red-500 hover:bg-red-500/10 transition-colors"
                   >
                     <LogOut className="h-[18px] w-[18px]" />
                   </button>
@@ -255,7 +255,7 @@ export function SiteHeader({
                   {/* Logout button -- Desktop */}
                   <button
                     onClick={handleLogout}
-                    className="hidden lg:flex items-center gap-1.5 px-4 py-1.5 text-[13px] font-medium text-neutral-900 bg-white hover:bg-neutral-200 rounded-full transition-colors"
+                    className="hidden lg:flex items-center gap-1.5 px-4 py-1.5 text-[13px] font-medium text-white bg-red-600 hover:bg-red-700 rounded-full transition-colors"
                   >
                     {currentLocale === "en" ? "Logout" : "Изход"}
                   </button>
@@ -263,7 +263,7 @@ export function SiteHeader({
               ) : (
                 <>
                   <Link href={currentLocale === "en" ? "/en/account" : "/account"}>
-                    <button className="flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-full text-neutral-400 hover:text-white hover:bg-white/[0.08] transition-colors">
+                    <button className="flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-full text-neutral-400 hover:text-red-500 hover:bg-red-500/10 transition-colors">
                       <User className="h-[18px] w-[18px]" />
                     </button>
                   </Link>

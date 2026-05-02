@@ -14,6 +14,7 @@ import { HolidayBanner } from "@/components/holiday-banner"
 import { HeroBannerCarousel } from "@/components/hero-banner-carousel"
 import { StickyBottomNav } from "@/components/sticky-bottom-nav"
 import { NewsSection } from "@/components/news-section"
+import { FortuneWheel } from "@/components/fortune-wheel"
 
 // Маркираме страницата като динамична
 export const dynamic = "force-dynamic"
@@ -498,6 +499,9 @@ return (
 
       {/* Sticky Bottom Navigation - Mobile only */}
 <StickyBottomNav isEnglish={false} />
+
+      {/* Fortune Wheel - Колело на късмета */}
+      <FortuneWheel />
     </div>
   </>
   )

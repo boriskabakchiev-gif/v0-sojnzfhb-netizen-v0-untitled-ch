@@ -57,12 +57,12 @@ export function CartIcon() {
     >
       <Link href={cartUrl}>
         <button
-          className="relative flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-full text-neutral-400 hover:text-red-500 hover:bg-red-500/10 transition-colors"
+          className="relative flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-full text-neutral-400 hover:text-white hover:bg-white/[0.08] transition-colors"
           aria-label={ariaLabel}
         >
           <ShoppingBag className="h-[18px] w-[18px]" />
           {itemCount > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-red-600 text-white text-[10px] font-bold leading-none">
+            <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-amber-500 text-neutral-900 text-[10px] font-bold leading-none">
               {itemCount}
             </span>
           )}
@@ -205,7 +205,7 @@ export function CartIcon() {
               </div>
               <Link
                 href={cartUrl}
-                className="flex items-center justify-center gap-2 w-full py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-xl transition-colors"
+                className="flex items-center justify-center gap-2 w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-neutral-900 text-sm font-semibold rounded-xl transition-colors"
               >
                 {isEnglish ? "View Cart" : "Виж количката"}
                 <ArrowRight className="h-4 w-4" />

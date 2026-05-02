@@ -1,7 +1,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import type { Metadata } from "next"
-import { TrendingUp, Award, Gift, Globe, ArrowRight } from "lucide-react"
+import { ArrowRight } from "lucide-react"
 import { CategoriesNavbar } from "@/components/categories-navbar"
 import { Button } from "@/components/ui/button"
 import { getCategories, getSubcategories, getHeroBanners, getBatchProductRatings, getNews, getSeoSettings } from "@/lib/db"
@@ -240,42 +240,6 @@ return (
         <div className="group">
           <HeroBannerCarousel banners={heroBanners} autoPlayInterval={5000} />
         </div>
-
-        {/* Stats Section - standalone below carousel */}
-        <section className="bg-gray-900">
-          <div className="container mx-auto py-5 sm:py-7 px-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
-              <div className="flex flex-col items-center text-center">
-                <div className="flex items-center gap-2 mb-1">
-                  <Award className="h-5 w-5 text-amber-400" />
-                  <span className="text-2xl sm:text-3xl font-bold text-white">30</span>
-                </div>
-                <p className="text-xs sm:text-sm text-gray-400 font-medium">Години опит</p>
-              </div>
-              <div className="flex flex-col items-center text-center">
-                <div className="flex items-center gap-2 mb-1">
-                  <Gift className="h-5 w-5 text-amber-400" />
-                  <span className="text-2xl sm:text-3xl font-bold text-white">1000+</span>
-                </div>
-                <p className="text-xs sm:text-sm text-gray-400 font-medium">Продукта</p>
-              </div>
-              <div className="flex flex-col items-center text-center">
-                <div className="flex items-center gap-2 mb-1">
-                  <TrendingUp className="h-5 w-5 text-amber-400" />
-                  <span className="text-2xl sm:text-3xl font-bold text-white">{"2М+"}</span>
-                </div>
-                <p className="text-xs sm:text-sm text-gray-400 font-medium">Доволни клиенти годишно</p>
-              </div>
-              <div className="flex flex-col items-center text-center">
-                <div className="flex items-center gap-2 mb-1">
-                  <Globe className="h-5 w-5 text-amber-400" />
-                  <span className="text-2xl sm:text-3xl font-bold text-white">10+</span>
-                </div>
-                <p className="text-xs sm:text-sm text-gray-400 font-medium">Страни за износ</p>
-              </div>
-            </div>
-          </div>
-        </section>
 
         {/* Products Section - Препоръчани продукти */}
         <section className="py-12 sm:py-16 bg-gray-100">

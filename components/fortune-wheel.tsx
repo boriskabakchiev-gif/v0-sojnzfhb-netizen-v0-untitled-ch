@@ -120,7 +120,7 @@ export function FortuneWheel() {
       {/* Modal overlay */}
       {isOpen && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 pt-24"
           onClick={(e) => {
             if (e.target === e.currentTarget && !isSpinning) {
               setIsOpen(false)
@@ -276,11 +276,6 @@ export function FortuneWheel() {
 
               {/* Form section */}
               <div className="flex-1 text-center lg:text-left">
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/20 text-amber-400 text-sm font-medium mb-4">
-                  <Sparkles className="w-4 h-4" />
-                  <span>VIP Оферти</span>
-                </div>
-
                 <h2 className="text-3xl md:text-4xl font-bold text-white mb-3 text-balance">
                   Вземи си награда!
                 </h2>

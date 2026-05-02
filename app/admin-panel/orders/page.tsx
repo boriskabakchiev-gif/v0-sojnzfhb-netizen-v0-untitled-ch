@@ -27,6 +27,8 @@ import {
   Trash2,
   Bell,
   BellRing,
+  TrendingUp,
+  Filter,
 } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
@@ -46,6 +48,17 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { Lock, Eye, EyeOff } from "lucide-react"
+import { checkAdminCredentials } from "@/lib/statistics-auth"
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState([])
@@ -69,6 +82,14 @@ export default function OrdersPage() {
   const [initialCheckDone, setInitialCheckDone] = useState(false)
   const [statusFilter, setStatusFilter] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
+
+  // Auth state for viewing completed orders total
+  const [showTotalAuthDialog, setShowTotalAuthDialog] = useState(false)
+  const [totalAuthUsername, setTotalAuthUsername] = useState("")
+  const [totalAuthPassword, setTotalAuthPassword] = useState("")
+  const [totalAuthError, setTotalAuthError] = useState("")
+  const [totalAuthPasswordVisible, setTotalAuthPasswordVisible] = useState(false)
+  const [totalUnlocked, setTotalUnlocked] = useState(false)
 
   useEffect(() => {
     const setupAndFetch = async () => {
@@ -604,6 +625,16 @@ export default function OrdersPage() {
     return () => document.removeEventListener("click", initAudio)
   }, [audioContext])
 
+  // Total revenue from all completed orders
+  const completedOrdersTotal = orders
+    .filter((order) => order.status === "completed")
+    .reduce((sum, order) => {
+      const amount = typeof order.totalAmount === "string" ? Number.parseFloat(order.totalAmount) : Number(order.totalAmount)
+      return sum + (isNaN(amount) ? 0 : amount)
+    }, 0)
+
+  const completedOrdersCount = orders.filter((order) => order.status === "completed").length
+
   // Filter orders based on status and search query
   const filteredOrders = orders.filter((order) => {
     // Status filter
@@ -642,7 +673,7 @@ export default function OrdersPage() {
                 <p className="text-sm text-green-50">
                   {newOrdersCount === 1
                     ? "Имате 1 необработена поръчка. Прегледайте я по-долу."
-                    : `Имате ${newOrdersCount} необработени поръчки. Прегледайте ги по-долу.`}
+                    : `Имате ${newOrdersCount} н��обработени поръчки. Прегледайте ги по-долу.`}
                 </p>
               </div>
             </div>
@@ -712,6 +743,151 @@ export default function OrdersPage() {
           </Button>
         </div>
       </div>
+
+      {/* Completed orders revenue summary card */}
+      {!loading && orders.length > 0 && (
+        <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="bg-green-100 p-2 rounded-full">
+              <TrendingUp className="h-5 w-5 text-green-700" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-green-800">Приходи от изпълнени поръчки</p>
+              {totalUnlocked ? (
+                <>
+                  <p className="text-2xl font-bold text-green-900">
+                    {convertBgnToEur(completedOrdersTotal).toFixed(2)} €
+                  </p>
+                  <p className="text-xs text-green-700">
+                    от {completedOrdersCount} {completedOrdersCount === 1 ? "изпълнена поръчка" : "изпълнени поръчки"}
+                  </p>
+                </>
+              ) : (
+                <p className="text-sm text-green-700 mt-1">Влезте за да видите сумата</p>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {!totalUnlocked ? (
+              <Button
+                onClick={() => {
+                  setTotalAuthUsername("")
+                  setTotalAuthPassword("")
+                  setTotalAuthError("")
+                  setShowTotalAuthDialog(true)
+                }}
+                variant="outline"
+                size="sm"
+                className="border-green-400 text-green-800 hover:bg-green-100 bg-transparent"
+              >
+                <Lock className="h-4 w-4 mr-2" />
+                Виж сумата
+              </Button>
+            ) : (
+              <Button
+                onClick={() => setTotalUnlocked(false)}
+                variant="ghost"
+                size="sm"
+                className="text-green-700 hover:text-green-900 hover:bg-green-100"
+              >
+                <Lock className="h-4 w-4 mr-2" />
+                Скрий
+              </Button>
+            )}
+            <Button
+              onClick={() => setStatusFilter(statusFilter === "completed" ? "all" : "completed")}
+              variant={statusFilter === "completed" ? "default" : "outline"}
+              size="sm"
+              className={statusFilter === "completed" ? "bg-green-700 hover:bg-green-800 text-white" : "border-green-400 text-green-800 hover:bg-green-100 bg-transparent"}
+            >
+              <Filter className="h-4 w-4 mr-2" />
+              {statusFilter === "completed" ? "Покажи всички" : "Виж изпълнените"}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Auth dialog for viewing completed orders total */}
+      <Dialog open={showTotalAuthDialog} onOpenChange={(open) => {
+        setShowTotalAuthDialog(open)
+        if (!open) setTotalAuthError("")
+      }}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Lock className="h-5 w-5 text-green-700" />
+              Вход за преглед на сумата
+            </DialogTitle>
+            <DialogDescription>
+              Въведете потребителско име и парола за да видите общата сума от изпълнени поръчки.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 py-2">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="total-auth-username">Потребителско име</Label>
+              <Input
+                id="total-auth-username"
+                value={totalAuthUsername}
+                onChange={(e) => setTotalAuthUsername(e.target.value)}
+                placeholder="Потребителско име"
+                autoComplete="username"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="total-auth-password">Парола</Label>
+              <div className="relative">
+                <Input
+                  id="total-auth-password"
+                  type={totalAuthPasswordVisible ? "text" : "password"}
+                  value={totalAuthPassword}
+                  onChange={(e) => setTotalAuthPassword(e.target.value)}
+                  placeholder="Парола"
+                  autoComplete="current-password"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      if (checkAdminCredentials(totalAuthUsername, totalAuthPassword)) {
+                        setTotalUnlocked(true)
+                        setShowTotalAuthDialog(false)
+                        setTotalAuthError("")
+                      } else {
+                        setTotalAuthError("Грешно потребителско име или парола.")
+                      }
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700"
+                  onClick={() => setTotalAuthPasswordVisible((v) => !v)}
+                  tabIndex={-1}
+                >
+                  {totalAuthPasswordVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+            {totalAuthError && (
+              <p className="text-sm text-red-600">{totalAuthError}</p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setShowTotalAuthDialog(false)}>Отказ</Button>
+            <Button
+              className="bg-green-700 hover:bg-green-800 text-white"
+              onClick={() => {
+                if (checkAdminCredentials(totalAuthUsername, totalAuthPassword)) {
+                  setTotalUnlocked(true)
+                  setShowTotalAuthDialog(false)
+                  setTotalAuthError("")
+                } else {
+                  setTotalAuthError("Грешно потребителско име или парола.")
+                }
+              }}
+            >
+              Вход
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {notificationsEnabled && (
         <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-2 text-sm text-blue-800">
@@ -1078,7 +1254,7 @@ export default function OrdersPage() {
                                 Тази поръчка включва <strong>{freeItemsCountForOrderHeader} безплатни артикула</strong>.
                               </p>
                               <div className="mt-2 space-y-1">
-                                <p className="text-xs font-medium text-green-800">Продукти с безплатни артикули:</p>
+                                <p className="text-xs font-medium text-green-800">Продукти с ��езплатни артикули:</p>
                                 {productsWithFreeItems.map((item, index) => (
                                   <div
                                     key={index}

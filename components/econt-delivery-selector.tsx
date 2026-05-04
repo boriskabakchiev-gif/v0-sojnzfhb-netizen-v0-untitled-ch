@@ -11,10 +11,6 @@ import {
   ChevronDown,
   Check,
   Loader2,
-  Plus,
-  Minus,
-  MapIcon,
-  List,
   ChevronLeft,
   RefreshCw,
   Edit,
@@ -985,20 +981,6 @@ export default function EcontDeliverySelector({
     }
   }
 
-  const handleZoomIn = () => {
-    if (googleMap.current) {
-      const currentZoom = googleMap.current.getZoom()
-      googleMap.current.setZoom(currentZoom + 1)
-    }
-  }
-
-  const handleZoomOut = () => {
-    if (googleMap.current) {
-      const currentZoom = googleMap.current.getZoom()
-      googleMap.current.setZoom(currentZoom - 1)
-    }
-  }
-
   const handleEditAddress = () => {
     setPreviousFormState({
       selectedCity,
@@ -1622,58 +1604,78 @@ export default function EcontDeliverySelector({
         </div>
       )}
 
-      <div className="relative h-[500px] bg-gray-100 rounded-xl overflow-hidden">
-        {/* Map/List Toggle */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 bg-white rounded-full shadow-lg flex p-1">
-          <Button
-            variant="ghost"
-            className={cn(
-              "rounded-full px-4 py-2 flex items-center gap-2",
-              showMap ? "bg-[#0071e3] text-white hover:bg-[#0077ed]" : "text-gray-700 hover:bg-gray-100",
-            )}
-            onClick={() => setShowMap(true)}
-          >
-            <MapIcon className="w-5 h-5" />
-            {t.map}
-          </Button>
-          <Button
-            variant="ghost"
-            className={cn(
-              "rounded-full px-4 py-2 flex items-center gap-2",
-              !showMap ? "bg-gray-100 text-gray-900" : "text-gray-700 hover:bg-gray-100",
-            )}
-            onClick={() => setShowMap(false)}
-          >
-            <List className="w-5 h-5" />
-            {t.list}
-          </Button>
-        </div>
-
-        {/* Zoom Controls */}
-        {showMap && (
-          <div className="absolute bottom-4 right-4 z-10 flex flex-col bg-white rounded-md shadow-lg">
-            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-none rounded-t-md" onClick={handleZoomIn}>
-              <Plus className="h-5 w-5" />
-            </Button>
-            <div className="h-px w-full bg-gray-200" />
-            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-none rounded-b-md" onClick={handleZoomOut}>
-              <Minus className="h-5 w-5" />
-            </Button>
+      {/* Customer Details Form - shown after selecting an office */}
+      {selectedOffice && (
+        <div className="bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-sm border border-gray-100">
+          <div className="mb-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-gray-900">
+                {isEnglish ? "Selected Office" : "Избран офис"}
+              </h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  onOfficeSelect(null)
+                  setShowOfficeDetails(false)
+                  setOfficeStreetAddress("")
+                }}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X className="h-4 w-4 mr-1" />
+                {isEnglish ? "Change" : "Промени"}
+              </Button>
+            </div>
+            <p className="text-sm text-gray-600 mt-1">{getOfficeTitle(selectedOffice, isEnglish)}</p>
+            <p className="text-xs text-gray-500">{selectedOffice.address}</p>
           </div>
-        )}
+          
+          <div className="border-t pt-4">
+            <h3 className="font-semibold text-gray-900 mb-4">
+              {isEnglish ? "Your Details" : "Вашите данни"}
+            </h3>
 
-        {/* OpenLayers Map Container */}
-        {showMap ? (
-          <div
-            ref={mapRef}
-            className="w-full h-full"
-            style={{
-              background: "#f0f0f0",
-              position: "relative",
-            }}
-          />
-        ) : null}
-      </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <User className="h-4 w-4 inline mr-2 text-gray-500" />
+                  {isEnglish ? "Name / Company" : "Име / Фирма"} <span className="text-red-500">*</span>
+                </label>
+                <Input
+                  value={customerName}
+                  onChange={(e) => {
+                    setCustomerName(e.target.value)
+                    if (onCustomerDataChange) {
+                      onCustomerDataChange(e.target.value, customerPhone)
+                    }
+                  }}
+                  placeholder={isEnglish ? "Your name or company name" : "Вашето име или име на фирма"}
+                  className="bg-gray-50/80 backdrop-blur-sm border-0 rounded-xl shadow-sm focus:shadow-md transition-all duration-200 h-12 px-4 text-gray-700 placeholder:text-gray-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <Phone className="h-4 w-4 inline mr-2 text-gray-500" />
+                  {isEnglish ? "Phone Number" : "Телефонен номер"} <span className="text-red-500">*</span>
+                </label>
+                <Input
+                  type="tel"
+                  value={customerPhone}
+                  onChange={(e) => {
+                    setCustomerPhone(e.target.value)
+                    if (onCustomerDataChange) {
+                      onCustomerDataChange(customerName, e.target.value)
+                    }
+                  }}
+                  placeholder="08XXXXXXXX"
+                  className="bg-gray-50/80 backdrop-blur-sm border-0 rounded-xl shadow-sm focus:shadow-md transition-all duration-200 h-12 px-4 text-gray-700 placeholder:text-gray-500"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

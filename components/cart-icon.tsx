@@ -43,9 +43,24 @@ export function CartIcon() {
     }
   }, [])
 
-  // Format price with currency
+  // Convert BGN to EUR
+  const convertBgnToEur = (bgnPrice: number): number => {
+    return bgnPrice / 1.96
+  }
+
+  // Format price with currency - showing both EUR and BGN like product cards
   const formatPrice = (price: number) => {
+    const eurPrice = convertBgnToEur(price)
     return isEnglish ? `${price.toFixed(2)} BGN` : `${price.toFixed(2)} лв.`
+  }
+
+  // Format price with both EUR and BGN
+  const formatPriceWithEur = (price: number) => {
+    const eurPrice = convertBgnToEur(price)
+    return {
+      eur: eurPrice.toFixed(2),
+      bgn: price.toFixed(2)
+    }
   }
 
   return (
@@ -164,9 +179,15 @@ export function CartIcon() {
 
                     {/* Price & Remove */}
                     <div className="flex flex-col items-end gap-1">
-                      <span className="text-sm font-bold text-neutral-900">
-                        {formatPrice(itemTotal)}
-                      </span>
+                      <div className="text-right">
+                        <span className="text-sm font-bold text-neutral-900">
+                          {formatPriceWithEur(itemTotal).eur}
+                          <span className="text-xs font-semibold text-neutral-500 ml-0.5">€</span>
+                        </span>
+                        <span className="block text-[10px] text-neutral-400">
+                          {formatPriceWithEur(itemTotal).bgn} лв.
+                        </span>
+                      </div>
                       <button
                         onClick={(e) => {
                           e.preventDefault()
@@ -199,9 +220,15 @@ export function CartIcon() {
                 <span className="text-sm text-neutral-600">
                   {isEnglish ? "Total:" : "Общо:"}
                 </span>
-                <span className="text-lg font-bold text-neutral-900">
-                  {formatPrice(totalPrice)}
-                </span>
+                <div className="text-right">
+                  <span className="text-lg font-bold text-neutral-900">
+                    {formatPriceWithEur(totalPrice).eur}
+                    <span className="text-sm font-semibold text-neutral-500 ml-0.5">€</span>
+                  </span>
+                  <span className="block text-xs text-neutral-400">
+                    {formatPriceWithEur(totalPrice).bgn} лв.
+                  </span>
+                </div>
               </div>
               <Link
                 href={cartUrl}

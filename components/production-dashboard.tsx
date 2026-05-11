@@ -38,6 +38,7 @@ interface Production {
   partner_name: string
   created_at: string
   partner_employee_id?: number | null // Added for partner employee ID
+  processed: boolean // Added for processed status
 }
 
 interface ProductionLine {
@@ -81,7 +82,6 @@ export function ProductionDashboard({ initialProductions, productionLines, partn
   const [adminPassword, setAdminPassword] = useState("")
   const [isAdmin, setIsAdmin] = useState(false)
   const [showAllProductions, setShowAllProductions] = useState(false)
-  const [processedProductions, setProcessedProductions] = useState<Set<number>>(new Set())
   const router = useRouter()
 
   useEffect(() => {
@@ -196,16 +196,37 @@ export function ProductionDashboard({ initialProductions, productionLines, partn
     return currentEmployee && (production.employee_id === currentEmployee.id || production.partner_employee_id === currentEmployee.id)
   }
 
-  const toggleProcessed = (productionId: number) => {
-    setProcessedProductions(prev => {
-      const newSet = new Set(prev)
-      if (newSet.has(productionId)) {
-        newSet.delete(productionId)
-      } else {
-        newSet.add(productionId)
+  const toggleProcessed = async (productionId: number, currentProcessed: boolean) => {
+    const newProcessed = !currentProcessed
+    
+    // Optimistic update
+    setProductions(prev => 
+      prev.map(p => p.id === productionId ? { ...p, processed: newProcessed } : p)
+    )
+    
+    try {
+      const response = await fetch(`/api/productions/${productionId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ processed: newProcessed }),
+      })
+
+      if (!response.ok) {
+        // Revert on error
+        setProductions(prev => 
+          prev.map(p => p.id === productionId ? { ...p, processed: currentProcessed } : p)
+        )
+        toast.error("Грешка при запазване на статуса")
       }
-      return newSet
-    })
+    } catch (error) {
+      // Revert on error
+      setProductions(prev => 
+        prev.map(p => p.id === productionId ? { ...p, processed: currentProcessed } : p)
+      )
+      toast.error("Грешка при запазване на статуса")
+    }
   }
 
   const formatDate = (dateString: string) => {
@@ -621,7 +642,7 @@ export function ProductionDashboard({ initialProductions, productionLines, partn
                     {/* Productions for this date */}
                     <div className="space-y-3 sm:space-y-4">
                       {group.productions.map((production) => {
-                        const isProcessed = processedProductions.has(production.id)
+                        const isProcessed = production.processed
                         return (
                           <div 
                             key={production.id} 
@@ -687,7 +708,7 @@ export function ProductionDashboard({ initialProductions, productionLines, partn
                                   <Checkbox
                                     id={`processed-${production.id}`}
                                     checked={isProcessed}
-                                    onCheckedChange={() => toggleProcessed(production.id)}
+                                    onCheckedChange={() => toggleProcessed(production.id, production.processed)}
                                     className={isProcessed ? "border-green-500 data-[state=checked]:bg-green-500" : ""}
                                   />
                                   <label 

@@ -48,6 +48,36 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   }
 }
 
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params
+    const body = await request.json()
+    const { processed } = body
+    const productionId = id
+
+    if (typeof processed !== "boolean") {
+      return NextResponse.json({ error: "Invalid processed value" }, { status: 400 })
+    }
+
+    // Update the processed status
+    const result = await sql`
+      UPDATE productions 
+      SET processed = ${processed}, updated_at = NOW()
+      WHERE id = ${productionId}
+      RETURNING id, processed
+    `
+
+    if (result.length === 0) {
+      return NextResponse.json({ error: "Production not found" }, { status: 404 })
+    }
+
+    return NextResponse.json({ success: true, processed: result[0].processed })
+  } catch (error) {
+    console.error("Error updating processed status:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+  }
+}
+
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params

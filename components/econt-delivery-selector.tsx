@@ -400,16 +400,17 @@ export default function EcontDeliverySelector({
       return
     }
 
-    const cityOffices = filteredOffices.filter(
-      (office) =>
-        office.cityId === selectedCity.id || office.address.toLowerCase().includes(selectedCity.name.toLowerCase()),
-    )
+    // Use all filtered offices for the selected city
+    const cityOffices = filteredOffices
 
-    // Filter by the user's query text, but fall back to all city offices if no matches
+    // Filter by the user's query text, but fall back to all city offices if no matches or empty query
     const queryLower = query.toLowerCase().trim()
     let matchingOffices = cityOffices
     if (queryLower) {
-      const filtered = cityOffices.filter((office) => office.address.toLowerCase().includes(queryLower))
+      const filtered = cityOffices.filter((office) => 
+        office.name.toLowerCase().includes(queryLower) || 
+        office.address.toLowerCase().includes(queryLower)
+      )
       // Only use filtered results if there are matches, otherwise show all
       if (filtered.length > 0) {
         matchingOffices = filtered
@@ -419,7 +420,7 @@ export default function EcontDeliverySelector({
     const suggestions = matchingOffices.map((office) => {
       return {
         id: office.id,
-        displayText: office.address,
+        displayText: `${office.name} - ${office.address}`,
         office: office,
       }
     })
@@ -1160,7 +1161,18 @@ export default function EcontDeliverySelector({
                   setIsAutoFilling(false)
                 }}
                 onFocus={() => {
-                  if (addressSuggestions.length > 0) {
+                  // When focusing on the input, show all offices for the selected city
+                  if (selectedCity && filteredOffices.length > 0) {
+                    // Show all offices immediately when clicking/focusing on the input
+                    const allOfficeSuggestions = filteredOffices.map((office) => ({
+                      id: office.id,
+                      displayText: `${office.name} - ${office.address}`,
+                      office: office,
+                    }))
+                    setOfficeSuggestions(allOfficeSuggestions)
+                    setAddressSuggestions(allOfficeSuggestions.map((s) => s.displayText))
+                    setShowAddressSuggestions(true)
+                  } else if (addressSuggestions.length > 0) {
                     setShowAddressSuggestions(true)
                   }
                 }}

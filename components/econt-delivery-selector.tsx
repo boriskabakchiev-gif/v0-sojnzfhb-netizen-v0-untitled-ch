@@ -396,16 +396,25 @@ export default function EcontDeliverySelector({
       return
     }
 
-    const cityOffices = filteredOffices.filter(
+    // Use filteredOffices if available, otherwise use offices
+    const availableOffices = filteredOffices.length > 0 ? filteredOffices : offices
+
+    const cityOffices = availableOffices.filter(
       (office) =>
         office.cityId === selectedCity.id || office.address.toLowerCase().includes(selectedCity.name.toLowerCase()),
     )
 
-    // Filter by the user's query text, but fall back to all city offices if no matches
+    // If no offices match the city filter, show all available offices for this city
+    const officesForCity = cityOffices.length > 0 ? cityOffices : availableOffices
+
+    // Filter by the user's query text, but fall back to all city offices if no matches or empty query
     const queryLower = query.toLowerCase().trim()
-    let matchingOffices = cityOffices
+    let matchingOffices = officesForCity
     if (queryLower) {
-      const filtered = cityOffices.filter((office) => office.address.toLowerCase().includes(queryLower))
+      const filtered = officesForCity.filter((office) => 
+        office.address.toLowerCase().includes(queryLower) ||
+        office.name.toLowerCase().includes(queryLower)
+      )
       // Only use filtered results if there are matches, otherwise show all
       if (filtered.length > 0) {
         matchingOffices = filtered
@@ -415,7 +424,7 @@ export default function EcontDeliverySelector({
     const suggestions = matchingOffices.map((office) => {
       return {
         id: office.id,
-        displayText: office.address,
+        displayText: `${office.name} - ${office.address}`,
         office: office,
       }
     })
@@ -431,9 +440,11 @@ export default function EcontDeliverySelector({
     }
 
     const timeoutId = setTimeout(() => {
-      if (officeStreetAddress) {
+      // Always try to fetch suggestions when we have a selected city
+      // fetchOfficeSuggestions handles empty query by showing all offices
+      if (selectedCity && (filteredOffices.length > 0 || offices.length > 0)) {
         fetchOfficeSuggestions(officeStreetAddress)
-      } else {
+      } else if (!selectedCity) {
         setAddressSuggestions([])
         setOfficeSuggestions([])
         setShowAddressSuggestions(false)
@@ -441,7 +452,7 @@ export default function EcontDeliverySelector({
     }, 300)
 
     return () => clearTimeout(timeoutId)
-  }, [officeStreetAddress, filteredOffices])
+  }, [officeStreetAddress, filteredOffices, selectedCity, offices])
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -1142,8 +1153,26 @@ export default function EcontDeliverySelector({
                   setIsAutoFilling(false)
                 }}
                 onFocus={() => {
-                  if (addressSuggestions.length > 0) {
+                  // When focused, show dropdown if we have a city selected
+                  if (selectedCity) {
+                    if (filteredOffices.length > 0 || offices.length > 0) {
+                      fetchOfficeSuggestions(officeStreetAddress)
+                    } else if (loadingOffices) {
+                      // Show loading state in dropdown
+                      setShowAddressSuggestions(true)
+                    }
+                  } else if (addressSuggestions.length > 0) {
                     setShowAddressSuggestions(true)
+                  }
+                }}
+                onClick={() => {
+                  // Also trigger on click to ensure dropdown shows when user clicks
+                  if (selectedCity) {
+                    if (filteredOffices.length > 0 || offices.length > 0) {
+                      fetchOfficeSuggestions(officeStreetAddress)
+                    } else if (loadingOffices) {
+                      setShowAddressSuggestions(true)
+                    }
                   }
                 }}
                 onBlur={() => {
@@ -1152,7 +1181,16 @@ export default function EcontDeliverySelector({
               />
               {showAddressSuggestions && (
                 <div className="absolute top-full left-0 right-0 z-50 mt-2 bg-white/95 backdrop-blur-md border-0 rounded-xl shadow-xl max-h-60 overflow-y-auto">
-                  {addressSuggestions.map((suggestion, index) => (
+                  {loadingOffices ? (
+                    <div className="p-4 text-center text-gray-500 flex items-center justify-center">
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {t.loading}
+                    </div>
+                  ) : addressSuggestions.length === 0 ? (
+                    <div className="p-4 text-center text-gray-500">
+                      {!selectedCity ? t.selectCityFirst : t.noOfficesFound}
+                    </div>
+                  ) : addressSuggestions.map((suggestion, index) => (
                     <div
                       key={index}
                       className="p-4 hover:bg-gray-50/80 cursor-pointer text-sm border-b border-gray-100/50 last:border-b-0 transition-colors duration-150 first:rounded-t-xl last:rounded-b-xl text-gray-700"

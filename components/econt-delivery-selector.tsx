@@ -1079,7 +1079,7 @@ export default function EcontDeliverySelector({
 >
                   <Command className="rounded-xl">
                     <CommandInput
-                      placeholder="Search city..."
+                      placeholder="Търси град..."
                       value={citySearchInput}
                       onValueChange={setCitySearchInput}
                       className="border-0 focus:ring-0 h-12 px-4 text-gray-700"

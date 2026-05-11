@@ -55,7 +55,16 @@ export async function GET(request: NextRequest) {
     if (employeeId) {
       query = sql`
         SELECT 
-          p.*,
+          p.id,
+          p.employee_id,
+          p.production_line_id,
+          p.partner_employee_id,
+          p.quantity,
+          p.production_date,
+          p.notes,
+          p.created_at,
+          p.updated_at,
+          COALESCE(p.processed, false) as processed,
           e.name as employee_name,
           pl.name as production_line_name,
           pe.name as partner_name,
@@ -72,7 +81,16 @@ export async function GET(request: NextRequest) {
     } else {
       query = sql`
         SELECT 
-          p.*,
+          p.id,
+          p.employee_id,
+          p.production_line_id,
+          p.partner_employee_id,
+          p.quantity,
+          p.production_date,
+          p.notes,
+          p.created_at,
+          p.updated_at,
+          COALESCE(p.processed, false) as processed,
           e.name as employee_name,
           pl.name as production_line_name,
           pe.name as partner_name,

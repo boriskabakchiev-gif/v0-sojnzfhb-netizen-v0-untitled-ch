@@ -298,7 +298,7 @@ async function ProductContent({ productId }: { productId: string }) {
             userName={user?.name || user?.storeName || ""}
             isEnglish={true}
           />
-        <CategoriesNavbar categories={englishCategories} subcategories={allSubcategories} currentCategoryId={product?.cateid} isEnglish={true} />
+        <CategoriesNavbar currentCategoryId={product?.cateid} isEnglish={true} />
 
         {/* Breadcrumb */}
         <div className="border-b border-neutral-200/60 py-3.5">

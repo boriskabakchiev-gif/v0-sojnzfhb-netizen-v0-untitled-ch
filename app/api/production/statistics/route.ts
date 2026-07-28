@@ -82,36 +82,6 @@ export async function GET(request: NextRequest) {
       WHERE active = true
     `
 
-    // Resolve a production record to its production_products row.
-    // Records are normally stored as "production-<id>", but some were saved with the
-    // literal product name (e.g. after editing a record without re-selecting the product).
-    // In that case we fall back to matching by name (+ production line) so the record is
-    // still counted toward the coefficient instead of being silently dropped.
-    const resolveProductionProduct = (production: { product_name: string; production_line_id: number }) => {
-      const name = production.product_name || ""
-
-      // Online products are intentionally excluded from production coefficients.
-      if (name.startsWith("online-")) return null
-
-      if (name.startsWith("production-")) {
-        const id = name.replace("production-", "")
-        return (
-          productionProducts.find(
-            (pp) => pp.id.toString() === id && pp.production_line_id === production.production_line_id,
-          ) || null
-        )
-      }
-
-      // Fallback: a literal product name was stored instead of a "production-<id>" reference.
-      return (
-        productionProducts.find(
-          (pp) => pp.name === name && pp.production_line_id === production.production_line_id,
-        ) ||
-        productionProducts.find((pp) => pp.name === name) ||
-        null
-      )
-    }
-
     const dailyPrices = await sql`
       SELECT 
         production_product_id,
@@ -157,9 +127,23 @@ export async function GET(request: NextRequest) {
       })
       const quantity = Number(production.quantity)
 
-      const productionProduct = resolveProductionProduct(production)
+      let actualProductId = production.product_name
+      let productType = null
 
-      if (productionProduct && productionProduct.sales_value) {
+      if (production.product_name.startsWith("production-")) {
+        actualProductId = production.product_name.replace("production-", "")
+        productType = "production"
+      } else if (production.product_name.startsWith("online-")) {
+        actualProductId = production.product_name.replace("online-", "")
+        productType = "online"
+      }
+
+      if (productType === "production") {
+        const productionProduct = productionProducts.find(
+          (pp) => pp.id.toString() === actualProductId && pp.production_line_id === production.production_line_id,
+        )
+
+        if (productionProduct && productionProduct.sales_value) {
           const defaultSalesValue = Number(productionProduct.sales_value)
           const dailyTarget = Number(productionProduct.daily_target)
           const key = `${productionProduct.id}-${productionProduct.production_line_id}`
@@ -167,7 +151,7 @@ export async function GET(request: NextRequest) {
           const dailyPrice = dailyPrices.find(
             (dp) =>
               dp.production_product_id === productionProduct.id &&
-              dp.production_line_id === productionProduct.production_line_id &&
+              dp.production_line_id === production.production_line_id &&
               new Date(dp.price_date).toLocaleDateString("en-CA", { timeZone: "Europe/Sofia" }) === productionDate,
           )
           const priceForDate = dailyPrice ? Number(dailyPrice.price_per_piece) : defaultSalesValue

@@ -40,44 +40,6 @@ export default function RootLayout({
   return (
     <html lang="bg">
       <head>
-        {/*
-          Fix for React crashing with "NotFoundError: Failed to execute 'removeChild'/'insertBefore'"
-          when Google Translate rewrites the DOM. Translate swaps text nodes for its own <font>
-          wrappers; React later tries to remove/insert nodes that were moved and throws, taking the
-          whole app down. Patching these two Node methods to fail gracefully prevents the crash.
-          This is injected as a raw inline script so it runs BEFORE React hydration.
-        */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function () {
-                if (typeof Node !== 'function' || !Node.prototype) return;
-
-                var originalRemoveChild = Node.prototype.removeChild;
-                Node.prototype.removeChild = function (child) {
-                  if (child.parentNode !== this) {
-                    if (typeof console !== 'undefined') {
-                      console.warn('[translate-fix] Skipped removeChild on a node moved by Google Translate.');
-                    }
-                    return child;
-                  }
-                  return originalRemoveChild.apply(this, arguments);
-                };
-
-                var originalInsertBefore = Node.prototype.insertBefore;
-                Node.prototype.insertBefore = function (newNode, referenceNode) {
-                  if (referenceNode && referenceNode.parentNode !== this) {
-                    if (typeof console !== 'undefined') {
-                      console.warn('[translate-fix] Skipped insertBefore on a node moved by Google Translate.');
-                    }
-                    return newNode;
-                  }
-                  return originalInsertBefore.apply(this, arguments);
-                };
-              })();
-            `,
-          }}
-        />
         {/* Meta Pixel Code */}
         <Script
           id="meta-pixel"

@@ -41,6 +41,10 @@ interface CartContentProps {
   isEnglish?: boolean
 }
 
+const convertBgnToEur = (bgnPrice: number): number => {
+  return bgnPrice / 1.96
+}
+
 export function CartContent({ isEnglish = false }: CartContentProps) {
   const cart = useCart()
   const { toast } = useToast()
@@ -455,11 +459,6 @@ export function CartContent({ isEnglish = false }: CartContentProps) {
         </Button>
       </div>
     )
-  }
-
-  // Conversion rate BGN to EUR
-  const convertBgnToEur = (bgnPrice: number): number => {
-    return bgnPrice / 1.96
   }
 
   const formatPrice = (value: number): string => {

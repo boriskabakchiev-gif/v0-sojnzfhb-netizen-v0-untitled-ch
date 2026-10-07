@@ -57,10 +57,14 @@ interface Product {
 interface ProductionProduct {
   id: number
   name: string
+  brand?: string
+  product?: string
+  model?: string
   production_line_id: number
   production_line_name?: string
   daily_target: number
   sales_value?: number
+  cost_value?: number
   active: boolean
   created_at: string
   updated_at: string
@@ -161,9 +165,13 @@ export default function ProductionAdminPage() {
   const [newProduct, setNewProduct] = useState({ name: "", price: 0, description: "" })
   const [newProductionProduct, setNewProductionProduct] = useState({
     name: "",
+    brand: "",
+    product: "",
+    model: "",
     production_line_id: "",
     daily_target: 0,
     sales_value: 0,
+    cost_value: 0,
     ...emptyRecipe,
   })
   const [supplyMaterials, setSupplyMaterials] = useState<SupplyMaterial[]>([])
@@ -184,10 +192,11 @@ export default function ProductionAdminPage() {
   const [editingProductionProduct, setEditingProductionProduct] = useState<
     | ({
         id: number
-        name: string
-        production_line_id: string
-        daily_target: number
-        sales_value: number
+  name: string
+  production_line_id: string
+  daily_target: number
+  sales_value: number
+  cost_value: number
       } & Record<string, string | number>)
     | null
   >(null)
@@ -593,11 +602,15 @@ export default function ProductionAdminPage() {
       const response = await fetch("/api/admin/production/production-products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: newProductionProduct.name.trim(),
-          production_line_id: Number(newProductionProduct.production_line_id),
-          daily_target: Number(newProductionProduct.daily_target),
-          sales_value: Number(newProductionProduct.sales_value),
+      body: JSON.stringify({
+        name: newProductionProduct.name.trim() || newProductionProduct.product.trim(),
+        brand: newProductionProduct.brand.trim(),
+        product: newProductionProduct.product.trim(),
+        model: newProductionProduct.model.trim(),
+        production_line_id: Number(newProductionProduct.production_line_id),
+        daily_target: Number(newProductionProduct.daily_target),
+        sales_value: Number(newProductionProduct.sales_value),
+        cost_value: Number(newProductionProduct.cost_value),
           ...buildRecipePayload(newProductionProduct),
         }),
       })
@@ -607,7 +620,7 @@ export default function ProductionAdminPage() {
           title: "Успех",
           description: "Производственият продукт е добавен успешно",
         })
-        setNewProductionProduct({ name: "", production_line_id: "", daily_target: 0, sales_value: 0, ...emptyRecipe })
+        setNewProductionProduct({ name: "", brand: "", product: "", model: "", production_line_id: "", daily_target: 0, sales_value: 0, cost_value: 0, ...emptyRecipe })
         setProductionProductDialogOpen(false)
         fetchData()
       } else {
@@ -1311,8 +1324,12 @@ export default function ProductionAdminPage() {
                   placeholder="0"
                 />
               </div>
-              <div>
-                <Label htmlFor="edit-production-product-sales-value">Продажна стойност (€)</Label>
+  <div>
+  <Label htmlFor="edit-production-product-cost-value">Себестойност (€)</Label>
+  <Input id="edit-production-product-cost-value" type="number" step="0.01" min="0" value={editingProductionProduct.cost_value} onChange={(e) => setEditingProductionProduct({ ...editingProductionProduct, cost_value: Number(e.target.value) })} placeholder="0.00" />
+  </div>
+  <div>
+  <Label htmlFor="edit-production-product-sales-value">Продажна стойност (€)</Label>
                 <Input
                   id="edit-production-product-sales-value"
                   type="number"
@@ -1563,14 +1580,10 @@ export default function ProductionAdminPage() {
                   <DialogDescription>Въведете данните за новия производствен продукт</DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="production-product-name">Име на продукта</Label>
-                    <Input
-                      id="production-product-name"
-                      value={newProductionProduct.name}
-                      onChange={(e) => setNewProductionProduct({ ...newProductionProduct, name: e.target.value })}
-                      placeholder="Въведете име..."
-                    />
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div><Label htmlFor="production-product-brand">Марка</Label><Input id="production-product-brand" value={newProductionProduct.brand} onChange={(e) => setNewProductionProduct({ ...newProductionProduct, brand: e.target.value })} placeholder="Мадикс" /></div>
+                    <div><Label htmlFor="production-product-product">Продукт</Label><Input id="production-product-product" value={newProductionProduct.product} onChange={(e) => setNewProductionProduct({ ...newProductionProduct, product: e.target.value })} placeholder="Захранки 1 кг" /></div>
+                    <div><Label htmlFor="production-product-model">Модел</Label><Input id="production-product-model" value={newProductionProduct.model} onChange={(e) => setNewProductionProduct({ ...newProductionProduct, model: e.target.value })} placeholder="Ягода с коноп" /></div>
                   </div>
                   <div>
                     <Label htmlFor="production-product-line">Производствена линия</Label>
@@ -1606,6 +1619,10 @@ export default function ProductionAdminPage() {
                       }
                       placeholder="0"
                     />
+                  </div>
+                  <div>
+                    <Label htmlFor="production-product-cost-value">Себестойност (€)</Label>
+                    <Input id="production-product-cost-value" type="number" step="0.01" min="0" value={newProductionProduct.cost_value} onChange={(e) => setNewProductionProduct({ ...newProductionProduct, cost_value: Number(e.target.value) })} placeholder="0.00" />
                   </div>
                   <div>
                     <Label htmlFor="production-product-sales-value">Продажна стойност (€)</Label>
@@ -1694,8 +1711,9 @@ export default function ProductionAdminPage() {
                   <TableRow>
                     <TableHead>Име</TableHead>
                     <TableHead>Произво��ствена линия</TableHead>
-                    <TableHead>Дневна цел</TableHead>
+                    <TableHead>Дневн�� цел</TableHead>
                     <TableHead>Продажна стойност</TableHead>
+                    <TableHead>Себестойност</TableHead>
                     <TableHead>Статус</TableHead>
                     <TableHead>Дата на създаване</TableHead>
                     <TableHead>Действия</TableHead>
@@ -1704,7 +1722,7 @@ export default function ProductionAdminPage() {
                 <TableBody>
                   {getSortedProductionProducts().length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                         Няма продукти за избраната производствена линия.
                       </TableCell>
                     </TableRow>
@@ -1722,6 +1740,9 @@ export default function ProductionAdminPage() {
                       <TableCell className="font-semibold">{product.daily_target} бр</TableCell>
                       <TableCell className="font-semibold">
                         {product.sales_value ? `${(Number(product.sales_value) / 1.95583).toFixed(2)} €` : "0.00 €"}
+                      </TableCell>
+                      <TableCell className="font-semibold">
+                        {product.cost_value ? `${(Number(product.cost_value) / 1.95583).toFixed(2)} €` : "0.00 €"}
                       </TableCell>
                       <TableCell>
                         <Badge variant={product.active ? "default" : "secondary"}>

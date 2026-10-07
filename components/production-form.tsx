@@ -26,6 +26,9 @@ interface Employee {
 interface Product {
   id: string
   name: string
+  brand?: string
+  product?: string
+  model?: string
   price?: number
   description?: string
   type: "online" | "production"
@@ -75,6 +78,9 @@ export function ProductionForm({ productionLines, onClose, onSuccess }: Producti
             .map((p: any) => ({
               id: `production-${p.id}`,
               name: p.name,
+              brand: p.brand || "",
+              product: p.product || p.name || "",
+              model: p.model || "",
               type: "production" as const,
               production_line_id: p.production_line_id,
             }))
@@ -167,7 +173,7 @@ export function ProductionForm({ productionLines, onClose, onSuccess }: Producti
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="productionLine">Производствена линия *</Label>
+              <Label htmlFor="productionLine">Производствена линия</Label>
               <Select
                 value={formData.productionLineId}
                 onValueChange={(value) => {
@@ -191,9 +197,22 @@ export function ProductionForm({ productionLines, onClose, onSuccess }: Producti
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="product">Продукт *</Label>
+            <div className="space-y-3">
+              <Label>Продукт *</Label>
+              <div className="grid grid-cols-1 gap-3">
+                {(["brand", "product", "model"] as const).map((field) => {
+                  const options = Array.from(new Set(filteredProducts.map((item) => item[field]).filter(Boolean)))
+                  return <Select key={field} value={(formData as any)[`${field}Id`] || ""} onValueChange={(value) => {
+                    const selected = filteredProducts.find((item) => item[field] === value)
+                    setFormData({ ...formData, productId: selected?.id || "", [`${field}Id`]: value })
+                  }} disabled={!formData.productionLineId}>
+                    <SelectTrigger><SelectValue placeholder={field === "brand" ? "Марка..." : field === "product" ? "Продукт..." : "Модел..."} /></SelectTrigger>
+                    <SelectContent>{options.map((option) => <SelectItem key={option} value={option as string}>{option}</SelectItem>)}</SelectContent>
+                  </Select>
+                })}
+              </div>
+              {/* Product identity is selected through brand, product, and model. */}
+              <div className="hidden">
                 {formData.productionLineId && filteredProducts.length > 0 && (
                   <Button
                     type="button"

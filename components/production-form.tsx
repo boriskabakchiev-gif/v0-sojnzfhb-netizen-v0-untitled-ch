@@ -184,11 +184,18 @@ export function ProductionForm({ productionLines, onClose, onSuccess }: Producti
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="productionLine">Производствена линия</Label>
-              <Select
-                value={formData.productionLineId}
-                onValueChange={(value) => {
-                  setFormData({ ...formData, productionLineId: value, productId: "" })
-                }}
+                <Select
+                  value={formData.productionLineId}
+                  onValueChange={(value) => {
+                    setFormData({
+                      ...formData,
+                      productionLineId: value,
+                      brand: "",
+                      product: "",
+                      model: "",
+                      productId: "",
+                    })
+                  }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Изберете линия..." />
@@ -208,7 +215,6 @@ export function ProductionForm({ productionLines, onClose, onSuccess }: Producti
             </div>
 
             <div className="space-y-3">
-              <Label>Продукт *</Label>
               <div className="grid grid-cols-1 gap-3">
                 <Select
                   value={formData.brand}

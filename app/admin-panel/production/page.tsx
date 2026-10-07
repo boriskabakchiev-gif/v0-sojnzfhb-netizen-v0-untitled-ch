@@ -682,7 +682,8 @@ export default function ProductionAdminPage() {
           name: editingProductionProduct.name.trim(),
           production_line_id: Number(editingProductionProduct.production_line_id),
           daily_target: Number(editingProductionProduct.daily_target),
-          sales_value: Number(editingProductionProduct.sales_value),
+          sales_value: Number(String(editingProductionProduct.sales_value).replace(",", ".")),
+          cost_value: Number(String(editingProductionProduct.cost_value).replace(",", ".")),
           ...buildRecipePayload(editingProductionProduct),
         }),
       })
@@ -781,7 +782,7 @@ export default function ProductionAdminPage() {
     } catch (error) {
       toast({
         title: "Грешка",
-        description: "Възникна проблем при промяна на статуса",
+        description: "Въз��икна проблем при промяна на статуса",
         variant: "destructive",
       })
     }
@@ -1677,7 +1678,7 @@ export default function ProductionAdminPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Label htmlFor="production-line-filter" className="text-sm text-muted-foreground whitespace-nowrap">
-                    Производствена линия
+                    Произ��одствена линия
                   </Label>
                   <Select value={productionProductLineFilter} onValueChange={setProductionProductLineFilter}>
                     <SelectTrigger id="production-line-filter" className="w-[220px]">

@@ -702,12 +702,11 @@ export default function ProductionStatistics() {
                 <CardHeader className="bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-t-lg p-4 sm:p-6">
                   <CardTitle className="text-base sm:text-lg lg:text-xl flex items-center gap-2">
                     <DollarSign className="h-4 w-4 sm:h-5 sm:w-5" />
-                    Продажна стойност по продукти
+                    Продажна стойн��ст по продукти
                   </CardTitle>
-                  <p className="text-amber-100 text-xs sm:text-sm mt-2">
-                    Продажна стойност = Произведено количество × Цена на продукта. Показва реалната стойност на
-                    произведените продукти.
-                  </p>
+                                      <p className="text-amber-100 text-xs sm:text-sm mt-2">
+                                        Продажна стойност = количество × продажна цена. Себестойност = количество × себестойност на продукта.
+                                      </p>
                 </CardHeader>
                 <CardContent className="p-0">
                   <div className="overflow-x-auto">
@@ -792,7 +791,10 @@ export default function ProductionStatistics() {
                                           {daySale.quantity} бр
                                         </div>
                                         <div className="text-xs sm:text-sm font-bold text-amber-600">
-                                          {toEur(daySale.value).toFixed(2)} €
+                                          Продажби: {toEur(daySale.value).toFixed(2)} €
+                                        </div>
+                                        <div className="text-xs sm:text-sm font-semibold text-slate-600">
+                                          Себестойност: {toEur(daySale.quantity * product.costValue).toFixed(2)} €
                                         </div>
                                       </>
                                     ) : (
@@ -813,11 +815,18 @@ export default function ProductionStatistics() {
                               const daySale = product.dailySales[date]
                               return sum + (daySale ? daySale.value : 0)
                             }, 0)
+                            const dailyCost = weeklyStats.productSales.reduce((sum, product) => {
+                              const daySale = product.dailySales[date]
+                              return sum + (daySale ? daySale.quantity * product.costValue : 0)
+                            }, 0)
 
                             return (
                               <td key={date} className="text-center p-2 sm:p-4 border-l border-gray-100">
                                 <div className="text-sm sm:text-base font-bold text-amber-700">
-                                  {dailyTotal > 0 ? `${toEur(dailyTotal).toFixed(2)} €` : "-"}
+                                  Продажби: {dailyTotal > 0 ? `${toEur(dailyTotal).toFixed(2)} €` : "-"}
+                                </div>
+                                <div className="text-xs sm:text-sm font-semibold text-slate-600 mt-1">
+                                  Себестойност: {dailyCost > 0 ? `${toEur(dailyCost).toFixed(2)} €` : "-"}
                                 </div>
                               </td>
                             )

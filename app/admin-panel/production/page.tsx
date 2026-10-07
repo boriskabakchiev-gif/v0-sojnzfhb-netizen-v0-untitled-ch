@@ -424,6 +424,7 @@ export default function ProductionAdminPage() {
       production_line_id: product.production_line_id.toString(),
       daily_target: product.daily_target,
       sales_value: product.sales_value || 0,
+      cost_value: product.cost_value || 0,
       label1_material_id: product.label1_material_id ? product.label1_material_id.toString() : "none",
       label1_qty: Number(product.label1_qty || 0),
       label2_material_id: product.label2_material_id ? product.label2_material_id.toString() : "none",

@@ -796,6 +796,9 @@ export default function ProductionStatistics() {
                                         <div className="text-xs sm:text-sm font-semibold text-slate-600">
                                           Себестойност: {(daySale.quantity * product.costValue).toFixed(2)} €
                                         </div>
+                                        <div className="text-xs sm:text-sm font-bold text-emerald-700">
+                                          Печалба: {(toEur(daySale.value) - daySale.quantity * product.costValue).toFixed(2)} €
+                                        </div>
                                       </>
                                     ) : (
                                       <div className="text-xs sm:text-sm text-gray-400">-</div>
@@ -819,6 +822,7 @@ export default function ProductionStatistics() {
                               const daySale = product.dailySales[date]
                               return sum + (daySale ? daySale.quantity * product.costValue : 0)
                             }, 0)
+                            const dailyProfit = toEur(dailyTotal) - dailyCost
 
                             return (
                               <td key={date} className="text-center p-2 sm:p-4 border-l border-gray-100">
@@ -827,6 +831,9 @@ export default function ProductionStatistics() {
                                 </div>
                                 <div className="text-xs sm:text-sm font-semibold text-slate-600 mt-1">
                                   Себестойност: {dailyCost > 0 ? `${dailyCost.toFixed(2)} €` : "-"}
+                                </div>
+                                <div className="text-xs sm:text-sm font-bold text-emerald-700 mt-1">
+                                  Печалба: {dailyProfit !== 0 ? `${dailyProfit.toFixed(2)} €` : "-"}
                                 </div>
                               </td>
                             )

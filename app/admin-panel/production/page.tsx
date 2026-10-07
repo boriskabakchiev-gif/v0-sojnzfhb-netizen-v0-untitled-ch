@@ -418,10 +418,13 @@ export default function ProductionAdminPage() {
   }
 
   const openEditProductionProductDialog = (product: ProductionProduct) => {
-    setEditingProductionProduct({
-      id: product.id,
-      name: product.name,
-      production_line_id: product.production_line_id.toString(),
+  setEditingProductionProduct({
+  id: product.id,
+  name: product.name,
+  brand: product.brand || "",
+  product: product.product || "",
+  model: product.model || "",
+  production_line_id: product.production_line_id.toString(),
       daily_target: product.daily_target,
       sales_value: product.sales_value || 0,
       cost_value: product.cost_value || 0,
@@ -462,7 +465,7 @@ export default function ProductionAdminPage() {
       if (response.ok) {
         toast({
           title: "Успех",
-          description: "Производствената линия е добавена успешно",
+          description: "П��оизводствената линия е добавена успешно",
         })
         setNewProductionLine({ name: "", description: "" })
         setProductionLineDialogOpen(false)
@@ -680,7 +683,10 @@ export default function ProductionAdminPage() {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: editingProductionProduct.name.trim(),
+          name: editingProductionProduct.name.trim() || editingProductionProduct.product.trim(),
+          brand: editingProductionProduct.brand.trim(),
+          product: editingProductionProduct.product.trim(),
+          model: editingProductionProduct.model.trim(),
           production_line_id: Number(editingProductionProduct.production_line_id),
           daily_target: Number(editingProductionProduct.daily_target),
           sales_value: Number(String(editingProductionProduct.sales_value).replace(",", ".")),
@@ -1282,6 +1288,35 @@ export default function ProductionAdminPage() {
           </DialogHeader>
           {editingProductionProduct && (
             <div className="space-y-4">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <div>
+                  <Label htmlFor="edit-production-product-brand">Марка</Label>
+                  <Input
+                    id="edit-production-product-brand"
+                    value={editingProductionProduct.brand || ""}
+                    onChange={(e) => setEditingProductionProduct({ ...editingProductionProduct, brand: e.target.value })}
+                    placeholder="Мадикс"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-production-product-product">Продукт</Label>
+                  <Input
+                    id="edit-production-product-product"
+                    value={editingProductionProduct.product || ""}
+                    onChange={(e) => setEditingProductionProduct({ ...editingProductionProduct, product: e.target.value })}
+                    placeholder="Захранки 1 кг"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-production-product-model">Модел</Label>
+                  <Input
+                    id="edit-production-product-model"
+                    value={editingProductionProduct.model || ""}
+                    onChange={(e) => setEditingProductionProduct({ ...editingProductionProduct, model: e.target.value })}
+                    placeholder="Ягода с коноп"
+                  />
+                </div>
+              </div>
               <div>
                 <Label htmlFor="edit-production-product-name">Име на продукта</Label>
                 <Input
@@ -1477,7 +1512,7 @@ export default function ProductionAdminPage() {
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Добави ново ниво на заплата</DialogTitle>
+                  <DialogTitle>Добави ново нив�� на заплата</DialogTitle>
                   <DialogDescription>Въведете данните за новото ниво на заплата</DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">

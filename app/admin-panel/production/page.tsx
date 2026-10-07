@@ -642,14 +642,24 @@ export default function ProductionAdminPage() {
   const updateProductionProduct = async () => {
     if (!editingProductionProduct) return
 
-    if (!editingProductionProduct.name.trim()) {
-      toast({
-        title: "Грешка",
-        description: "Моля въведете име на продукта",
-        variant: "destructive",
-      })
-      return
-    }
+  const productName = [
+    editingProductionProduct.brand,
+    editingProductionProduct.product,
+    editingProductionProduct.model,
+  ]
+    .map((value) => String(value || "").trim())
+    .filter(Boolean)
+    .join(" ")
+
+  if (!productName) {
+    toast({
+      title: "Грешка",
+      description: "Моля въведете марка, продукт или модел",
+      variant: "destructive",
+    })
+    return
+  }
+
 
     if (!editingProductionProduct.production_line_id) {
       toast({
@@ -683,7 +693,7 @@ export default function ProductionAdminPage() {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: editingProductionProduct.name.trim() || editingProductionProduct.product.trim(),
+          name: productName,
           brand: editingProductionProduct.brand.trim(),
           product: editingProductionProduct.product.trim(),
           model: editingProductionProduct.model.trim(),
@@ -1295,7 +1305,7 @@ export default function ProductionAdminPage() {
                     id="edit-production-product-brand"
                     value={editingProductionProduct.brand || ""}
                     onChange={(e) => setEditingProductionProduct({ ...editingProductionProduct, brand: e.target.value })}
-                    placeholder="Мадикс"
+                    placeholder="Мад��кс"
                   />
                 </div>
                 <div>
@@ -1316,15 +1326,6 @@ export default function ProductionAdminPage() {
                     placeholder="Ягода с коноп"
                   />
                 </div>
-              </div>
-              <div>
-                <Label htmlFor="edit-production-product-name">Име на продукта</Label>
-                <Input
-                  id="edit-production-product-name"
-                  value={editingProductionProduct.name}
-                  onChange={(e) => setEditingProductionProduct({ ...editingProductionProduct, name: e.target.value })}
-                  placeholder="Въведете име..."
-                />
               </div>
               <div>
                 <Label htmlFor="edit-production-product-line">Производствена линия</Label>

@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
-import { X, ArrowUpDown } from 'lucide-react'
+import { X } from 'lucide-react'
 import { getCurrentEmployee } from "@/lib/production-auth"
 
 interface ProductionLine {
@@ -48,6 +48,9 @@ export function ProductionForm({ productionLines, onClose, onSuccess }: Producti
   const [employees, setEmployees] = useState<Employee[]>([])
   const [formData, setFormData] = useState({
     productionLineId: "",
+    brand: "",
+    product: "",
+    model: "",
     productId: "",
     partnerEmployeeId: "",
     quantity: "",
@@ -55,8 +58,6 @@ export function ProductionForm({ productionLines, onClose, onSuccess }: Producti
     notes: "",
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [sortAscending, setSortAscending] = useState(true)
-
   console.log("[v0] Form initialized with data")
 
   useEffect(() => {
@@ -106,14 +107,23 @@ export function ProductionForm({ productionLines, onClose, onSuccess }: Producti
     fetchData()
   }, [])
 
-  const filteredProducts = formData.productionLineId
-    ? products
-        .filter((p) => p.production_line_id === Number.parseInt(formData.productionLineId))
-        .sort((a, b) => {
-          const comparison = a.name.localeCompare(b.name, "bg-BG")
-          return sortAscending ? comparison : -comparison
-        })
+  const lineProducts = formData.productionLineId
+    ? products.filter((p) => p.production_line_id === Number.parseInt(formData.productionLineId))
     : []
+
+  const brandOptions = Array.from(new Set(lineProducts.map((item) => item.brand).filter(Boolean))) as string[]
+  const productOptions = Array.from(
+    new Set(lineProducts.filter((item) => item.brand === formData.brand).map((item) => item.product).filter(Boolean)),
+  ) as string[]
+  const modelOptions = Array.from(
+    new Set(
+      lineProducts
+        .filter((item) => item.brand === formData.brand && item.product === formData.product)
+        .map((item) => item.model)
+        .filter(Boolean),
+    ),
+  ) as string[]
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -174,11 +184,18 @@ export function ProductionForm({ productionLines, onClose, onSuccess }: Producti
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="productionLine">Производствена линия</Label>
-              <Select
-                value={formData.productionLineId}
-                onValueChange={(value) => {
-                  setFormData({ ...formData, productionLineId: value, productId: "" })
-                }}
+                <Select
+                  value={formData.productionLineId}
+                  onValueChange={(value) => {
+                    setFormData({
+                      ...formData,
+                      productionLineId: value,
+                      brand: "",
+                      product: "",
+                      model: "",
+                      productId: "",
+                    })
+                  }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Изберете линия..." />
@@ -198,58 +215,43 @@ export function ProductionForm({ productionLines, onClose, onSuccess }: Producti
             </div>
 
             <div className="space-y-3">
-              <Label>Продукт *</Label>
               <div className="grid grid-cols-1 gap-3">
-                {(["brand", "product", "model"] as const).map((field) => {
-                  const options = Array.from(new Set(filteredProducts.map((item) => item[field]).filter(Boolean)))
-                  return <Select key={field} value={(formData as any)[`${field}Id`] || ""} onValueChange={(value) => {
-                    const selected = filteredProducts.find((item) => item[field] === value)
-                    setFormData({ ...formData, productId: selected?.id || "", [`${field}Id`]: value })
-                  }} disabled={!formData.productionLineId}>
-                    <SelectTrigger><SelectValue placeholder={field === "brand" ? "Марка..." : field === "product" ? "Продукт..." : "Модел..."} /></SelectTrigger>
-                    <SelectContent>{options.map((option) => <SelectItem key={option} value={option as string}>{option}</SelectItem>)}</SelectContent>
-                  </Select>
-                })}
+                <Select
+                  value={formData.brand}
+                  onValueChange={(brand) =>
+                    setFormData((previous) => ({ ...previous, brand, product: "", model: "", productId: "" }))
+                  }
+                  disabled={!formData.productionLineId}
+                >
+                  <SelectTrigger><SelectValue placeholder="Марка..." /></SelectTrigger>
+                  <SelectContent>{brandOptions.map((option) => <SelectItem key={option} value={option}>{option}</SelectItem>)}</SelectContent>
+                </Select>
+                <Select
+                  value={formData.product}
+                  onValueChange={(product) =>
+                    setFormData((previous) => ({ ...previous, product, model: "", productId: "" }))
+                  }
+                  disabled={!formData.brand}
+                >
+                  <SelectTrigger><SelectValue placeholder="Продукт..." /></SelectTrigger>
+                  <SelectContent>{productOptions.map((option) => <SelectItem key={option} value={option}>{option}</SelectItem>)}</SelectContent>
+                </Select>
+                <Select
+                  value={formData.model}
+                  onValueChange={(model) => {
+                    const selected = lineProducts.find(
+                      (item) => item.brand === formData.brand && item.product === formData.product && item.model === model,
+                    )
+                    setFormData((previous) => ({ ...previous, model, productId: selected?.id || "" }))
+                  }}
+                  disabled={!formData.product}
+                >
+                  <SelectTrigger><SelectValue placeholder="Модел..." /></SelectTrigger>
+                  <SelectContent>{modelOptions.map((option) => <SelectItem key={option} value={option}>{option}</SelectItem>)}</SelectContent>
+                </Select>
               </div>
-              {/* Product identity is selected through brand, product, and model. */}
-              <div className="hidden">
-                {formData.productionLineId && filteredProducts.length > 0 && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setSortAscending(!sortAscending)}
-                    className="h-8 gap-1 text-xs"
-                  >
-                    <ArrowUpDown className="h-3 w-3" />
-                    {sortAscending ? "А → Я" : "Я → А"}
-                  </Button>
-                )}
-              </div>
-              <Select
-                value={formData.productId}
-                onValueChange={(value) => setFormData({ ...formData, productId: value })}
-                disabled={!formData.productionLineId}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Изберете продукт..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {filteredProducts && filteredProducts.length > 0 ? (
-                    filteredProducts.map((product) => (
-                      <SelectItem key={product.id} value={product.id}>
-                        {product.name}
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <div className="px-2 py-1.5 text-sm text-muted-foreground">
-                      {formData.productionLineId
-                        ? "Няма налични продукти за тази линия"
-                        : "Първо изберете производствена линия"}
-                    </div>
-                  )}
-                </SelectContent>
-              </Select>
+              {!formData.productionLineId && <p className="text-sm text-muted-foreground">Първо изберете производствена линия.</p>}
+              {formData.productionLineId && !brandOptions.length && <p className="text-sm text-muted-foreground">Няма налични продукти за тази линия.</p>}
             </div>
 
             <div className="space-y-2">

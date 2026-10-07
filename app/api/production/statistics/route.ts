@@ -71,13 +71,16 @@ export async function GET(request: NextRequest) {
       })
     }
 
+    await sql`ALTER TABLE production_products ADD COLUMN IF NOT EXISTS cost_value NUMERIC(12,2) NOT NULL DEFAULT 0`
+
     const productionProducts = await sql`
       SELECT 
         id,
         name,
         daily_target,
         production_line_id,
-        sales_value
+        sales_value,
+        COALESCE(cost_value, 0) AS cost_value
       FROM production_products
       WHERE active = true
     `
@@ -116,6 +119,8 @@ export async function GET(request: NextRequest) {
         totalQuantity: number
         totalValue: number
         salesValue: number
+        costValue: number
+        totalProfit: number
         dailyTarget: number
         dailyPrices: { [date: string]: number }
       }
@@ -165,6 +170,8 @@ export async function GET(request: NextRequest) {
               totalQuantity: 0,
               totalValue: 0,
               salesValue: defaultSalesValue,
+              costValue: Number(productionProduct.cost_value || 0),
+              totalProfit: 0,
               dailyTarget: dailyTarget,
               dailyPrices: {},
             })
@@ -181,6 +188,7 @@ export async function GET(request: NextRequest) {
           productSales.dailySales[productionDate].value += totalValue
           productSales.totalQuantity += quantity
           productSales.totalValue += totalValue
+          productSales.totalProfit += totalValue - quantity * productSales.costValue
         }
       }
     })

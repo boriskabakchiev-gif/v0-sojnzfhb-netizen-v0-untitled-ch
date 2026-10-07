@@ -50,6 +50,8 @@ interface WeeklyStats {
     totalQuantity: number
     totalValue: number
     salesValue: number
+    costValue: number
+    totalProfit: number
     dailyTarget: number
     dailyPrices: { [date: string]: number }
   }[]
@@ -928,9 +930,12 @@ export default function ProductionStatistics() {
                         <p className="text-2xl sm:text-3xl font-bold text-teal-600">
                           {weeklyStats.productSales.reduce((sum, p) => sum + p.totalQuantity, 0).toLocaleString("bg-BG")} бр
                         </p>
-                        <p className="text-xs sm:text-sm text-teal-600 font-medium mt-1">
+  <p className="text-xs sm:text-sm text-teal-600 font-medium mt-1">
                           {toEur(weeklyStats.productSales.reduce((sum, p) => sum + p.totalValue, 0)).toFixed(2)} €
-                        </p>
+  </p>
+  <p className="text-xs sm:text-sm text-green-600 font-semibold mt-2">
+                          Чиста печалба: {toEur(weeklyStats.productSales.reduce((sum, p) => sum + p.totalProfit, 0)).toFixed(2)} €
+  </p>
                       </div>
                     </CardContent>
                   </Card>

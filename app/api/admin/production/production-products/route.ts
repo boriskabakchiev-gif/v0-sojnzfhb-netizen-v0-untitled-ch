@@ -3,6 +3,11 @@ import { sql } from "@/lib/db"
 
 export async function GET() {
   try {
+    await sql`ALTER TABLE production_products ADD COLUMN IF NOT EXISTS brand VARCHAR(255) DEFAULT ''`
+    await sql`ALTER TABLE production_products ADD COLUMN IF NOT EXISTS product VARCHAR(255) DEFAULT ''`
+    await sql`ALTER TABLE production_products ADD COLUMN IF NOT EXISTS model VARCHAR(255) DEFAULT ''`
+    await sql`ALTER TABLE production_products ADD COLUMN IF NOT EXISTS cost_value NUMERIC(12,2) NOT NULL DEFAULT 0`
+
     const products = await sql`
       SELECT 
         pp.*,
@@ -22,9 +27,10 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { name, production_line_id, daily_target, sales_value } = body
+    const { name, brand, product, model, production_line_id, daily_target, sales_value, cost_value } = body
+    const displayName = [brand, product, model].filter((value) => value?.trim()).join(" ") || name
 
-    if (!name || !name.trim()) {
+    if (!displayName || !displayName.trim()) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 })
     }
 
@@ -46,7 +52,7 @@ export async function POST(request: NextRequest) {
 
     const result = await sql`
       INSERT INTO production_products (
-        name, production_line_id, daily_target, sales_value,
+        name, brand, product, model, production_line_id, daily_target, sales_value, cost_value,
         label1_material_id, label1_qty,
         label2_material_id, label2_qty,
         sticker_material_id, sticker_qty,
@@ -54,7 +60,7 @@ export async function POST(request: NextRequest) {
         box_material_id, box_qty
       )
       VALUES (
-        ${name.trim()}, ${Number(production_line_id)}, ${Number(daily_target)}, ${Number(sales_value || 0)},
+        ${displayName.trim()}, ${brand?.trim() || ""}, ${product?.trim() || name?.trim() || ""}, ${model?.trim() || ""}, ${Number(production_line_id)}, ${Number(daily_target)}, ${Number(sales_value || 0)}, ${Number(cost_value || 0)},
         ${matId(body.label1_material_id)}, ${qty(body.label1_qty)},
         ${matId(body.label2_material_id)}, ${qty(body.label2_qty)},
         ${matId(body.sticker_material_id)}, ${qty(body.sticker_qty)},

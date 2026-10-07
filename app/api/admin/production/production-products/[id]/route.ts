@@ -7,12 +7,17 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     const productId = Number(id)
     const body = await request.json()
 
-    const { name, production_line_id, daily_target, sales_value, active } = body
+    const { name, brand, product, model, production_line_id, daily_target, sales_value, cost_value, active } = body
+    const displayName = [brand, product, model].filter((value) => value?.trim()).join(" ") || name
 
     const result = await sql`
       UPDATE production_products 
       SET 
-        name = COALESCE(${name !== undefined ? name.trim() : null}, name),
+        name = COALESCE(${displayName !== undefined ? displayName.trim() : null}, name),
+        brand = COALESCE(${brand !== undefined ? brand.trim() : null}, brand),
+        product = COALESCE(${product !== undefined ? product.trim() : null}, product),
+        model = COALESCE(${model !== undefined ? model.trim() : null}, model),
+        cost_value = COALESCE(${cost_value !== undefined ? Number(cost_value) : null}, cost_value),
         production_line_id = COALESCE(${production_line_id !== undefined ? (production_line_id ? Number(production_line_id) : null) : null}, production_line_id),
         daily_target = COALESCE(${daily_target !== undefined ? Number(daily_target) : null}, daily_target),
         sales_value = COALESCE(${sales_value !== undefined ? Number(sales_value) : null}, sales_value),

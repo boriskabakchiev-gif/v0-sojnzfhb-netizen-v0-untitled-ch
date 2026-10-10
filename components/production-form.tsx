@@ -58,7 +58,6 @@ export function ProductionForm({ productionLines, onClose, onSuccess }: Producti
     notes: "",
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
-  console.log("[v0] Form initialized with data")
 
   useEffect(() => {
     const fetchData = async () => {

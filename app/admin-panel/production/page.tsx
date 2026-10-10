@@ -566,10 +566,19 @@ export default function ProductionAdminPage() {
   }
 
   const addProductionProduct = async () => {
-    if (!newProductionProduct.name.trim()) {
+    const productName = [
+      newProductionProduct.brand,
+      newProductionProduct.product,
+      newProductionProduct.model,
+    ]
+      .map((value) => value.trim())
+      .filter(Boolean)
+      .join(" ")
+
+    if (!productName) {
       toast({
         title: "Грешка",
-        description: "Моля въведете име на продукта",
+        description: "Моля въведете марка, продукт или модел",
         variant: "destructive",
       })
       return
@@ -607,7 +616,7 @@ export default function ProductionAdminPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        name: newProductionProduct.name.trim() || newProductionProduct.product.trim(),
+        name: productName,
         brand: newProductionProduct.brand.trim(),
         product: newProductionProduct.product.trim(),
         model: newProductionProduct.model.trim(),

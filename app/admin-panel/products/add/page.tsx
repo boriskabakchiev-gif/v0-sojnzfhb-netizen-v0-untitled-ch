@@ -220,6 +220,7 @@ export default function AddProductPage() {
       setFormData((previous) => ({
         ...previous,
         ...data.product,
+        description_en: data.product.description_en || data.product.description_eu || "",
         cateid: selectedCategoryId,
         subcateid: subcategoryMatch?.id || subcategoryMatch?.objectid || "",
         photourl: data.imageUrl,

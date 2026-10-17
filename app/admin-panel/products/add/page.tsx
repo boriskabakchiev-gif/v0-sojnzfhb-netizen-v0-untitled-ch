@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useRouter } from "next/navigation"
-import { RefreshCw, Search, Globe, Twitter, ChevronDown, ChevronUp } from "lucide-react"
+import { RefreshCw, Search, Globe, Twitter, ChevronDown, ChevronUp, Sparkles, Loader2 } from "lucide-react"
 import { ImageUpload } from "@/components/image-upload"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
@@ -78,6 +78,8 @@ export default function AddProductPage() {
   const [loadingSubcategories, setLoadingSubcategories] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const [aiHint, setAiHint] = useState("")
+  const [generatingProduct, setGeneratingProduct] = useState(false)
   const router = useRouter()
 
   // Зареждане на ВСИЧКИ категории без кеширане
@@ -180,6 +182,31 @@ export default function AddProductPage() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleGenerateProduct = async () => {
+    if (!formData.photourl) {
+      setError("Първо качете снимка на продукта.")
+      return
+    }
+
+    setGeneratingProduct(true)
+    setError(null)
+    try {
+      const response = await fetch("/api/admin/products/ai-generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageUrl: formData.photourl, hint: aiHint }),
+      })
+      const data = await response.json()
+      if (!response.ok || !data.success) throw new Error(data.error || "Грешка при генериране")
+      setFormData((previous) => ({ ...previous, ...data.product, photourl: previous.photourl }))
+      setSuccess("Черновата е генерирана. Прегледайте и коригирайте всички полета преди добавяне.")
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Неуспешно генериране на продукта.")
+    } finally {
+      setGeneratingProduct(false)
+    }
   }
 
   const handleSelectChange = (name: string, value: string) => {
@@ -645,6 +672,25 @@ export default function AddProductPage() {
                 onError={(error) => setError(error)}
                 uploadUrl="/api/products/upload-image"
               />
+            </div>
+
+            <div className="rounded-lg border border-cyan-200 bg-cyan-50 p-4 space-y-3">
+              <div className="flex items-start gap-3">
+                <Sparkles className="mt-0.5 h-5 w-5 text-cyan-700" />
+                <div>
+                  <h3 className="font-semibold text-cyan-950">Създай продукт с AI</h3>
+                  <p className="text-sm text-cyan-800">AI ще анализира снимката, ще използва съществуващите продукти като пример и ще попълни чернова. Нищо не се записва без твоето одобрение.</p>
+                </div>
+              </div>
+              <Input
+                value={aiHint}
+                onChange={(event) => setAiHint(event.target.value)}
+                placeholder="Кратка бележка, например: царевица с коноп, 4 кг"
+                className="bg-white border-cyan-200"
+              />
+              <Button type="button" onClick={handleGenerateProduct} disabled={generatingProduct || !formData.photourl} className="bg-cyan-700 hover:bg-cyan-800 text-white">
+                {generatingProduct ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Анализиране...</> : <><Sparkles className="mr-2 h-4 w-4" />Генерирай чернова</>}
+              </Button>
             </div>
 
             {/* SEO Section - Collapsible */}

@@ -147,7 +147,7 @@ export function ImageUpload({
     <div className={`space-y-4 ${className}`}>
       {/* Image Preview */}
       <div
-        className={`relative border-2 border-dashed border-gray-300 rounded-lg overflow-hidden ${getAspectRatioClass()} bg-gray-50`}
+        className={`relative border-2 border-dashed border-gray-300 rounded-lg overflow-hidden ${getAspectRatioClass()} bg-white`}
       >
         {previewUrl ? (
           <>

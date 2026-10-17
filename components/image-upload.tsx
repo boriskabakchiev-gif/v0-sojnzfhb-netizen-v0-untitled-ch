@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useRef } from "react"
+import { useEffect, useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Loader2, Upload, X, ImageIcon } from "lucide-react"
@@ -31,18 +31,13 @@ export function ImageUpload({
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentImageUrl || null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  console.log("ImageUpload rendered:", {
-    currentImageUrl,
-    previewUrl,
-    subcategoryId,
-    uploadUrl,
-  })
+  useEffect(() => {
+    setPreviewUrl(currentImageUrl || null)
+  }, [currentImageUrl])
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
-
-    console.log("File selected:", file.name, file.size, file.type)
 
     // Validate file
     if (!file.type.startsWith("image/")) {
@@ -74,14 +69,11 @@ export function ImageUpload({
     setIsUploading(true)
 
     try {
-      console.log("Starting upload...")
-
       const formData = new FormData()
       formData.append("file", file)
 
       if (subcategoryId) {
         formData.append("subcategoryId", subcategoryId)
-        console.log("Added subcategoryId to form data:", subcategoryId)
       }
 
       const response = await fetch(uploadUrl, {
@@ -89,20 +81,15 @@ export function ImageUpload({
         body: formData,
       })
 
-      console.log("Upload response status:", response.status)
-
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
         throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
       }
 
       const result = await response.json()
-      console.log("Upload result:", result)
-
       if (result.success && result.url) {
         setPreviewUrl(result.url)
         onImageUploaded(result.url)
-        console.log("Upload successful, URL:", result.url)
       } else {
         throw new Error(result.error || "Грешка при качване на снимката")
       }

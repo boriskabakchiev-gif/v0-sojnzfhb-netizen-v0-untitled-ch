@@ -79,6 +79,7 @@ export default function AddProductPage() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [aiHint, setAiHint] = useState("")
+  const [aiImageUrl, setAiImageUrl] = useState("")
   const [generatingProduct, setGeneratingProduct] = useState(false)
   const router = useRouter()
 
@@ -185,8 +186,8 @@ export default function AddProductPage() {
   }
 
   const handleGenerateProduct = async () => {
-    if (!formData.photourl) {
-      setError("Първо качете снимка на продукта.")
+    if (!aiImageUrl) {
+      setError("Първо качете снимка в полето „Снимка за AI“.")
       return
     }
 
@@ -196,7 +197,7 @@ export default function AddProductPage() {
       const response = await fetch("/api/admin/products/ai-generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageUrl: formData.photourl, hint: aiHint }),
+        body: JSON.stringify({ imageUrl: aiImageUrl, hint: aiHint }),
       })
       const data = await response.json()
       if (!response.ok || !data.success) throw new Error(data.error || "Грешка при генериране")
@@ -352,16 +353,27 @@ export default function AddProductPage() {
                   <p className="text-sm text-cyan-800">Качи снимка, добави кратка бележка и AI ще подготви чернова по данните на съществуващите продукти. Нищо не се записва без твоето одобрение.</p>
                 </div>
               </div>
+              <div className="rounded-md border border-cyan-200 bg-white p-3">
+                <p className="mb-2 text-sm font-medium text-cyan-950">Снимка за AI</p>
+                <ImageUpload
+                  currentImageUrl={aiImageUrl}
+                  onImageUploaded={setAiImageUrl}
+                  onError={setError}
+                  uploadUrl="/api/products/upload-image"
+                  aspectRatio="landscape"
+                />
+                <p className="mt-2 text-xs text-cyan-800">Това е отделно поле само за AI. Качи снимката тук; стандартната снимка по-долу не е необходима за генерирането.</p>
+              </div>
               <Input
                 value={aiHint}
                 onChange={(event) => setAiHint(event.target.value)}
                 placeholder="Кратка бележка, например: царевица с коноп, 4 кг"
                 className="bg-white border-cyan-200"
               />
-              <Button type="button" onClick={handleGenerateProduct} disabled={generatingProduct || !formData.photourl} className="bg-cyan-700 hover:bg-cyan-800 text-white">
+              <Button type="button" onClick={handleGenerateProduct} disabled={generatingProduct || !aiImageUrl} className="bg-cyan-700 hover:bg-cyan-800 text-white">
                 {generatingProduct ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Анализиране...</> : <><Sparkles className="mr-2 h-4 w-4" />Генерирай чернова</>}
               </Button>
-              {!formData.photourl && <p className="text-xs text-cyan-800">Първо качи снимка от полето по-долу.</p>}
+              {!aiImageUrl && <p className="text-xs text-cyan-800">Първо качи снимка в полето „Снимка за AI“.</p>}
             </div>
 
             <div className="space-y-2">

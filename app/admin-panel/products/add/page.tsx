@@ -344,6 +344,36 @@ export default function AddProductPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="rounded-lg border border-cyan-200 bg-cyan-50 p-4 space-y-3">
+              <div className="flex items-start gap-3">
+                <Sparkles className="mt-0.5 h-5 w-5 text-cyan-700" />
+                <div>
+                  <h3 className="font-semibold text-cyan-950">Създай продукт с AI</h3>
+                  <p className="text-sm text-cyan-800">Качи снимка, добави кратка бележка и AI ще подготви чернова по данните на съществуващите продукти. Нищо не се записва без твоето одобрение.</p>
+                </div>
+              </div>
+              <Input
+                value={aiHint}
+                onChange={(event) => setAiHint(event.target.value)}
+                placeholder="Кратка бележка, например: царевица с коноп, 4 кг"
+                className="bg-white border-cyan-200"
+              />
+              <Button type="button" onClick={handleGenerateProduct} disabled={generatingProduct || !formData.photourl} className="bg-cyan-700 hover:bg-cyan-800 text-white">
+                {generatingProduct ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Анализиране...</> : <><Sparkles className="mr-2 h-4 w-4" />Генерирай чернова</>}
+              </Button>
+              {!formData.photourl && <p className="text-xs text-cyan-800">Първо качи снимка от полето по-долу.</p>}
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="photourl" className="text-sm font-medium">Снимка на продукта</label>
+              <ImageUpload
+                currentImageUrl={formData.photourl}
+                onImageUploaded={(url) => setFormData((prev) => ({ ...prev, photourl: url }))}
+                onError={(uploadError) => setError(uploadError)}
+                uploadUrl="/api/products/upload-image"
+              />
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label htmlFor="title" className="text-sm font-medium">
@@ -660,37 +690,6 @@ export default function AddProductPage() {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="photourl" className="text-sm font-medium">
-                Снимка на продукта
-              </label>
-              <ImageUpload
-                currentImageUrl={formData.photourl}
-                onImageUploaded={(url) => setFormData((prev) => ({ ...prev, photourl: url }))}
-                onError={(error) => setError(error)}
-                uploadUrl="/api/products/upload-image"
-              />
-            </div>
-
-            <div className="rounded-lg border border-cyan-200 bg-cyan-50 p-4 space-y-3">
-              <div className="flex items-start gap-3">
-                <Sparkles className="mt-0.5 h-5 w-5 text-cyan-700" />
-                <div>
-                  <h3 className="font-semibold text-cyan-950">Създай продукт с AI</h3>
-                  <p className="text-sm text-cyan-800">AI ще анализира снимката, ще използва съществуващите продукти като пример и ще попълни чернова. Нищо не се записва без твоето одобрение.</p>
-                </div>
-              </div>
-              <Input
-                value={aiHint}
-                onChange={(event) => setAiHint(event.target.value)}
-                placeholder="Кратка бележка, например: царевица с коноп, 4 кг"
-                className="bg-white border-cyan-200"
-              />
-              <Button type="button" onClick={handleGenerateProduct} disabled={generatingProduct || !formData.photourl} className="bg-cyan-700 hover:bg-cyan-800 text-white">
-                {generatingProduct ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Анализиране...</> : <><Sparkles className="mr-2 h-4 w-4" />Генерирай чернова</>}
-              </Button>
             </div>
 
             {/* SEO Section - Collapsible */}

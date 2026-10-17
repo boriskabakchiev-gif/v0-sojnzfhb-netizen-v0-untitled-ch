@@ -197,12 +197,34 @@ export default function AddProductPage() {
       const response = await fetch("/api/admin/products/ai-generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageUrl: aiImageUrl, hint: aiHint }),
+        body: JSON.stringify({
+          imageUrl: aiImageUrl,
+          hint: aiHint,
+          categories: categories.map((category) => ({ id: category.id || category.objectid, title: category.title })),
+          subcategories: filteredSubcategories.map((subcategory) => ({ id: subcategory.id || subcategory.objectid, title: subcategory.title })), 
+        }),
       })
       const data = await response.json()
       if (!response.ok || !data.success) throw new Error(data.error || "Грешка при генериране")
-      setFormData((previous) => ({ ...previous, ...data.product, photourl: previous.photourl }))
-      setSuccess("Черновата е генерирана. Прегледайте и коригирайте всички полета преди добавяне.")
+      const categoryMatch = categories.find((category) => category.title?.toLowerCase() === data.product.category_title?.toLowerCase())
+      const selectedCategoryId = categoryMatch?.id || categoryMatch?.objectid || ""
+      const categorySubcategories = selectedCategoryId
+        ? await (async () => {
+            const response = await fetch(`/api/admin/subcategories?categoryId=${selectedCategoryId}&limit=1000&page=1`)
+            const result = await response.json()
+            return Array.isArray(result.subcategories) ? result.subcategories : []
+          })()
+        : []
+      const subcategoryMatch = categorySubcategories.find((subcategory: Subcategory) => subcategory.title?.toLowerCase() === data.product.subcategory_title?.toLowerCase())
+      setFilteredSubcategories(categorySubcategories)
+      setFormData((previous) => ({
+        ...previous,
+        ...data.product,
+        cateid: selectedCategoryId,
+        subcateid: subcategoryMatch?.id || subcategoryMatch?.objectid || "",
+        photourl: data.imageUrl,
+      }))
+      setSuccess("Черновата е генерирана с обработена снимка, категория, подкатегория и ценови предложения. Прегледайте всичко преди добавяне.")
     } catch (error) {
       setError(error instanceof Error ? error.message : "Неуспешно генериране на продукта.")
     } finally {

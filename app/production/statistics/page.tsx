@@ -792,7 +792,13 @@ export default function ProductionStatistics() {
                                           {daySale.quantity} бр
                                         </div>
                                         <div className="text-xs sm:text-sm font-bold text-amber-600">
-                                          {toEur(daySale.value).toFixed(2)} €
+                                          Продажби: {toEur(daySale.value).toFixed(2)} €
+                                        </div>
+                                        <div className="text-xs sm:text-sm font-semibold text-slate-600">
+                                          Себестойност: {toEur(daySale.quantity * product.costValue).toFixed(2)} €
+                                        </div>
+                                        <div className="text-xs sm:text-sm font-semibold text-emerald-600">
+                                          Печалба: {toEur(daySale.value - daySale.quantity * product.costValue).toFixed(2)} €
                                         </div>
                                       </>
                                     ) : (

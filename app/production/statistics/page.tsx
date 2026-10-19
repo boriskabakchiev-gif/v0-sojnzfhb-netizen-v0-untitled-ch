@@ -726,6 +726,10 @@ export default function ProductionStatistics() {
                               <div className="text-[10px] sm:text-xs font-normal">{formatDate(date)}</div>
                             </th>
                           ))}
+                          <th className="text-center p-2 sm:p-4 font-bold text-amber-800 bg-amber-50 min-w-[130px] text-xs sm:text-sm">
+                            <div>Общо за седмицата</div>
+                            <div className="text-[10px] font-normal">количество / продажби / печалба</div>
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
@@ -808,6 +812,17 @@ export default function ProductionStatistics() {
                                 </td>
                               )
                             })}
+                            <td className="p-2 sm:p-4 text-center bg-amber-50 border-l-2 border-amber-200">
+                              <div className="text-xs sm:text-sm font-bold text-gray-800">
+                                {product.totalQuantity.toLocaleString("bg-BG")} бр
+                              </div>
+                              <div className="text-xs sm:text-sm font-bold text-amber-700">
+                                {toEur(product.totalValue).toFixed(2)} €
+                              </div>
+                              <div className="text-xs sm:text-sm font-semibold text-emerald-700">
+                                Печалба: {toEur(product.totalProfit).toFixed(2)} €
+                              </div>
+                            </td>
                           </tr>
                         ))}
                         <tr className="bg-gradient-to-r from-amber-50 to-orange-50 border-t-2 border-amber-400 font-bold">
@@ -829,6 +844,17 @@ export default function ProductionStatistics() {
                               </td>
                             )
                           })}
+                          <td className="p-2 sm:p-4 text-center bg-amber-100 border-l-2 border-amber-300">
+                            <div className="text-xs sm:text-sm font-bold text-gray-800">
+                              {weeklyStats.productSales.reduce((sum, product) => sum + product.totalQuantity, 0).toLocaleString("bg-BG")} бр
+                            </div>
+                            <div className="text-xs sm:text-sm font-bold text-amber-700">
+                              {toEur(weeklyStats.productSales.reduce((sum, product) => sum + product.totalValue, 0)).toFixed(2)} €
+                            </div>
+                            <div className="text-xs sm:text-sm font-semibold text-emerald-700">
+                              {toEur(weeklyStats.productSales.reduce((sum, product) => sum + product.totalProfit, 0)).toFixed(2)} €
+                            </div>
+                          </td>
                         </tr>
                       </tbody>
                     </table>

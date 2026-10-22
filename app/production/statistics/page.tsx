@@ -830,17 +830,26 @@ export default function ProductionStatistics() {
                             Общо за деня
                           </td>
                           {weeklyStats.workingDays.map((date) => {
-  const dailyProfit = weeklyStats.productSales.reduce((sum, product) => {
-  const daySale = product.dailySales[date]
-  if (!daySale) return sum
-  return sum + daySale.value - daySale.quantity * product.costValue
-  }, 0)
+                            const dailyTotals = weeklyStats.productSales.reduce(
+                              (totals, product) => {
+                                const daySale = product.dailySales[date]
+                                if (!daySale) return totals
+                                return {
+                                  value: totals.value + daySale.value,
+                                  profit: totals.profit + daySale.value - daySale.quantity * product.costValue,
+                                }
+                              },
+                              { value: 0, profit: 0 },
+                            )
 
-  return (
-  <td key={date} className="text-center p-2 sm:p-4 border-l border-gray-100">
-  <div className="text-sm sm:text-base font-bold text-emerald-700">
-  {dailyProfit !== 0 ? `${toEur(dailyProfit).toFixed(2)} €` : "-"}
-  </div>
+                            return (
+                              <td key={date} className="text-center p-2 sm:p-4 border-l border-gray-100">
+                                <div className="text-xs sm:text-sm font-bold text-amber-700">
+                                  Продажби: {dailyTotals.value !== 0 ? `${toEur(dailyTotals.value).toFixed(2)} €` : "-"}
+                                </div>
+                                <div className="text-xs sm:text-sm font-bold text-emerald-700">
+                                  Печалба: {dailyTotals.profit !== 0 ? `${toEur(dailyTotals.profit).toFixed(2)} €` : "-"}
+                                </div>
                               </td>
                             )
                           })}
@@ -864,7 +873,7 @@ export default function ProductionStatistics() {
                     <div className="flex items-center justify-center gap-2 text-xs sm:text-sm text-amber-800">
                       <DollarSign className="h-4 w-4" />
                       <span className="font-medium text-center">
-                        Общо за деня показва само печалбата от произведените продукти
+                        Общо за деня показва продажната стойност на цялото производство и печалбата
                       </span>
                     </div>
                   </div>

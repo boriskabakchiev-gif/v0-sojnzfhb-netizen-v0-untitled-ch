@@ -847,6 +847,9 @@ export default function ProductionStatistics() {
                                 <div className="text-xs sm:text-sm font-bold text-amber-700">
                                   Продажби: {dailyTotals.value !== 0 ? `${toEur(dailyTotals.value).toFixed(2)} €` : "-"}
                                 </div>
+                                <div className="text-xs sm:text-sm font-bold text-blue-700">
+                                  Оборот: {dailyTotals.value !== 0 ? `${toEur(dailyTotals.value).toFixed(2)} €` : "-"}
+                                </div>
                                 <div className="text-xs sm:text-sm font-bold text-emerald-700">
                                   Печалба: {dailyTotals.profit !== 0 ? `${toEur(dailyTotals.profit).toFixed(2)} €` : "-"}
                                 </div>
@@ -873,7 +876,7 @@ export default function ProductionStatistics() {
                     <div className="flex items-center justify-center gap-2 text-xs sm:text-sm text-amber-800">
                       <DollarSign className="h-4 w-4" />
                       <span className="font-medium text-center">
-                        Общо за деня показва продажната стойност на цялото производство и печалбата
+                        Общо за деня показва продажната стойност, оборота от цялото производство и печалбата
                       </span>
                     </div>
                   </div>

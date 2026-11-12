@@ -36,7 +36,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { exportOrdersToExcel } from "@/lib/excel-export"
+import { exportCustomersToExcel, exportOrdersToExcel } from "@/lib/excel-export"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   AlertDialog,
@@ -90,6 +90,10 @@ export default function OrdersPage() {
   const [totalAuthError, setTotalAuthError] = useState("")
   const [totalAuthPasswordVisible, setTotalAuthPasswordVisible] = useState(false)
   const [totalUnlocked, setTotalUnlocked] = useState(false)
+  const [showCustomerExportDialog, setShowCustomerExportDialog] = useState(false)
+  const [customerExportYear, setCustomerExportYear] = useState(String(new Date().getFullYear()))
+  const [unregisteredOnly, setUnregisteredOnly] = useState(false)
+  const [customerExportLoading, setCustomerExportLoading] = useState(false)
 
   useEffect(() => {
     const setupAndFetch = async () => {
@@ -612,6 +616,30 @@ export default function OrdersPage() {
     }
   }
 
+  const handleExportCustomers = async () => {
+    setCustomerExportLoading(true)
+    try {
+      const params = new URLSearchParams({ year: customerExportYear, unregisteredOnly: String(unregisteredOnly) })
+      const response = await fetch(`/api/admin/orders/customer-export?${params}`)
+      if (!response.ok) throw new Error("Неуспешно зареждане на клиентите")
+      const data = await response.json()
+      exportCustomersToExcel(data.customers || [], customerExportYear, unregisteredOnly)
+      toast({
+        title: "Експортът е готов",
+        description: `${data.customers.length} клиента са експортирани за ${customerExportYear} г.`,
+      })
+      setShowCustomerExportDialog(false)
+    } catch (error) {
+      toast({
+        title: "Грешка при експортиране",
+        description: error instanceof Error ? error.message : "Възникна проблем при генерирането на файла.",
+        variant: "destructive",
+      })
+    } finally {
+      setCustomerExportLoading(false)
+    }
+  }
+
   useEffect(() => {
     const initAudio = () => {
       if (!audioContext) {
@@ -659,6 +687,45 @@ export default function OrdersPage() {
 
   return (
     <div className="p-6">
+      <Dialog open={showCustomerExportDialog} onOpenChange={setShowCustomerExportDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Експорт на клиенти от поръчки</DialogTitle>
+            <DialogDescription>
+              Създайте Excel файл с уникалните клиенти, подали поне една поръчка през избраната година.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 py-2">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="customer-export-year">Година</Label>
+              <Select value={customerExportYear} onValueChange={setCustomerExportYear}>
+                <SelectTrigger id="customer-export-year">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: 7 }, (_, index) => String(new Date().getFullYear() - index)).map((year) => (
+                    <SelectItem key={year} value={year}>{year}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <label className="flex items-start gap-3 text-sm cursor-pointer">
+              <Checkbox checked={unregisteredOnly} onCheckedChange={(checked) => setUnregisteredOnly(checked === true)} />
+              <span>
+                <span className="font-medium">Само нерегистрирани клиенти</span>
+                <span className="block text-muted-foreground">Клиенти, чиито телефон или имейл не съвпадат с регистриран профил.</span>
+              </span>
+            </label>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowCustomerExportDialog(false)}>Отказ</Button>
+            <Button onClick={handleExportCustomers} disabled={customerExportLoading}>
+              <FileSpreadsheet className="h-4 w-4 mr-2" />
+              {customerExportLoading ? "Подготовка..." : "Експортирай Excel"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       {newOrdersCount > 0 && (
         <div className="mb-4 p-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg shadow-lg animate-in slide-in-from-top duration-500 border-2 border-green-400">
           <div className="flex items-center justify-between">
@@ -723,6 +790,15 @@ export default function OrdersPage() {
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
+          <Button
+            onClick={() => setShowCustomerExportDialog(true)}
+            variant="outline"
+            className="flex items-center gap-2 bg-transparent"
+            disabled={loading}
+          >
+            <User className="h-4 w-4" />
+            Експорт клиенти
+          </Button>
           <Button
             onClick={handleExportToExcel}
             variant="outline"

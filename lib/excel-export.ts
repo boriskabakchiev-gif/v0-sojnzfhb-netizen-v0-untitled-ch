@@ -20,6 +20,32 @@ interface ExcelOrder {
   items: ExcelOrderItem[]
 }
 
+interface ExportCustomer {
+  name: string
+  email: string
+  phone: string
+  orderCount: number
+  lastOrderAt: string
+}
+
+export function exportCustomersToExcel(customers: ExportCustomer[], year: string, unregisteredOnly: boolean) {
+  const rows = [
+    ["Име на клиент", "Имейл", "Телефон", "Брой поръчки", "Последна поръчка"],
+    ...customers.map((customer) => [
+      customer.name || "",
+      customer.email || "",
+      customer.phone || "",
+      customer.orderCount,
+      customer.lastOrderAt ? new Date(customer.lastOrderAt).toLocaleDateString("bg-BG") : "",
+    ]),
+  ]
+  const worksheet = XLSX.utils.aoa_to_sheet(rows)
+  worksheet["!cols"] = [{ wch: 30 }, { wch: 32 }, { wch: 20 }, { wch: 16 }, { wch: 20 }]
+  const workbook = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Клиенти")
+  XLSX.writeFile(workbook, `Klienti_${unregisteredOnly ? "Neregistrirani_" : ""}${year}.xlsx`)
+}
+
 export function exportOrdersToExcel(ordersToExport: ExcelOrder[]) {
   const rows = []
 

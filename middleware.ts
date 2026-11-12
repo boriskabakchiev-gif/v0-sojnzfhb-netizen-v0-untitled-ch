@@ -55,5 +55,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin-panel/:path*", "/api/madix-ai/admin/:path*"],
+  matcher: ["/admin-panel/:path*", "/api/madix-ai/admin/:path*", "/api/admin/orders/customer-export"],
 }

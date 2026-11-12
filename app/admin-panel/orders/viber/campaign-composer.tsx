@@ -199,6 +199,13 @@ export function ViberCampaignComposer({ contacts, year }: ViberCampaignComposerP
             {sendResult && (
               <div role="status" className="rounded-md border bg-background p-3 text-sm">
                 <p className="font-medium">Infobip прие заявката за {sendResult.submittedCount} получатели.</p>
+                {Object.entries(sendResult.statusCounts).length > 0 && (
+                  <div aria-label="Статуси от Infobip" className="mt-2 flex flex-wrap gap-2">
+                    {Object.entries(sendResult.statusCounts).map(([status, count]) => (
+                      <Badge key={status} variant="outline">{status}: {count}</Badge>
+                    ))}
+                  </div>
+                )}
                 {sendResult.bulkId && <p className="mt-1 text-xs text-muted-foreground">Bulk ID: {sendResult.bulkId}</p>}
                 <p className="mt-1 text-xs text-muted-foreground">Това потвърждава приемане от API, не крайна доставка. Проверете отчетите в Infobip.</p>
               </div>

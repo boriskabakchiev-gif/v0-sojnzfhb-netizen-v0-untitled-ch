@@ -23,6 +23,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import { CheckCircle2, MessageCircle, Search, ShieldAlert, UsersRound } from "lucide-react"
+import { ViberCampaignComposer } from "./campaign-composer"
 
 interface ViberContact {
   phoneKey: string
@@ -43,7 +44,7 @@ interface ContactResponse {
 }
 
 const fetcher = async (url: string): Promise<ContactResponse> => {
-  const response = await fetch(url)
+  const response = await fetch(new URL(url, window.location.origin))
   const data = await response.json()
   if (!response.ok) throw new Error(data.error || "Неуспешно зареждане на контактите")
   return data
@@ -92,7 +93,7 @@ export default function ViberConsentPage() {
     if (confirmOptIn === null || selectedKeys.length === 0) return
     setSaving(true)
     try {
-      const response = await fetch("/api/admin/viber-consent", {
+      const response = await fetch(new URL("/api/admin/viber-consent", window.location.origin), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -152,8 +153,8 @@ export default function ViberConsentPage() {
         <CardContent className="flex items-start gap-3 p-4">
           <ShieldAlert className="mt-0.5 size-5 shrink-0 text-amber-700" aria-hidden="true" />
           <div className="text-sm">
-            <p className="font-medium text-amber-950">Изпращането е изключено — все още няма избран Viber BSP доставчик.</p>
-            <p className="mt-1 text-amber-900/80">Този екран само подготвя списъка и записва изрично потвърдените съгласия за промоции. Номерата без записано съгласие не трябва да се включват в кампания.</p>
+            <p className="font-medium text-amber-950">Само контакти с потвърдено съгласие могат да получават промоции.</p>
+            <p className="mt-1 text-amber-900/80">Използва се официалният Infobip Viber Business Messages канал. Infobip трябва да е одобрил Viber sender; кампаниите се изпращат само до съгласилите се контакти.</p>
           </div>
         </CardContent>
       </Card>
@@ -178,6 +179,8 @@ export default function ViberConsentPage() {
           </CardHeader>
         </Card>
       </div>
+
+      <ViberCampaignComposer contacts={contacts} year={year} />
 
       <Card>
         <CardHeader>
